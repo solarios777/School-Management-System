@@ -1,30 +1,25 @@
 import Announcements from "@/components/Announcements";
-import BigCalendar from "@/components/BigCalender";
-import EventCalendar from "@/components/EventCalendar";
-import Menu from "@/components/Menu";
-import Navbar from "@/components/Navbar";
-import Image from "next/image";
-import Link from "next/link";
+import BigCalendarContainer from "@/components/BigCalendarContainer";
+import { getUserInfo } from "@/lib/utils";
 
-export default function DashboardLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+const TeacherPage = async() => {
+  const { currentUserId, role } = await getUserInfo();
+  const userId = currentUserId;
   return (
-    <div className="p-4 flex gap-4 flex-col xl:flex-row">
+    <div className="flex-1 p-4 flex gap-4 flex-col xl:flex-row">
       {/* LEFT */}
       <div className="w-full xl:w-2/3">
         <div className="h-full bg-white p-4 rounded-md">
-          <h1 className="text-xl font-semibold">Schedule (4A)</h1>
-          <BigCalendar />
+          <h1 className="text-xl font-semibold">Schedule</h1>
+          <BigCalendarContainer type="teacherId" id={userId!} />
         </div>
       </div>
       {/* RIGHT */}
       <div className="w-full xl:w-1/3 flex flex-col gap-8">
-        <EventCalendar />
         <Announcements />
       </div>
     </div>
   );
-}
+};
+
+export default TeacherPage;
