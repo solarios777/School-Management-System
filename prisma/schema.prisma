@@ -7,9 +7,32 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id")
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+ 
+  @@map("sessions")
+}
+ 
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime? @map("email_verified")
+  image         String?
+  password      String?
+  sessions      Session[]
+ 
+  @@map("users")
+}
+
 model Admin {
   id       String @id
   username String @unique
+  role UserRole @default(ADMIN)
 }
 
 model Student {
@@ -31,8 +54,10 @@ model Student {
   gradeId     Int
   grade       Grade        @relation(fields: [gradeId], references: [id])
   attendances Attendance[]
+  password      String?
   results     Result[]
   birthday    DateTime
+  role UserRole @default(STUDENT)
 }
 
 model Teacher {
@@ -51,6 +76,7 @@ model Teacher {
   lessons   Lesson[]
   classes   Class[]
   birthday  DateTime
+  role UserRole @default(TEACHER)
 }
 
 model Parent {
@@ -63,6 +89,7 @@ model Parent {
   address   String
   createdAt DateTime  @default(now())
   students  Student[]
+  role UserRole @default(PARENT)
 }
 
 model Grade {
@@ -179,6 +206,14 @@ model Announcement {
   class   Class? @relation(fields: [classId], references: [id])
 }
 
+enum UserRole {
+  ADMIN 
+  TEACHER 
+  STUDENT 
+  PARENT 
+}
+
+
 enum UserSex {
   MALE
   FEMALE
@@ -191,3 +226,5 @@ enum Day {
   THURSDAY
   FRIDAY
 }
+
+

@@ -11,6 +11,8 @@ import { createTeacher, updateTeacher } from "@/lib/actions";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { CldUploadWidget } from "next-cloudinary";
+import FormContainer from "../FormContainer";
+import FormModal from "../FormModal";
 
 const TeacherForm = ({
   type,
@@ -56,8 +58,9 @@ const TeacherForm = ({
     }
   }, [state, router, type, setOpen]);
 
-  const { subjects } = relatedData;
 
+  const { subjects } = relatedData;
+  
   return (
     <form className="flex flex-col gap-8" onSubmit={onSubmit}>
       <h1 className="text-xl font-semibold">
@@ -209,6 +212,7 @@ const TeacherForm = ({
       <button className="bg-blue-400 text-white p-2 rounded-md">
         {type === "create" ? "Create" : "Update"}
       </button>
+      
     </form>
   );
 };

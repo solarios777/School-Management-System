@@ -1,10 +1,12 @@
+
 import FormModal from "@/components/FormModal";
+import TeacherForm from "@/components/forms/TeacherForm";
 import Pagination from "@/components/Pagination";
 import Table from "@/components/Table";
 import TableSearch from "@/components/TableSearch";
 import prisma from "@/lib/prisma";
 import { ITEMS_PER_PAGE } from "@/lib/settings";
-import { getUserInfo } from "@/lib/utils";
+import {  getUserInfo } from "@/lib/utils";
 import { Class, Prisma, Subject, Teacher } from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
@@ -170,6 +172,7 @@ const TeacherListPage = async ({
       <Table columns={columns} renderRow={renderRow} data={data} />
       {/* PAGINATION */}
       <Pagination page={p} count={count}/>
+      
     </div>
   );
 };

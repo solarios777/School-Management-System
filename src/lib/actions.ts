@@ -11,6 +11,12 @@ import {
 import prisma from "./prisma";
 import { clerkClient } from "@clerk/nextjs/server";
 
+console.log("clerk client", clerkClient);
+
+
+
+
+
 type CurrentState = { success: boolean; error: boolean };
 
 export const createSubject = async (
@@ -142,6 +148,7 @@ export const createTeacher = async (
   data: TeacherSchema
 ) => {
   try {
+    
     const user = await clerkClient.users.createUser({
       username: data.username,
       password: data.password,
@@ -231,6 +238,7 @@ export const deleteTeacher = async (
 ) => {
   const id = data.get("id") as string;
   try {
+    
     await clerkClient.users.deleteUser(id);
 
     await prisma.teacher.delete({
