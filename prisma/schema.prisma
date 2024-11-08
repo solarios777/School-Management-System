@@ -36,7 +36,7 @@ model Admin {
 }
 
 model Student {
-  id          String       @id
+  id          String @id @default(cuid())
   username    String       @unique
   name        String
   surname     String
@@ -47,19 +47,13 @@ model Student {
   bloodType   String
   sex         UserSex
   createdAt   DateTime     @default(now())
-  classId     Int
-  class       Class        @relation(fields: [classId], references: [id])
-  gradeId     Int
-  grade       Grade        @relation(fields: [gradeId], references: [id])
-  attendances Attendance[]
   password      String?
-  results     Result[]
   birthday    DateTime
   role UserRole @default(STUDENT)
 }
 
 model Teacher {
-  id        String @id @default(uuid())
+  id        String @id @default(cuid())
   username  String    @unique
   name      String
   surname   String
@@ -96,8 +90,6 @@ model Grade {
   id    Int @id @default(autoincrement())
   level Int @unique
 
-  students Student[]
-  classess Class[]
 }
 
 model Class {
@@ -107,9 +99,7 @@ model Class {
 
   supervisorId  String?
   lessons       Lesson[]
-  students      Student[]
   gradeId       Int
-  grade         Grade          @relation(fields: [gradeId], references: [id])
   events        Event[]
   announcements Announcement[]
 }
@@ -137,7 +127,6 @@ model Exam {
   title     String
   startTime DateTime
   endTime   DateTime
-
   lessonId Int
   lesson   Lesson   @relation(fields: [lessonId], references: [id])
   results  Result[]
@@ -162,17 +151,12 @@ model Result {
   exam         Exam?       @relation(fields: [examId], references: [id])
   assignmentId Int?
   assignment   Assignment? @relation(fields: [assignmentId], references: [id])
-  studentId    String
-  student      Student     @relation(fields: [studentId], references: [id])
 }
 
 model Attendance {
   id      Int      @id @default(autoincrement())
   date    DateTime
   present Boolean
-
-  studentId String
-  student   Student @relation(fields: [studentId], references: [id])
   lessonId  Int
   lesson    Lesson  @relation(fields: [lessonId], references: [id])
 }
@@ -203,6 +187,7 @@ enum UserRole {
   TEACHER 
   STUDENT 
   PARENT 
+
 }
 
 

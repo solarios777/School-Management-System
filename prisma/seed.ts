@@ -1,4 +1,4 @@
-import { PrismaClient, UserSex } from '@prisma/client';
+import { PrismaClient, UserSex, UserRole } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -33,7 +33,9 @@ async function main() {
             phone: '0912345678',
             address: 'Addis Ababa',
             bloodType: 'O+',
-            sex: UserSex.MALE, // Use the enum value
+            sex: UserSex.MALE,
+            role: UserRole.TEACHER, // Set default role
+            password: 'securepassword1', // Add password
         },
         {
             username: 'teacher2',
@@ -43,7 +45,9 @@ async function main() {
             phone: '0912345679',
             address: 'Addis Ababa',
             bloodType: 'A+',
-            sex: UserSex.FEMALE, // Use the enum value
+            sex: UserSex.FEMALE,
+            role: UserRole.TEACHER,
+            password: 'securepassword2',
         },
         {
             username: 'teacher3',
@@ -53,7 +57,9 @@ async function main() {
             phone: '0912345680',
             address: 'Addis Ababa',
             bloodType: 'B+',
-            sex: UserSex.MALE, // Use the enum value
+            sex: UserSex.MALE,
+            role: UserRole.TEACHER,
+            password: 'securepassword3',
         },
         {
             username: 'teacher4',
@@ -63,7 +69,9 @@ async function main() {
             phone: '0912345681',
             address: 'Addis Ababa',
             bloodType: 'AB+',
-            sex: UserSex.FEMALE, // Use the enum value
+            sex: UserSex.FEMALE,
+            role: UserRole.TEACHER,
+            password: 'securepassword4',
         },
         {
             username: 'teacher5',
@@ -73,7 +81,9 @@ async function main() {
             phone: '0912345682',
             address: 'Addis Ababa',
             bloodType: 'O-',
-            sex: UserSex.MALE, // Use the enum value
+            sex: UserSex.MALE,
+            role: UserRole.TEACHER,
+            password: 'securepassword5',
         },
         {
             username: 'teacher6',
@@ -83,7 +93,9 @@ async function main() {
             phone: '0912345683',
             address: 'Addis Ababa',
             bloodType: 'A-',
-            sex: UserSex.FEMALE, // Use the enum value
+            sex: UserSex.FEMALE,
+            role: UserRole.TEACHER,
+            password: 'securepassword6',
         },
         {
             username: 'teacher7',
@@ -93,7 +105,9 @@ async function main() {
             phone: '0912345684',
             address: 'Addis Ababa',
             bloodType: 'B-',
-            sex: UserSex.MALE, // Use the enum value
+            sex: UserSex.MALE,
+            role: UserRole.TEACHER,
+            password: 'securepassword7',
         },
         {
             username: 'teacher8',
@@ -103,7 +117,9 @@ async function main() {
             phone: '0912345685',
             address: 'Addis Ababa',
             bloodType: 'O+',
-            sex: UserSex.FEMALE, // Use the enum value
+            sex: UserSex.FEMALE,
+            role: UserRole.TEACHER,
+            password: 'securepassword8',
         },
         {
             username: 'teacher9',
@@ -113,7 +129,9 @@ async function main() {
             phone: '0912345686',
             address: 'Addis Ababa',
             bloodType: 'A+',
-            sex: UserSex.MALE, // Use the enum value
+            sex: UserSex.MALE,
+            role: UserRole.TEACHER,
+            password: 'securepassword9',
         },
         {
             username: 'teacher10',
@@ -123,7 +141,9 @@ async function main() {
             phone: '0912345687',
             address: 'Addis Ababa',
             bloodType: 'AB-',
-            sex: UserSex.FEMALE, // Use the enum value
+            sex: UserSex.FEMALE,
+            role: UserRole.TEACHER,
+            password: 'securepassword10',
         },
         {
             username: 'teacher11',
@@ -133,7 +153,9 @@ async function main() {
             phone: '0912345688',
             address: 'Addis Ababa',
             bloodType: 'O+',
-            sex: UserSex.FEMALE, // Use the enum value
+            sex: UserSex.FEMALE,
+            role: UserRole.TEACHER,
+            password: 'securepassword11',
         },
         {
             username: 'teacher12',
@@ -143,7 +165,9 @@ async function main() {
             phone: '0912345689',
             address: 'Addis Ababa',
             bloodType: 'A+',
-            sex: UserSex.MALE, // Use the enum value
+            sex: UserSex.MALE,
+            role: UserRole.TEACHER,
+            password: 'securepassword12',
         },
         {
             username: 'teacher13',
@@ -153,7 +177,9 @@ async function main() {
             phone: '0912345690',
             address: 'Addis Ababa',
             bloodType: 'B+',
-            sex: UserSex.FEMALE, // Use the enum value
+            sex: UserSex.FEMALE,
+            role: UserRole.TEACHER,
+            password: 'securepassword13',
         },
         {
             username: 'teacher14',
@@ -163,7 +189,9 @@ async function main() {
             phone: '0912345691',
             address: 'Addis Ababa',
             bloodType: 'AB+',
-            sex: UserSex.FEMALE, // Use the enum value
+            sex: UserSex.FEMALE,
+            role: UserRole.TEACHER,
+            password: 'securepassword14',
         },
         {
             username: 'teacher15',
@@ -173,7 +201,9 @@ async function main() {
             phone: '0912345692',
             address: 'Addis Ababa',
             bloodType: 'O-',
-            sex: UserSex.MALE, // Use the enum value
+            sex: UserSex.MALE,
+            role: UserRole.TEACHER,
+            password: 'securepassword15',
         },
     ];
 

@@ -2,11 +2,11 @@
 import * as z from "zod"
 import bcrypt from "bcryptjs"
 
-import { teacherSchema} from "../schema";
-import { error } from "console";
+import { studentSchema} from "../schema";
+
 import prisma from "@/lib/prisma";
-export const teacherRegister=async(values: z.infer<typeof teacherSchema>) => {
-    const valdatedfields = teacherSchema.parse(values)
+export const studentRegister=async(values: z.infer<typeof studentSchema>) => {
+    const valdatedfields = studentSchema.parse(values)
     if(!valdatedfields){
         return {error:"Invalid Credentials"}
     }
@@ -28,21 +28,20 @@ export const teacherRegister=async(values: z.infer<typeof teacherSchema>) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    const existingUser = await prisma.teacher.findUnique({
+    const existingUser = await prisma.student.findUnique({
         where:{
             username
         }
       
     })
-    const existingEmail = await prisma.teacher.findUnique({
+    const existingEmail = await prisma.student.findUnique({
         where:{
             email
         }
       
     }) 
-    const existingPhone = await prisma.teacher.findUnique({
+    const existingPhone = await prisma.student.findUnique({
         where:{
-            
             phone
         }
       
@@ -57,7 +56,7 @@ export const teacherRegister=async(values: z.infer<typeof teacherSchema>) => {
     if(existingPhone){
         return {error:"phone already in use!"}
     }
-    await prisma.teacher.create({
+    await prisma.student.create({
         data:{
             username,
             password:hashedPassword,

@@ -14,43 +14,44 @@ import{
 import * as z from "zod"
 
 
-import { teacherSchema } from "../../../schema/index";
+import { studentSchema } from "../../../schema/index";
 
 import { CardWrapper } from "./card_wrapper";
 import { Button } from "../ui/button";
 import { FormError } from "../form-error";
 import { Formsuccess } from "../form-success";
 
-import { teacherRegister } from "../../../actions/teacherRegister";
+import { studentRegister  } from "../../../actions/studentRegister";
 
-export const TeacherForm = () => {
+export const StudentForm = () => {
      const [isPending, startTransition] = useTransition();
      const [success, setSuccess] = useState("")
      const [error, setError] = useState("")
 
-    const form = useForm<z.infer<typeof teacherSchema>>({
-        resolver: zodResolver(teacherSchema),
+    const form = useForm<z.infer<typeof studentSchema>>({
+        resolver: zodResolver(studentSchema),
         defaultValues: {
             username: "",
+            email: "",
+          
             name: "",
             surname: "",
-            email: "",
             phone: "",
             address: "",
             img: "",
             bloodType: "",
             birthday: new Date(),
             sex: "MALE",
-            role: "TEACHER", 
+            role: "STUDENT",
         },
     })
 
-    const onSubmit = (values: z.infer<typeof teacherSchema>) => {
+    const onSubmit = (values: z.infer<typeof studentSchema>) => {
        setError("")
        setSuccess("")
 
         startTransition(() => {
-            teacherRegister(values)
+            studentRegister(values)
             .then((res) => {
                 if(res.success){
                     setSuccess(res.success)
@@ -65,7 +66,7 @@ export const TeacherForm = () => {
     }
     return (
         <CardWrapper
-            headerLebel="Create a Teacher Account"
+            headerLebel="Create a student Account"
             backButtonLabel="Already have an account?"
             backButtonHref="/auth/login"
         >
@@ -100,7 +101,7 @@ export const TeacherForm = () => {
                             name="name"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Name</FormLabel>
+                                    <FormLabel>First Name</FormLabel>
                                     <FormControl>
                                         <input
                                             type="text"
@@ -122,7 +123,7 @@ export const TeacherForm = () => {
                             name="surname"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Surname</FormLabel>
+                                    <FormLabel>Last Name</FormLabel>
                                     <FormControl>
                                         <input
                                             type="text"
@@ -293,14 +294,14 @@ export const TeacherForm = () => {
                                             {...field}
                                             disabled={isPending}
                                         >
-                                            <option value="TEACHER">TEACHER</option>
-                                            <option value="ADMIN">ADMIN</option>
+                                            <option value="STUDENT">Student</option>
                                         </select>
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
+
                     </div>
 
                     <FormError message={error} />
