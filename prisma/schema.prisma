@@ -47,8 +47,6 @@ model Student {
   bloodType   String
   sex         UserSex
   createdAt   DateTime     @default(now())
-  parentId    String
-  parent      Parent       @relation(fields: [parentId], references: [id])
   classId     Int
   class       Class        @relation(fields: [classId], references: [id])
   gradeId     Int
@@ -61,7 +59,7 @@ model Student {
 }
 
 model Teacher {
-  id        String    @id
+  id        String @id @default(uuid())
   username  String    @unique
   name      String
   surname   String
@@ -72,11 +70,14 @@ model Teacher {
   bloodType String
   sex       UserSex
   createdAt DateTime  @default(now())
-  subjects  Subject[]
-  lessons   Lesson[]
-  classes   Class[]
-  birthday  DateTime
-  role UserRole @default(TEACHER)
+  birthday  DateTime?
+  role      UserRole @default(TEACHER)
+  password  String?
+}
+
+model Subject {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
 }
 
 model Parent {
@@ -88,7 +89,6 @@ model Parent {
   phone     String    @unique
   address   String
   createdAt DateTime  @default(now())
-  students  Student[]
   role UserRole @default(PARENT)
 }
 
@@ -106,7 +106,6 @@ model Class {
   capacity Int
 
   supervisorId  String?
-  supervisor    Teacher?       @relation(fields: [supervisorId], references: [id])
   lessons       Lesson[]
   students      Student[]
   gradeId       Int
@@ -115,12 +114,7 @@ model Class {
   announcements Announcement[]
 }
 
-model Subject {
-  id       Int       @id @default(autoincrement())
-  name     String    @unique
-  teachers Teacher[]
-  lessons  Lesson[]
-}
+
 
 model Lesson {
   id        Int      @id @default(autoincrement())
@@ -130,11 +124,9 @@ model Lesson {
   endTime   DateTime
 
   subjectId   Int
-  subject     Subject      @relation(fields: [subjectId], references: [id])
   classId     Int
   class       Class        @relation(fields: [classId], references: [id])
   teacherId   String
-  teacher     Teacher      @relation(fields: [teacherId], references: [id])
   exams       Exam[]
   assignments Assignment[]
   attendances Attendance[]

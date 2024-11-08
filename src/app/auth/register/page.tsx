@@ -1,11 +1,12 @@
-import { RegisterForm } from "@/components/auth/userRegister-form";
+// import { TeacherForm } from "@/components/auth/teacherRegister-form"; 
+import { SubjectForm } from "@/components/auth/subjectRegister-form";
 
-const Register= () => {
+const register = () => {
   return (
     <div>
-      <RegisterForm />
+      <SubjectForm /> 
     </div>
   );
 }
 
-export default Register;
+export default register;

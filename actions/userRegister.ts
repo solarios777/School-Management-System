@@ -1,7 +1,7 @@
 "use server"
 import * as z from "zod"
 import bcrypt from "bcryptjs"
-import { RegisterSchema } from "@/lib/formValidationSchemas";
+import { RegisterSchema } from "../schema/index";
 import prisma from "@/lib/prisma";
 import { getUserByEmail } from "../data/user";
 

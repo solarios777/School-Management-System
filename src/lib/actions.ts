@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+
 import {
   ClassSchema,
   ExamSchema,
@@ -9,16 +9,16 @@ import {
   TeacherSchema,
 } from "./formValidationSchemas";
 import prisma from "./prisma";
-import { clerkClient } from "@clerk/nextjs/server";
 
-console.log("clerk client", clerkClient);
-
+import uuidv4 from "uuidv4";
 
 
 
 
 type CurrentState = { success: boolean; error: boolean };
 
+
+// SUBJECT  SUBJECT  SUBJECT  SUBJECT  SUBJECT  SUBJECT  SUBJECT 
 export const createSubject = async (
   currentState: CurrentState,
   data: SubjectSchema
@@ -86,6 +86,9 @@ export const deleteSubject = async (
   }
 };
 
+
+
+// CLASS  CLASS  CLASS  CLASS  CLASS  CLASS  CLASS  CLASS
 export const createClass = async (
   currentState: CurrentState,
   data: ClassSchema
@@ -143,25 +146,23 @@ export const deleteClass = async (
   }
 };
 
+
+
+// TEACHER  TEACHER  TEACHER  TEACHER  TEACHER  TEACHER  TEACHER
 export const createTeacher = async (
-  currentState: CurrentState,
+  
   data: TeacherSchema
 ) => {
+
+  
   try {
     
-    const user = await clerkClient.users.createUser({
-      username: data.username,
-      password: data.password,
-      firstName: data.name,
-      lastName: data.surname,
-      publicMetadata:{role:"teacher"}
-    });
-
     await prisma.teacher.create({
       data: {
-        id: user.id,
+        id: data.id,
         username: data.username,
         name: data.name,
+        password: data.password,
         surname: data.surname,
         email: data.email || null,
         phone: data.phone || null,
@@ -178,6 +179,8 @@ export const createTeacher = async (
       },
     });
 
+    
+    
     // revalidatePath("/list/teachers");
     return { success: true, error: false };
   } catch (err) {
@@ -194,12 +197,7 @@ export const updateTeacher = async (
     return { success: false, error: true };
   }
   try {
-    const user = await clerkClient.users.updateUser(data.id, {
-      username: data.username,
-      ...(data.password !== "" && { password: data.password }),
-      firstName: data.name,
-      lastName: data.surname,
-    });
+    
 
     await prisma.teacher.update({
       where: {
@@ -239,7 +237,7 @@ export const deleteTeacher = async (
   const id = data.get("id") as string;
   try {
     
-    await clerkClient.users.deleteUser(id);
+   
 
     await prisma.teacher.delete({
       where: {
@@ -255,6 +253,8 @@ export const deleteTeacher = async (
   }
 };
 
+
+// STUDENT  STUDENT  STUDENT  STUDENT  STUDENT  STUDENT  STUDENT
 export const createStudent = async (
   currentState: CurrentState,
   data: StudentSchema
@@ -270,17 +270,11 @@ export const createStudent = async (
       return { success: false, error: true };
     }
 
-    const user = await clerkClient.users.createUser({
-      username: data.username,
-      password: data.password,
-      firstName: data.name,
-      lastName: data.surname,
-      publicMetadata:{role:"student"}
-    });
+   
 
     await prisma.student.create({
       data: {
-        id: user.id,
+        id: "dd",
         username: data.username,
         name: data.name,
         surname: data.surname,
@@ -313,12 +307,7 @@ export const updateStudent = async (
     return { success: false, error: true };
   }
   try {
-    const user = await clerkClient.users.updateUser(data.id, {
-      username: data.username,
-      ...(data.password !== "" && { password: data.password }),
-      firstName: data.name,
-      lastName: data.surname,
-    });
+    
 
     await prisma.student.update({
       where: {
@@ -355,7 +344,7 @@ export const deleteStudent = async (
 ) => {
   const id = data.get("id") as string;
   try {
-    await clerkClient.users.deleteUser(id);
+    
 
     await prisma.student.delete({
       where: {
@@ -371,6 +360,8 @@ export const deleteStudent = async (
   }
 };
 
+
+// EXAM  EXAM  EXAM  EXAM  EXAM  EXAM  EXAM  EXAM
 export const createExam = async (
   currentState: CurrentState,
   data: ExamSchema

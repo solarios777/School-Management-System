@@ -1,28 +1,32 @@
 "use client";
 import { useForm } from "react-hook-form";
 import { useState, useTransition } from "react";
+
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
+import{
     Form,
     FormControl,
     FormField,
     FormItem,
     FormLabel,
     FormMessage
-} from "@/components/ui/form";
-import * as z from "zod";
+} from "@/components/ui/form"
+import * as z from "zod"
+
 
 import { teacherSchema } from "../../../schema/index";
-import { CardWrapper } from "../auth/card_wrapper";
+
+import { CardWrapper } from "./card_wrapper";
 import { Button } from "../ui/button";
 import { FormError } from "../form-error";
 import { Formsuccess } from "../form-success";
-import { createTeacher } from "../../../actions/teacherRegister";
 
-export const TeacherRegisterForm = () => {
-    const [isPending, startTransition] = useTransition();
-    const [success, setSuccess] = useState("");
-    const [error, setError] = useState("");
+import { teacherRegister } from "../../../actions/teacherRegister";
+
+export const TeacherForm = () => {
+     const [isPending, startTransition] = useTransition();
+     const [success, setSuccess] = useState("")
+     const [error, setError] = useState("")
 
     const form = useForm<z.infer<typeof teacherSchema>>({
         resolver: zodResolver(teacherSchema),
@@ -33,31 +37,28 @@ export const TeacherRegisterForm = () => {
             surname: "",
             email: "",
             phone: "",
-            address: "",    
+            address: "",
             img: "",
             bloodType: "",
-            birthday: new Date(),    
+            birthday: new Date(),
             sex: "MALE",
-            subjects: [],
-            id: "",
-            role: "TEACHER",
-
+            role: "TEACHER", 
         },
-    });
+    })
 
-    const onSubmit = (data: z.infer<typeof teacherSchema>) => {
+    const onSubmit = (values: z.infer<typeof teacherSchema>) => {
        setError("")
        setSuccess("")
 
         startTransition(() => {
-            createTeacher(data)
+            teacherRegister(values)
             .then((res) => {
                 if(res.success){
-                    setSuccess("success")
+                    setSuccess(res.success)
                     setError("")
                 }
                 if(res.error){
-                    setError("error")
+                    setError(res.error)
                     setSuccess("")
                 }
             })
@@ -316,88 +317,13 @@ export const TeacherRegisterForm = () => {
                                             disabled={isPending}
                                         >
                                             <option value="TEACHER">TEACHER</option>
-                                            <option value="TEACHER_PLUS">TEACHER_PLUS</option>
+                                            <option value="ADMIN">ADMIN</option>
                                         </select>
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
-
-                        {/* Subjects Field */}
-                        <FormField
-                            control={form.control}
-                            name="subjects"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Subjects</FormLabel>
-                                    <FormControl>
-                                        <input
-                                            type="text"
-                                            id="subjects"
-                                            placeholder="Enter subjects (comma separated)"
-                                            className="input-bordered input w-full"
-                                            {...field}
-                                            disabled={isPending}
-                                            onChange={(e) => {
-                                                field.onChange(e.target.value.split(',').map(s => s.trim()));
-                                            }}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        {/* Lessons Field */}
-                        {/* <FormField
-                            control={form.control}
-                            name="lessons"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Lessons</FormLabel>
-                                    <FormControl>
-                                        <input
-                                            type="text"
-                                            id="lessons"
-                                            placeholder="Enter lessons (comma separated)"
-                                            className="input-bordered input w-full"
-                                            {...field}
-                                            disabled={isPending}
-                                            onChange={(e) => {
-                                                field.onChange(e.target.value.split(',').map(s => s.trim()));
-                                            }}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        /> */}
-
-                        {/* Classes Field */}
-                        {/* <FormField
-                            control={form.control}
-                            name="classes"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Classes</FormLabel>
-                                    <FormControl>
-                                        <input
-                                            type="text"
-                                            id="classes"
-                                            placeholder="Enter classes (comma separated)"
-                                            className="input-bordered input w-full"
-                                            {...field}
-                                            disabled={isPending}
-                                            onChange={(e) => {
-                                                field.onChange(e.target.value.split(',').map(s => s.trim()));
-                                            }}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        /> */}
                     </div>
 
                     <FormError message={error} />
@@ -408,4 +334,4 @@ export const TeacherRegisterForm = () => {
             </Form>
         </CardWrapper>
     );
-};
+  };

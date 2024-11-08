@@ -14,7 +14,7 @@ import{
 import * as z from "zod"
 
 
-import { RegisterSchema } from "@/lib/formValidationSchemas";
+import { RegisterSchema } from "../../../schema/index";
 
 import { CardWrapper } from "./card_wrapper";
 import { Button } from "../ui/button";

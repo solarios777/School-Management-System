@@ -33,6 +33,8 @@ export const classSchema = z.object({
 
 export type ClassSchema = z.infer<typeof classSchema>;
 
+
+
 export const teacherSchema = z.object({
   id: z.string().optional(),
   username: z
@@ -58,6 +60,7 @@ export const teacherSchema = z.object({
   birthday: z.coerce.date({ message: "Birthday is required!" }),
   sex: z.enum(["MALE", "FEMALE"], { message: "Sex is required!" }),
   subjects: z.array(z.string()).optional(), // subject ids
+  role: z.enum(["TEACHER", "TEACHER_PLUS"], { message: "Role is required!" }), // Add roles as needed
 });
 
 export type TeacherSchema = z.infer<typeof teacherSchema>;
