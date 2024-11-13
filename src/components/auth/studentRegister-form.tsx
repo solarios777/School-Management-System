@@ -27,6 +27,7 @@ export const StudentForm = () => {
      const [isPending, startTransition] = useTransition();
      const [success, setSuccess] = useState("")
      const [error, setError] = useState("")
+     const [password, setPassword] = useState("")
 
     const form = useForm<z.infer<typeof studentSchema>>({
         resolver: zodResolver(studentSchema),
@@ -55,6 +56,7 @@ export const StudentForm = () => {
             .then((res) => {
                 if(res.success){
                     setSuccess(res.success)
+                    setPassword(res.password)
                     setError("")
                 }
                 if(res.error){
@@ -306,6 +308,7 @@ export const StudentForm = () => {
 
                     <FormError message={error} />
                     <Formsuccess message={success} />
+                    <Formsuccess message={password} />
 
                     <Button type="submit" className="w-full" disabled={isPending}>Register</Button>
                 </form>

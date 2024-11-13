@@ -26,6 +26,8 @@ import { teacherRegister } from "../../../actions/teacherRegister";
 export const TeacherForm = () => {
      const [isPending, startTransition] = useTransition();
      const [success, setSuccess] = useState("")
+     const [password, setPassword] = useState("")
+
      const [error, setError] = useState("")
 
     const form = useForm<z.infer<typeof teacherSchema>>({
@@ -54,6 +56,7 @@ export const TeacherForm = () => {
             .then((res) => {
                 if(res.success){
                     setSuccess(res.success)
+                    setPassword(res.password)
                     setError("")
                 }
                 if(res.error){
@@ -305,6 +308,7 @@ export const TeacherForm = () => {
 
                     <FormError message={error} />
                     <Formsuccess message={success} />
+                    <Formsuccess message={password} />
 
                     <Button type="submit" className="w-full" disabled={isPending}>Register</Button>
                 </form>

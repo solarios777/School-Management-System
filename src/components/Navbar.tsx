@@ -1,9 +1,15 @@
 import { UserButton } from "@clerk/nextjs";
-import { currentUser } from "@clerk/nextjs/server";
+import { currentUser } from "@/lib/auth";
 import Image from "next/image";
 
+
 const Navbar = async () => {
-  const user = await currentUser();
+  const user= await currentUser()
+  const role = user?.role
+  const userId = user?.id
+  const username = user?.name
+  console.log(user);
+  
   
   
   
@@ -30,8 +36,8 @@ const Navbar = async () => {
           </div>
         </div>
         <div className="flex flex-col">
-          <span className="text-xs leading-3 font-medium">John Doe</span>
-          <span className="text-[10px] text-gray-500 text-right">{user?.publicMetadata.role as string}</span>
+          <span className="text-xs leading-3 font-medium">{username}</span>
+          <span className="text-[10px] text-gray-500 text-right">{role}</span>
         </div>
         {/* <Image
           src="/avatar.png"
@@ -40,7 +46,7 @@ const Navbar = async () => {
           height={36}
           className="rounded-full"
         /> */}
-        <UserButton/>
+        {/* <UserButton/> */}
       </div>
     </div>
   );

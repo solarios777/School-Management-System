@@ -2,8 +2,11 @@ import { z } from "zod";
 
 
 export const LoginSchema = z.object({
-    username: z.string().min(1, { message: "Username is required!" }),
-    password: z.string().min(1, { message: "Password is required!" }),
+    name: z.string().min(1, "Username is required"),
+    password: z.string().min(6, "Password must be at least 6 characters"),
+    role: z.enum(["user", "parent", "student", "teacher", "admin"], {
+        errorMap: () => ({ message: "Role is required" }),
+    }),
 });
 
 export const RegisterSchema = z.object({
@@ -12,6 +15,15 @@ export const RegisterSchema = z.object({
     name: z.string().min(1, { message: "First name is required!" }),    
    
 });
+
+
+export const AdminSchema = z.object({
+  id: z.string().optional(),
+  username: z.string().min(3, 'Username must be at least 3 characters').max(50, 'Username must be at most 50 characters'),
+  password: z.string().min(6, 'Password must be at least 6 characters').max(100, 'Password must be at most 100 characters'),
+});
+
+export type AdminFormValues = z.infer<typeof AdminSchema>;
 // Ensure UserRole and UserSex enums are defined and imported
 
 export const teacherSchema = z.object({

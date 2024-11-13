@@ -1,23 +1,41 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
-import { routeAccessMap } from "./lib/settings";
-import { NextResponse } from "next/server";
+// 
 
-const matchers = Object.keys(routeAccessMap).map((route) => ({
-  matcher: createRouteMatcher([route]),
-  allowedRoles: routeAccessMap[route],
-}));
+import authConfig from "../auth.config"
+import NextAuth from "next-auth"
+import {
+  apiAuthPrefix,
+  authRoutes,
+  publicRoutes, 
+  DEFAULT_LOGIN_REDIRECT
+} from "../routes"
 
-export default clerkMiddleware(async (auth, req) => {
-  const { sessionClaims } = await auth(); 
-  
-  const role = (sessionClaims?.metadata as { role?: string })?.role;
-  
+const { auth } = NextAuth(authConfig)
 
-  for (const { matcher, allowedRoles } of matchers) {
-    if (matcher(req) && !allowedRoles.includes(role!)) {
-      return NextResponse.redirect(new URL(`/${role}`, req.url));
-    }
+export default auth((req) => {
+  const {nextUrl}=req
+  const isLoggedIn = !!req.auth
+
+  const isApiAuthRoute = req.nextUrl.pathname.startsWith(apiAuthPrefix)
+  const isAuthRoute = authRoutes.includes(nextUrl.pathname)
+  const isPublicRoute = publicRoutes.includes(nextUrl.pathname)
+
+  if (isApiAuthRoute) {
+    return 
   }
+
+  if (isAuthRoute) {
+    if (isLoggedIn) {
+      return Response.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl))
+    }
+    return 
+  }
+  
+  if(!isLoggedIn && !isPublicRoute){
+    return Response.redirect(new URL("/auth/login", nextUrl))
+  } 
+
+  return 
+  
 });
 
 export const config = {

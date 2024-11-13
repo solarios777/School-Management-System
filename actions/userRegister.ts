@@ -3,7 +3,7 @@ import * as z from "zod"
 import bcrypt from "bcryptjs"
 import { RegisterSchema } from "../schema/index";
 import prisma from "@/lib/prisma";
-import { getUserByEmail } from "../data/user";
+import { getUserByEmail } from "../data/getUser";
 
 export const Register=async(values: z.infer<typeof RegisterSchema>) => {
     const valdatedFields = RegisterSchema.parse(values)

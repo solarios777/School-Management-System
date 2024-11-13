@@ -1,26 +1,34 @@
-"use client"
+"use client";
 import { useRouter } from "next/navigation";
- 
+import React from "react";
+
 interface LoginButtonProps {
   children: React.ReactNode;
-  mode?:"model" | "redirect";
+  mode?: "modal" | "redirect";
   asChild?: boolean;
 }
 
-export const LoginButton=({ children, mode="redirect", asChild }: LoginButtonProps) =>{
+export const LoginButton = ({ children, mode = "redirect", asChild }: LoginButtonProps) => {
+  const router = useRouter();
 
-    const router = useRouter();
+  const onClick = () => {
+    router.push("/auth/login");
+  };
 
-    const onClick = () => {
-      router.push("/auth/login")
-      
-    }
-    if(mode==="model"){
-        return (
-            <span>
-                TODO: add login modal
-            </span>
-        )
-    }
-  return <>{asChild ? children : <button onClick={onClick}> {children}</button>}</>
-}
+  if (mode === "modal") {
+    return <span>TODO: add login modal</span>;
+  }
+
+  // If asChild is true, render children directly without a button wrapper
+  return (
+    <>
+      {asChild ? (
+        React.cloneElement(children as React.ReactElement, { onClick }) // Pass onClick to the child button
+      ) : (
+        <button onClick={onClick} className="your-button-class">
+          {children}
+        </button>
+      )}
+    </>
+  );
+};

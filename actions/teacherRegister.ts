@@ -2,16 +2,16 @@
 import * as z from "zod"
 import bcrypt from "bcryptjs"
 
-import { teacherSchema} from "../schema";
-import { error } from "console";
+import { teacherSchema } from "../schema";
 import prisma from "@/lib/prisma";
-export const teacherRegister=async(values: z.infer<typeof teacherSchema>) => {
-    const valdatedfields = teacherSchema.parse(values)
-    if(!valdatedfields){
-        return {error:"Invalid Credentials"}
+
+export const teacherRegister = async (values: z.infer<typeof teacherSchema>) => {
+    const validatedFields = teacherSchema.parse(values);
+    if (!validatedFields) {
+        return { error: "Invalid Credentials" };
     }
 
-    const {username, name, surname, email, phone, address, img, bloodType, birthday, sex, role}=valdatedfields
+    const { username, name, surname, email, phone, address, img, bloodType, birthday, sex, role } = validatedFields;
 
     // Function to generate a random 6-character password
     const generateRandomPassword = () => {
@@ -23,44 +23,34 @@ export const teacherRegister=async(values: z.infer<typeof teacherSchema>) => {
         return password;
     };
 
-    const password = generateRandomPassword(); 
-    
+    const password = generateRandomPassword();
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
     const existingUser = await prisma.teacher.findUnique({
-        where:{
-            username
-        }
-      
-    })
+        where: { username }
+    });
     const existingEmail = await prisma.teacher.findUnique({
-        where:{
-            email
-        }
-      
-    }) 
+        where: { email }
+    });
     const existingPhone = await prisma.teacher.findUnique({
-        where:{
-            
-            phone
-        }
-      
-    })
+        where: { phone }
+    });
 
-    if(existingUser){
-        return {error:"username already in use!"}
+    if (existingUser) {
+        return { error: "Username already in use!" };
     }
-    if(existingEmail){
-        return {error:"email already in use!"}
+    if (existingEmail) {
+        return { error: "Email already in use!" };
     }
-    if(existingPhone){
-        return {error:"phone already in use!"}
+    if (existingPhone) {
+        return { error: "Phone already in use!" };
     }
+
     await prisma.teacher.create({
-        data:{
+        data: {
             username,
-            password:hashedPassword,
+            password: hashedPassword,
             name,
             surname,
             email,
@@ -72,10 +62,11 @@ export const teacherRegister=async(values: z.infer<typeof teacherSchema>) => {
             sex,
             role
         }
-    })
-
-
-
-    return {success:"account created successfully"} 
-    
+    });
+ 
+ 
+    return { 
+        success: "Account created successfully", 
+        password: `Password is: ${password}` 
+    }; 
 }

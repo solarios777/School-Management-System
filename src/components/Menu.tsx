@@ -1,7 +1,8 @@
-
-import { currentUser } from "@clerk/nextjs/server";
+"use client";
 import Image from "next/image";
 import Link from "next/link";
+import { useCurrentUser } from "../../hooks/use-currentUser";
+
 
 const menuItems = [
   {
@@ -124,9 +125,10 @@ const menuItems = [
   },
 ];
 
-const Menu = async () => {
-  const user = await currentUser();
-  const role = user?.publicMetadata.role as string;
+const Menu = () => {
+  const user = useCurrentUser();
+  const role = user?.role;
+
   return (
     <div className="mt-4 text-sm">
       {menuItems.map((i) => (
@@ -135,7 +137,7 @@ const Menu = async () => {
             {i.title}
           </span>
           {i.items.map((item) => {
-            if (item.visible.includes(role)) {
+            
               return (
                 <Link
                   href={item.href}
@@ -146,7 +148,7 @@ const Menu = async () => {
                   <span className="hidden lg:block">{item.label}</span>
                 </Link>
               );
-            }
+            
           })}
         </div>
       ))}

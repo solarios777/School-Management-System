@@ -1,24 +1,19 @@
-import prisma from "@/lib/prisma";
-import exp from "constants";
+// ./data/user.ts
+import {getUserByParentname, getUserByStudentname, getUserByTeachername,getUserByUsername,getUserByAdminname} from "./getUser"
 
-export const getUserByEmail= async (email: string) => {
-  try {
-    const user = await prisma.user.findUnique({
-        where: { email },
-    });
-    return user
-  } catch  {
-    return null
-  }
-}
-
-export const getUserById= async (id: string) => {
-    try {
-      const user = await prisma.user.findUnique({
-          where: {  id },
-      });
-      return user
-    } catch  {
-      return null
+export async function getUserByUsernameForRole(username: string, role: string) {
+    switch (role) {
+        case "user":
+            return await getUserByUsername(username);
+        case "parent":
+            return await getUserByParentname(username);
+        case "student":
+            return await getUserByStudentname(username);
+        case "teacher":
+            return await getUserByTeachername(username);
+        case "admin":
+            return await getUserByAdminname(username);
+        default:
+            return null; // Role not recognized
     }
-  }
+}

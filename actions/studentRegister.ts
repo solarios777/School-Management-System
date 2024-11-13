@@ -75,6 +75,8 @@ export const studentRegister=async(values: z.infer<typeof studentSchema>) => {
 
 
 
-    return {success:"account created successfully"} 
+    return {success:"account created successfully",
+        password: `Password is: ${password}`
+    } 
     
 }
