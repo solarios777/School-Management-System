@@ -1,50 +1,67 @@
+"use client";
 import Image from "next/image";
-import Link from "next/link";
+import { useState } from "react";
+import { SubjectForm } from "@/components/auth/subjectRegister-form";
+import { TeacherForm } from "@/components/auth/teacherRegister-form";
+import { StudentForm } from "@/components/auth/studentRegister-form";
+import { RegisterForm } from "@/components/auth/userRegister-form";
+import { AdminRegisterForm } from "@/components/auth/adminRegister-form";
 
 interface NavigationItem {
   icon: string;
   label: string;
-  href: string;
+  formComponent: JSX.Element; // Use JSX.Element to specify the component
 }
 
 const navigationItems: NavigationItem[] = [
   {
     icon: "/student.png",
     label: "Student",
-    href: "/list/register/student",
+    formComponent: <StudentForm />, // Reference the form component
   },
   {
     icon: "/teacher.png",
     label: "Teacher",
-    href: "/list/register/teacher",
+    formComponent: <TeacherForm />, // Reference the form component
   },
   {
-    icon: "/teacher.png",
+    icon: "/staff.png", // Changed icon to staff
     label: "Staff",
-    href: "/list/register/staff",
+    formComponent: <RegisterForm />, // Reference the form component
   },
   {
     icon: "/parent.png",
     label: "Parent",
-    href: "/list/register/parent",
+    formComponent: <AdminRegisterForm />, // Reference the form component
   },
 ];
 
 const NavigationPanel: React.FC = () => {
+  const [activeForm, setActiveForm] = useState<JSX.Element | null>(null); // State to manage active form
+
+  const handleOpenForm = (form: JSX.Element) => {
+    setActiveForm(form);
+  };
+
   return (
     <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
       <h1 className="hidden md:block text-lg font-semibold">
-        which one do you wanna register
+        Which one do you want to register?
       </h1>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
         {navigationItems.map((item, index) => (
-          <Link href={item.href} key={index}>
-            <div className="flex flex-col items-center justify-center p-4 bg-lamaYellow rounded-md hover:bg-lamaPurpleLight transition-colors duration-300">
-              <Image src={item.icon} alt={item.label} width={32} height={32} />
-              <span className="text-sm font-medium mt-2">{item.label}</span>
-            </div>
-          </Link>
+          <div
+            key={index}
+            className="flex flex-col items-center justify-center p-4 bg-lamaYellow rounded-md hover:bg-lamaPurpleLight transition-colors duration-300 cursor-pointer"
+            onClick={() => handleOpenForm(item.formComponent)} // Open the form on click
+          >
+            <Image src={item.icon} alt={item.label} width={32} height={32} />
+            <span className="text-sm font-medium mt-2">{item.label}</span>
+          </div>
         ))}
+      </div>
+      <div className="mt-4">
+        {activeForm} {/* Render the active form */}
       </div>
     </div>
   );

@@ -7,6 +7,7 @@ import Image from "next/image";
 import { Parent, Prisma, Student } from "@prisma/client";
 import prisma from "@/lib/prisma";
 import { useCurrentUser } from "../../../../../hooks/use-currentUser";
+import { currentUser } from "@/lib/auth";
 
 
 type ParentList= Parent & {
@@ -20,7 +21,7 @@ const ParentListPage = async ({
 }: {
   searchParams: { [key: string]: string | undefined };
 })  => {
-  const user=useCurrentUser()
+  const user= await currentUser()
   const role = user?.role
   const currentUserId=user?.id
   const columns = [

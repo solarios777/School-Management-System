@@ -11,8 +11,8 @@ const register = () => {
   return (
     <div>
       {/* <StudentForm />  */}
-      <TeacherForm/>
-      {/* <AdminRegisterForm/> */}
+      {/* <TeacherForm/> */}
+      <AdminRegisterForm/>
       {/* <RegisterForm/> */}
     </div>
   );

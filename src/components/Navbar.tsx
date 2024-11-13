@@ -1,6 +1,9 @@
-import { UserButton } from "@clerk/nextjs";
+
 import { currentUser } from "@/lib/auth";
 import Image from "next/image";
+import { UserButton } from "./auth/user-button";
+
+
 
 
 const Navbar = async () => {
@@ -8,9 +11,9 @@ const Navbar = async () => {
   const role = user?.role
   const userId = user?.id
   const username = user?.name
-  console.log(user);
   
   
+   
   
   
   return (
@@ -39,6 +42,7 @@ const Navbar = async () => {
           <span className="text-xs leading-3 font-medium">{username}</span>
           <span className="text-[10px] text-gray-500 text-right">{role}</span>
         </div>
+       
         {/* <Image
           src="/avatar.png"
           alt=""
@@ -46,7 +50,7 @@ const Navbar = async () => {
           height={36}
           className="rounded-full"
         /> */}
-        {/* <UserButton/> */}
+        <UserButton/>
       </div>
     </div>
   );

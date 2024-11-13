@@ -118,7 +118,6 @@ model Enrollment {
   gradeId   Int
   classId   Int
   year      Int
-
   student   Student @relation(fields: [studentId], references: [id])
   grade     Grade   @relation(fields: [gradeId], references: [id])
   class     Class   @relation(fields: [classId], references: [id])
