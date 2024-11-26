@@ -3,14 +3,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { useCurrentUser } from "../../hooks/use-currentUser";
 
-
 const menuItems = [
   {
     title: "MENU",
     items: [
       {
         icon: "/home.png",
-        label: "register",
+        label: "Register",
         href: "/list/register",
         visible: ["admin"],
       },
@@ -18,25 +17,25 @@ const menuItems = [
         icon: "/home.png",
         label: "Home",
         href: "/",
-        visible: ["admin",, "student", "parent"],
+        visible: ["admin", "teacher", "student", "parent"],
       },
       {
         icon: "/teacher.png",
         label: "Teachers",
         href: "/list/teachers",
-        visible: ["admin","teacher"],
+        visible: ["admin", "teacher"],
       },
       {
         icon: "/student.png",
         label: "Students",
         href: "/list/students",
-        visible: ["admin","teacher"],
+        visible: ["admin", "teacher"],
       },
       {
         icon: "/parent.png",
         label: "Parents",
         href: "/list/parents",
-        visible: ["admin","teacher"],
+        visible: ["admin", "teacher"],
       },
       {
         icon: "/subject.png",
@@ -48,13 +47,13 @@ const menuItems = [
         icon: "/class.png",
         label: "Classes",
         href: "/list/classes",
-        visible: ["admin","teacher"],
+        visible: ["admin", "teacher"],
       },
       {
         icon: "/lesson.png",
         label: "Lessons",
         href: "/list/lessons",
-        visible: ["admin","teacher" ,"student", "parent"],
+        visible: ["admin", "teacher", "student", "parent"],
       },
       {
         icon: "/exam.png",
@@ -66,13 +65,13 @@ const menuItems = [
         icon: "/assignment.png",
         label: "Assignments",
         href: "/list/assignments",
-        visible: ["admin",  "teacher", "student", "parent"],
+        visible: ["admin", "teacher", "student", "parent"],
       },
       {
         icon: "/result.png",
         label: "Results",
         href: "/list/results",
-        visible: ["admin",  "teacher", "student", "parent"],
+        visible: ["admin", "teacher", "student", "parent"],
       },
       {
         icon: "/attendance.png",
@@ -107,7 +106,7 @@ const menuItems = [
         icon: "/profile.png",
         label: "Profile",
         href: "/profile",
-        visible: ["admin",  "teacher", "student", "parent"],
+        visible: ["admin", "teacher", "student", "parent"],
       },
       {
         icon: "/setting.png",
@@ -127,29 +126,27 @@ const menuItems = [
 
 const Menu = () => {
   const user = useCurrentUser();
-  const role = user?.role;
+  const role = user?.role?.toLowerCase(); // Ensure role is in lowercase
 
   return (
     <div className="mt-4 text-sm">
-      {menuItems.map((i) => (
-        <div className="flex flex-col gap-2" key={i.title}>
+      {menuItems.map((section) => (
+        <div className="flex flex-col gap-2" key={section.title}>
           <span className="hidden lg:block text-gray-400 font-light my-4">
-            {i.title}
+            {section.title}
           </span>
-          {i.items.map((item) => {
-            
-              return (
-                <Link
-                  href={item.href}
-                  key={item.label}
-                  className="flex items-center justify-center lg:justify-start gap-4 text-gray-500 py-2 md:px-2 rounded-md hover:bg-lamaSkyLight"
-                >
-                  <Image src={item.icon} alt="" width={20} height={20} />
-                  <span className="hidden lg:block">{item.label}</span>
-                </Link>
-              );
-            
-          })}
+          {section.items
+            .filter(item => item.visible.some(r => r.toLowerCase() === role)) // Filter based on user role
+            .map((item) => (
+              <Link
+                href={item.href}
+                key={item.label}
+                className="flex items-center justify-center lg:justify-start gap-4 text-gray-500 py-2 md:px-2 rounded-md hover:bg-lamaSkyLight"
+              >
+                <Image src={item.icon} alt="" width={20} height={20} />
+                <span className="hidden lg:block">{item.label}</span>
+              </Link>
+            ))}
         </div>
       ))}
     </div>

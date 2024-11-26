@@ -1,10 +1,12 @@
 import prisma from "@/lib/prisma";
 import Image from "next/image";
+import Link from "next/link";
 
 const UserCard = async ({
-  type,
+  type,path
 }: {
   type: "admin" | "teacher" | "student" | "parent";
+  path:string
 }) => {
   const modelMap: Record<typeof type, any> = {
     admin: prisma.admin,
@@ -23,7 +25,8 @@ const UserCard = async ({
         </span>
         <Image src="/more.png" alt="" width={20} height={20} />
       </div>
-      <h1 className="text-2xl font-semibold my-4">{data}</h1>
+      <Link href={path}><h1 className="text-2xl font-semibold my-4">{data}</h1></Link>
+      
       <h2 className="capitalize text-sm font-medium text-gray-500">{type}s</h2>
     </div>
   );

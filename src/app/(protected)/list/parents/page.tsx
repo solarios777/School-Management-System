@@ -22,7 +22,7 @@ const ParentListPage = async ({
   searchParams: { [key: string]: string | undefined };
 })  => {
   const user= await currentUser()
-  const role = user?.role
+  const role = user?.role.toLowerCase()
   const currentUserId=user?.id
   const columns = [
     {

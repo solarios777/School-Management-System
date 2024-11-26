@@ -8,7 +8,7 @@ import { UserButton } from "./auth/user-button";
 
 const Navbar = async () => {
   const user= await currentUser()
-  const role = user?.role
+  const role = user?.role.toLowerCase()
   const userId = user?.id
   const username = user?.name
   

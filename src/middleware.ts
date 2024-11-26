@@ -1,41 +1,74 @@
-// 
-
-import authConfig from "../auth.config"
-import NextAuth from "next-auth"
+import authConfig from "../auth.config";
+import NextAuth from "next-auth";
 import {
   apiAuthPrefix,
   authRoutes,
-  publicRoutes, 
+  publicRoutes,
+  routeAccessMap,
   DEFAULT_LOGIN_REDIRECT
-} from "../routes"
+} from "../routes";
+import { currentUser } from "./lib/auth";
+import { NextResponse } from "next/server";
 
-const { auth } = NextAuth(authConfig)
+const { auth } = NextAuth(authConfig);
 
-export default auth((req) => {
-  const {nextUrl}=req
-  const isLoggedIn = !!req.auth
+export default auth(async (req) => {
+  const { nextUrl } = req;
+  const requestedPath = nextUrl.pathname; // Assign the requested path to a variable
 
-  const isApiAuthRoute = req.nextUrl.pathname.startsWith(apiAuthPrefix)
-  const isAuthRoute = authRoutes.includes(nextUrl.pathname)
-  const isPublicRoute = publicRoutes.includes(nextUrl.pathname)
 
+ 
+
+  const isLoggedIn = !!req.auth;
+  const user = await currentUser();
+  const userRole = user?.role?.toLowerCase() || "";
+
+  const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix);
+  const isAuthRoute = authRoutes.includes(nextUrl.pathname);
+  const isPublicRoute = publicRoutes.includes(nextUrl.pathname);
+
+  // Allow API auth routes without restriction
   if (isApiAuthRoute) {
-    return 
+    return;
   }
 
+  // Redirect logged-in users away from auth routes
   if (isAuthRoute) {
     if (isLoggedIn) {
-      return Response.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl))
+      return NextResponse.redirect(new URL(`/${userRole}`, nextUrl)); // Redirect logged-in user to their role-specific page
     }
-    return 
+    return;
   }
-  
-  if(!isLoggedIn && !isPublicRoute){
-    return Response.redirect(new URL("/auth/login", nextUrl))
-  } 
 
-  return 
-  
+  // Redirect unauthenticated users to login if the route is not public
+  if (!isLoggedIn && !isPublicRoute) {
+    return NextResponse.redirect(new URL("/auth/login", nextUrl));
+  }
+
+  // Handle role-based access control for logged-in users
+  if (isLoggedIn) {
+  const sortedRouteAccessMap = Object.entries(routeAccessMap).sort(
+    ([patternA], [patternB]) => patternB.length - patternA.length // Sort by pattern length
+  );
+
+  for (const [routePattern, allowedRoles] of sortedRouteAccessMap) {
+    
+
+    const regex = new RegExp(`^${routePattern}$`); // Add anchors to make the match strict
+
+    if (regex.test(nextUrl.pathname)) {
+      
+
+      if (!allowedRoles.includes(userRole)) {
+        return NextResponse.redirect(new URL(`/${userRole}`, nextUrl));
+      }
+      break; // Stop once a match is found
+    }
+  }
+}
+
+
+  return; // Allow the request to proceed if it passes all checks
 });
 
 export const config = {

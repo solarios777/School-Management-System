@@ -5,11 +5,12 @@ import Performance from "@/components/Performance";
 
 import Image from "next/image";
 import Link from "next/link";
-import { useCurrentUser } from "../../../../../../hooks/use-currentUser";
 
-const SingleTeacherPage = () => {
-  const user=useCurrentUser()
-  const role = user?.role
+import { currentUser } from "@/lib/auth";
+
+const SingleTeacherPage = async() => {
+  const user = await currentUser();
+  const role = user?.role;
   const currentUserId=user?.id
   return (
     <div className="flex-1 p-4 flex flex-col gap-4 xl:flex-row">

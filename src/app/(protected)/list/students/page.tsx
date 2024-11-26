@@ -1,4 +1,3 @@
-
 import FormModal from "@/components/FormModal";
 import Pagination from "@/components/Pagination";
 import Table from "@/components/Table";
@@ -7,21 +6,26 @@ import { currentUser } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { ITEMS_PER_PAGE } from "@/lib/settings";
 
-import { Class, Prisma, Student } from "@prisma/client";
+import { Class, Enrollment, Grade, Prisma, Student } from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
 
+type StudentList = Student & {
+  enrollments: (Enrollment & {
+    class: Class;   
+    grade: Grade;      
+  })[];
+};
 
-type StudentList = Student & { class: Class };
-
- const StudentListPage =async ({
+const StudentListPage = async ({
   searchParams,
 }: {
   searchParams: { [key: string]: string | undefined };
-})  => {
-  const user= await currentUser()
-  const role = user?.role
-  const currentUserId=user?.id
+}) => {
+  const user = await currentUser();
+  const role = user?.role.toLowerCase();
+  const currentUserId = user?.id;
+
   const columns = [
     {
       header: "Info",
@@ -37,6 +41,7 @@ type StudentList = Student & { class: Class };
       accessor: "grade",
       className: "hidden md:table-cell",
     },
+   
     {
       header: "Phone",
       accessor: "phone",
@@ -56,7 +61,7 @@ type StudentList = Student & { class: Class };
         ]
       : []),
   ];
-  
+
   const renderRow = (item: StudentList) => (
     <tr
       key={item.id}
@@ -72,11 +77,11 @@ type StudentList = Student & { class: Class };
         />
         <div className="flex flex-col">
           <h3 className="font-semibold">{item.name}</h3>
-          <p className="text-xs text-gray-500">{item.class.name}</p>
+          <p className="text-xs text-gray-500">{item.enrollments[0]?.grade?.level || 'N/A'}</p> {/* Displaying grade level */}
         </div>
       </td>
       <td className="hidden md:table-cell">{item.username}</td>
-      <td className="hidden md:table-cell">{item.class.name[0]}</td>
+      <td className="hidden md:table-cell">{item.enrollments[0]?.grade?.level || 'N/A'} {item.enrollments[0]?.class?.name || 'N/A'}</td> {/* Displaying class name */}
       <td className="hidden md:table-cell">{item.phone}</td>
       <td className="hidden md:table-cell">{item.address}</td>
       <td>
@@ -87,19 +92,15 @@ type StudentList = Student & { class: Class };
             </button>
           </Link>
           {role === "admin" && (
-            // <button className="w-7 h-7 flex items-center justify-center rounded-full bg-lamaPurple">
-            //   <Image src="/delete.png" alt="" width={16} height={16} />
-            // </button>
             <FormModal table="student" type="delete" id={item.id} />
           )}
         </div>
       </td>
     </tr>
   );
-  
-  const {page, ...queryParams}=searchParams
 
-  const p= page? parseInt(page): 1;
+  const { page, ...queryParams } = searchParams;
+  const p = page ? parseInt(page) : 1;
 
   const query: Prisma.StudentWhereInput = {};
 
@@ -108,13 +109,6 @@ type StudentList = Student & { class: Class };
       if (value !== undefined) {
         switch (key) {
           case "teacherId":
-            query.class = {
-              lessons: {
-                some: {
-                  teacherId: value,
-                },
-              },
-            };
             break;
           case "search":
             query.name = { contains: value, mode: "insensitive" };
@@ -130,7 +124,12 @@ type StudentList = Student & { class: Class };
     prisma.student.findMany({
       where: query,
       include: {
-        class: true,
+        enrollments: { // Fetch enrollments, which includes the class and grade
+          include: {
+            class: true,
+            grade: true,
+          },
+        },
       },
       take: ITEMS_PER_PAGE,
       skip: ITEMS_PER_PAGE * (p - 1),
@@ -153,9 +152,6 @@ type StudentList = Student & { class: Class };
               <Image src="/sort.png" alt="" width={14} height={14} />
             </button>
             {role === "admin" && (
-              // <button className="w-8 h-8 flex items-center justify-center rounded-full bg-lamaYellow">
-              //   <Image src="/plus.png" alt="" width={14} height={14} />
-              // </button>
               <FormModal table="student" type="create" />
             )}
           </div>
@@ -164,7 +160,7 @@ type StudentList = Student & { class: Class };
       {/* LIST */}
       <Table columns={columns} renderRow={renderRow} data={data} />
       {/* PAGINATION */}
-      <Pagination page={p} count={count}/>
+      <Pagination page={p} count={count} />
     </div>
   );
 };

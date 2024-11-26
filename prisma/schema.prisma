@@ -13,10 +13,10 @@ model Session {
   userId       String   @map("user_id")
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
- 
+
   @@map("sessions")
 }
- 
+
 model User {
   id            String    @id @default(cuid())
   name          String?   @unique
@@ -25,14 +25,24 @@ model User {
   image         String?
   password      String?
   sessions      Session[]
- 
+
   @@map("users")
 }
 
 model Admin {
-  id       String @id @default(cuid())
-  username String @unique
-  role     UserRole @default(ADMIN)
+  id        String @id @default(cuid())
+  username  String    @unique
+  name      String
+  surname   String
+  email     String?   @unique
+  phone     String?   @unique
+  address   String
+  img       String?
+  bloodType String
+  sex       UserSex
+  createdAt DateTime  @default(now())
+  birthday  DateTime?
+  role      UserRole @default(ADMIN)
   password  String?
 }
 
@@ -48,13 +58,12 @@ model Student {
   bloodType   String
   sex         UserSex
   createdAt   DateTime     @default(now())
-  password      String?
+  password    String?
   birthday    DateTime
-  role UserRole @default(STUDENT)
+  role        UserRole @default(STUDENT)
   enrollments Enrollment[]
   parentId    String?         // Optional parent ID
   parent      Parent?         @relation(fields: [parentId], references: [id]) 
-  
 }
 
 model Teacher {
@@ -75,11 +84,7 @@ model Teacher {
   assignments TeacherAssignment[]
 }
 
-model Subject {
-  id       Int       @id @default(autoincrement())
-  name     String    @unique
-  assignments TeacherAssignment[]
-}
+
 
 model Parent {
   id        String    @id
@@ -92,7 +97,13 @@ model Parent {
   createdAt DateTime  @default(now())
   role      UserRole @default(PARENT)
   password  String?
-  students    Student[] 
+  students  Student[]
+}
+model Subject {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  assignments TeacherAssignment[]
+  subjectClassGrades SubjectClassGrade[] // Relation to the junction table
 }
 
 model Grade {
@@ -100,18 +111,20 @@ model Grade {
   level Int @unique
   enrollments Enrollment[]
   assignments TeacherAssignment[]
+  subjectClassGrades SubjectClassGrade[] // Relation to the junction table
 }
 
 model Class {
   id       Int    @id @default(autoincrement())
   name     String @unique
-  capacity Int
   events        Event[]
   announcements Announcement[]
   supervisorId  String?
   enrollments Enrollment[]
   assignments TeacherAssignment[]
+  subjectClassGrades SubjectClassGrade[] // Relation to the junction table
 }
+
 model Enrollment {
   id        Int      @id @default(autoincrement())
   studentId String
@@ -135,7 +148,6 @@ model TeacherAssignment {
   class     Class   @relation(fields: [classId], references: [id])
   subject   Subject @relation(fields: [subjectId], references: [id])
 }
-
 
 model Assignment {
   id        Int      @id @default(autoincrement())
@@ -165,13 +177,26 @@ model Announcement {
   class   Class? @relation(fields: [classId], references: [id])
 }
 
+model SubjectClassGrade {
+  id        Int      @id @default(autoincrement())
+  subjectId Int
+  classId   Int
+  gradeId   Int
+  year      Int
+
+  subject   Subject @relation(fields: [subjectId], references: [id])
+  class     Class   @relation(fields: [classId], references: [id])
+  grade     Grade   @relation(fields: [gradeId], references: [id])
+
+  @@unique([subjectId, classId, gradeId, year]) 
+}
+
 enum UserRole {
   ADMIN 
   TEACHER 
   STUDENT 
   PARENT 
 }
-
 
 enum UserSex {
   MALE
@@ -185,5 +210,3 @@ enum Day {
   THURSDAY
   FRIDAY
 }
-
-

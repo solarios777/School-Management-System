@@ -5,16 +5,7 @@ const prisma = new PrismaClient();
 
 async function main() {
   // Create Admins
-  const admins = await Promise.all(
-    Array.from({ length: 10 }, (_, i) => 
-      prisma.admin.create({
-        data: {
-          username: `admin_user_${i + 1}`,
-          password: 'securepassword',
-        },
-      })
-    )
-  );
+ 
 
   // Create Parents
   const parents = await Promise.all(
@@ -77,7 +68,7 @@ async function main() {
 
   // Create Subjects
   const subjects = await Promise.all(
-    ['Mathematics', 'Science', 'History', 'Geography', 'Literature'].map(name => 
+    ['Mathematics', 'Science', 'History','Chemistry','Biology','English','Physics', 'Geography', 'Literature'].map(name => 
       prisma.subject.create({ data: { name } })
     )
   );
@@ -98,8 +89,7 @@ async function main() {
     ['A', 'B', 'C', 'D', 'E'].map(name => 
       prisma.class.create({
         data: {
-          name: name,
-          capacity: 30,
+          name: name
         },
       })
     )
@@ -137,6 +127,24 @@ async function main() {
         },
       });
     })
+  );
+
+  // Create SubjectClassGrades
+  await Promise.all(
+    subjects.map(subject =>
+      classes.map(classItem =>
+        grades.map(grade =>
+          prisma.subjectClassGrade.create({
+            data: {
+              subjectId: subject.id,
+              classId: classItem.id,
+              gradeId: grade.id,
+              year: 2023,
+            },
+          })
+        )
+      )
+    ).flat(2) // Flatten the array
   );
 
   console.log('Seeding completed.');

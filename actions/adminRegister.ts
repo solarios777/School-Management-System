@@ -3,7 +3,7 @@ import * as z from "zod"
 import bcrypt from "bcryptjs"
 import { AdminSchema } from "../schema/index";
 import prisma from "@/lib/prisma";
-import { getUserByAdminname, getUserByEmail } from "../data/getUser";
+
 
 export const AdminRegister=async(values: z.infer<typeof AdminSchema>) => {
     const valdatedFields = AdminSchema.parse(values)
@@ -11,26 +11,62 @@ export const AdminRegister=async(values: z.infer<typeof AdminSchema>) => {
         return {error:"Invalid Credentials"}
     }
 
-    const {username,password}=valdatedFields
+    const {username, name, surname, email, phone, address, img, bloodType, birthday, sex, role}=valdatedFields
 
-    const salt= await bcrypt.genSalt(10)
-    const hashedpassword=await bcrypt.hash(password,salt)
-
-    const existingUser = await getUserByAdminname(username)
-
-    if(existingUser){
-        return {error:"email already in use!"}
-    }
-    await prisma.admin.create({
-        data:{
-            username,
-            password:hashedpassword,
-            
+    const generateRandomPassword = () => {
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        let password = '';
+        for (let i = 0; i < 6; i++) {
+            password += characters.charAt(Math.floor(Math.random() * characters.length));
         }
-    })
+        return password;
+    };
 
-    // TODO send verification email
+    const password = generateRandomPassword();
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
-    return {success:"user created!"}
+    const existingUser = await prisma.teacher.findUnique({
+        where: { username }
+    });
+    const existingEmail = await prisma.teacher.findUnique({
+        where: { email }
+    });
+    const existingPhone = await prisma.teacher.findUnique({
+        where: { phone }
+    });
+
+    if (existingUser) {
+        return { error: "Username already in use!" };
+    }
+    if (existingEmail) {
+        return { error: "Email already in use!" };
+    }
+    if (existingPhone) {
+        return { error: "Phone already in use!" };
+    }
+
+    await prisma.admin.create({
+        data: {
+            username,
+            password: hashedPassword,
+            name,
+            surname,
+            email,
+            phone,
+            address,
+            img,
+            bloodType,
+            birthday,
+            sex,
+            role
+        }
+    });
+ 
+ 
+    return { 
+        success: "Account created successfully", 
+        password: `Password is: ${password}` 
+    }; 
     
 }

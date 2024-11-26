@@ -11,7 +11,7 @@ import { DefaultSession } from "next-auth"
 // const prisma = new PrismaClient()
   type UserRole = "admin" | "teacher" | "student" | "parent" | "user";
 declare module "next-auth" {
-  
+   
   interface Session {
     user: {
       role: string
