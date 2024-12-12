@@ -77,11 +77,15 @@ export const teacherSchema = z.object({
 export type TeacherSchema = z.infer<typeof teacherSchema>;
 
 export const subjectSchema = z.object({
-  id: z.coerce.number().optional(),
+  id: z.string().optional(),
   name: z.string().min(1, { message: "Subject name is required!" }),
 });
-
 export type SubjectSchema = z.infer<typeof subjectSchema>;
+export const sectionSchema = z.object({
+  id: z.string().optional(),
+  name: z.string().min(1, { message: "Subject name is required!" }),
+});
+export type SectionSchema = z.infer<typeof sectionSchema>;
 
 export const studentSchema = z.object({
   id: z.string().optional(),
@@ -115,6 +119,23 @@ export type StudentSchema = z.infer<typeof studentSchema>;
 
 const currentYear = new Date().getFullYear();
 
+export const superviserSchema = z.object({
+  id: z.string().optional(),
+  teachername: z
+    .string()
+    .min(3, { message: "Teacher name must be at least 3 characters long!" }),
+  grade: z.coerce.number().min(1, { message: "Grade is required!" }),
+  classname: z.coerce.string().min(1, { message: "Section is required!" }),
+  year: z.coerce
+    .number()
+    .int({ message: "Year must be an integer!" })
+    .min(currentYear, { message: `Year must be ${currentYear}!` })
+    .max(currentYear, { message: `Year must be ${currentYear}!` }),
+});
+
+export type SuperviserSchema = z.infer<typeof superviserSchema >;
+
+
 export const teacherAssignmentSchema = z.object({
   id: z.string().optional(),
   teachername: z
@@ -123,12 +144,14 @@ export const teacherAssignmentSchema = z.object({
   subjectname: z.string().min(1, { message: "Subject name is required!" }),
   grade: z.coerce.number().min(1, { message: "Grade is required!" }),
   classname: z.coerce.string().min(1, { message: "Section is required!" }),
-  year: z
+  year: z.coerce
     .number()
     .int({ message: "Year must be an integer!" })
     .min(currentYear, { message: `Year must be ${currentYear}!` })
     .max(currentYear, { message: `Year must be ${currentYear}!` }),
 });
+
+export type TeacherAssignmentSchema = z.infer<typeof teacherAssignmentSchema>;
 
 export const studentEnrollmentSchema= z.object({
   id: z.string().optional(),

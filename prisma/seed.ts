@@ -4,9 +4,6 @@ import { uuid } from 'uuidv4';
 const prisma = new PrismaClient();
 
 async function main() {
-  // Create Admins
- 
-
   // Create Parents
   const parents = await Promise.all(
     Array.from({ length: 10 }, (_, i) => 
@@ -68,7 +65,7 @@ async function main() {
 
   // Create Subjects
   const subjects = await Promise.all(
-    ['Mathematics', 'Science', 'History','Chemistry','Biology','English','Physics', 'Geography', 'Literature'].map(name => 
+    ['Mathematics', 'Science', 'History', 'Chemistry', 'Biology', 'English', 'Physics', 'Geography', 'Literature'].map(name => 
       prisma.subject.create({ data: { name } })
     )
   );
@@ -95,16 +92,28 @@ async function main() {
     )
   );
 
+  // Create GradeClass Combinations
+  const gradeClasses = await Promise.all(
+    classes.flatMap(classItem => 
+      grades.map(grade => 
+        prisma.gradeClass.create({
+          data: {
+            gradeId: grade.id,
+            classId: classItem.id,
+          },
+        })
+      )
+    )
+  );
+
   // Create Enrollments
   await Promise.all(
     students.map((student, index) => {
-      const gradeIndex = index % 12; // Assign grades in a loop
-      const classIndex = index % classes.length; // Assign classes in a loop
+      const gradeClass = gradeClasses[index % gradeClasses.length]; // Assign GradeClass in a loop
       return prisma.enrollment.create({
         data: {
           studentId: student.id,
-          gradeId: grades[gradeIndex].id,
-          classId: classes[classIndex].id,
+          gradeClassId: gradeClass.id,
           year: 2023,
         },
       });
@@ -114,15 +123,13 @@ async function main() {
   // Create Teacher Assignments
   await Promise.all(
     teachers.map((teacher, index) => {
-      const gradeIndex = index % 12; // Assign grades in a loop
-      const classIndex = index % classes.length; // Assign classes in a loop
-      const subjectIndex = index % subjects.length; // Assign subjects in a loop
+      const gradeClass = gradeClasses[index % gradeClasses.length]; // Assign GradeClass in a loop
+      const subject = subjects[index % subjects.length]; // Assign Subject in a loop
       return prisma.teacherAssignment.create({
         data: {
           teacherId: teacher.id,
-          gradeId: grades[gradeIndex].id,
-          classId: classes[classIndex].id,
-          subjectId: subjects[subjectIndex].id,
+          gradeClassId: gradeClass.id,
+          subjectId: subject.id,
           year: 2023,
         },
       });
@@ -131,20 +138,18 @@ async function main() {
 
   // Create SubjectClassGrades
   await Promise.all(
-    subjects.map(subject =>
-      classes.map(classItem =>
-        grades.map(grade =>
-          prisma.subjectClassGrade.create({
-            data: {
-              subjectId: subject.id,
-              classId: classItem.id,
-              gradeId: grade.id,
-              year: 2023,
-            },
-          })
-        )
+    subjects.flatMap(subject => 
+      gradeClasses.map(gradeClass => 
+        prisma.subjectClassGrade.create({
+          data: {
+            subjectId: subject.id,
+            classId: gradeClass.classId,
+            gradeId: gradeClass.gradeId,
+            year: 2023,
+          },
+        })
       )
-    ).flat(2) // Flatten the array
+    )
   );
 
   console.log('Seeding completed.');

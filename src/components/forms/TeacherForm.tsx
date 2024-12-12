@@ -1,411 +1,149 @@
-"use client";
-import { useForm } from "react-hook-form";
-import { useState, useTransition } from "react";
+"use cleint";
+
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage
-} from "@/components/ui/form";
-import * as z from "zod";
-
-import { teacherSchema } from "../../../schema/index";
-import { CardWrapper } from "../auth/card_wrapper";
+import { useForm } from "react-hook-form";
+import { TeacherSchema, teacherSchema } from "../../../schema";
 import { Button } from "../ui/button";
-import { FormError } from "../form-error";
-import { Formsuccess } from "../form-success";
-import { createTeacher } from "../../../actions/teacherRegister";
+import InputField from "../InputField";
 
-export const TeacherRegisterForm = () => {
-    const [isPending, startTransition] = useTransition();
-    const [success, setSuccess] = useState("");
-    const [error, setError] = useState("");
 
-    const form = useForm<z.infer<typeof teacherSchema>>({
-        resolver: zodResolver(teacherSchema),
-        defaultValues: {
-            username: "",
-            password: "",
-            name: "",
-            surname: "",
-            email: "",
-            phone: "",
-            address: "",    
-            img: "",
-            bloodType: "",
-            birthday: new Date(),    
-            sex: "MALE",
-            subjects: [],
-            id: "",
-            role: "TEACHER",
 
-        },
-    });
 
-    const onSubmit = (data: z.infer<typeof teacherSchema>) => {
-       setError("")
-       setSuccess("")
+const TeacherForm = ({
+    type,
+    data
+}:{
+    type:"create" | "update",
+    data?:any
+}) => {
+     const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<TeacherSchema>({
+    resolver: zodResolver(teacherSchema),
+  });
+  
+  const onSubmit = handleSubmit((data) => console.log(data));
 
-        startTransition(() => {
-            createTeacher(data)
-            .then((res) => {
-                if(res.success){
-                    setSuccess("success")
-                    setError("")
-                }
-                if(res.error){
-                    setError("error")
-                    setSuccess("")
-                }
-            })
-        }) 
-    }
     return (
-        <CardWrapper
-            headerLebel="Create a Teacher Account"
-            backButtonLabel="Already have an account?"
-            backButtonHref="/auth/login"
-        >
-            <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                    <div className="space-y-4">
-                        {/* Username Field */}
-                        <FormField
-                            control={form.control}
-                            name="username"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Username</FormLabel>
-                                    <FormControl>
-                                        <input
-                                            type="text"
-                                            id="username"
-                                            placeholder="Enter your username"
-                                            className="input-bordered input w-full"
-                                            {...field}
-                                            disabled={isPending}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+    <form className="flex flex-col gap-8 h-screen overflow-y-scroll md:h-auto md:overflow-hidden p-8 md:p-0" onSubmit={onSubmit}>
+        <h1 className="text-xl font-semibold">Create a new Teacher</h1>
+        <span className="text-xs text-gray-400 font-medium">Authentication information</span>
+<div className="flex justify-between flex-wrap gap-4 ">
 
-                        {/* Password Field */}
-                        <FormField
-                            control={form.control}
-                            name="password"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Password</FormLabel>
-                                    <FormControl>
-                                        <input
-                                            type="password"
-                                            id="password"
-                                            placeholder="Enter your password"
-                                            className="input-bordered input w-full"
-                                            {...field}
-                                            disabled={isPending}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+        <InputField
+        label="Username"
+        type="text"
+        name="username"
+        register={register}
+        placeholder="Enter your username"
+        error={errors?.username}/>
+        <InputField
+            label="Email"
+            name="email"
+            register={register}
+            error={errors.email}
+            type="email"
+            placeholder="Enter your email"
+            // disabled={isPending}
+          /></div>
+       <span className="text-xs text-gray-400 font-medium">Personal information</span>
+<div className="flex justify-between flex-wrap gap-4 ">
+         <InputField
+            label="Name"
+            name="name"
+            register={register}
+            error={errors.name}
+            placeholder="Enter your name"
+            // disabled={isPending}
+          />
 
-                        {/* Name Field */}
-                        <FormField
-                            control={form.control}
-                            name="name"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Name</FormLabel>
-                                    <FormControl>
-                                        <input
-                                            type="text"
-                                            id="name"
-                                            placeholder="Enter your name"
-                                            className="input-bordered input w-full"
-                                            {...field}
-                                            disabled={isPending}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+          <InputField
+            label="Surname"
+            name="surname"
+            register={register}
+            error={errors.surname}
+            placeholder="Enter your surname"
+            // disabled={isPending}
+          />
+           <InputField
+            label="Phone"
+            name="phone"
+            register={register}
+            error={errors.phone}
+            type="tel"
+            placeholder="Enter your phone number"
+            // disabled={isPending}
+          />
+          <InputField
+            label="Address"
+            name="address"
+            register={register}
+            error={errors.address}
+            placeholder="Enter your address"
+            // disabled={isPending}
+          />
 
-                        {/* Surname Field */}
-                        <FormField
-                            control={form.control}
-                            name="surname"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Surname</FormLabel>
-                                    <FormControl>
-                                        <input
-                                            type="text"
-                                            id="surname"
-                                            placeholder="Enter your surname"
-                                            className="input-bordered input w-full"
-                                            {...field}
-                                            disabled={isPending}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+          <InputField
+            label="Blood Type"
+            name="bloodType"
+            as="select"
+            register={register}
+            error={errors.bloodType}
+            // disabled={isPending}
+            options={[
+              { value: "", label: "Select Blood Type" },
+              { value: "A+", label: "A+" },
+              { value: "A-", label: "A-" },
+              { value: "B+", label: "B+" },
+              { value: "B-", label: "B-" },
+              { value: "O+", label: "O+" },
+              { value: "O-", label: "O-" },
+              { value: "AB+", label: "AB+" },
+              { value: "AB-", label: "AB-" },
+            ]}
+          />
 
-                        {/* Email Field */}
-                        <FormField
-                            control={form.control}
-                            name="email"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Email</FormLabel>
-                                    <FormControl>
-                                        <input
-                                            type="email"
-                                            id="email"
-                                            placeholder="Enter your email"
-                                            className="input-bordered input w-full"
-                                            {...field}
-                                            disabled={isPending}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+          <InputField
+            label="Sex"
+            name="sex"
+            as="select"
+            register={register}
+            error={errors.sex}
+            // disabled={isPending}
+            options={[
+              { value: "MALE", label: "Male" },
+              { value: "FEMALE", label: "Female" },
+            ]}
+          />
 
-                        {/* Phone Field */}
-                        <FormField
-                            control={form.control}
-                            name="phone"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Phone</FormLabel>
-                                    <FormControl>
-                                        <input
-                                            type="tel"
-                                            id="phone"
-                                            placeholder="Enter your phone number"
-                                            className="input-bordered input w-full"
-                                            {...field}
-                                            disabled={isPending}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+          <InputField
+            label="Birthday"
+            name="birthday"
+            type="date"
+            register={register}
+            error={errors.birthday}
+            // disabled={isPending}
+          />
 
-                        {/* Address Field */}
-                        <FormField
-                            control={form.control}
-                            name="address"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Address</FormLabel>
-                                    <FormControl>
-                                        <input
-                                            type="text"
-                                            id="address"
-                                            placeholder="Enter your address"
-                                            className="input-bordered input w-full"
-                                            {...field}
-                                            disabled={isPending}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+          <InputField
+            label="Role"
+            name="role"
+            as="select"
+            register={register}
+            error={errors.role}
+            // disabled={isPending}
+            options={[
+              { value: "TEACHER", label: "Teacher" },
+              { value: "ADMIN", label: "Admin" },
+            ]}
+          />
+          </div>
+        <Button className="rounded-md">{type==="create"?"Create":"Update"}</Button>
 
-                        {/* Blood Type Field */}
-                        <FormField
-                            control={form.control}
-                            name="bloodType"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Blood Type</FormLabel>
-                                    <FormControl>
-                                        <select
-                                            id="bloodType"
-                                            className="input-bordered input w-full"
-                                            {...field}
-                                            disabled={isPending}
-                                        >
-                                            <option value="">Select Blood Type</option>
-                                            <option value="A+">A+</option>
-                                            <option value="A-">A-</option>
-                                            <option value="B+">B+</option>
-                                            <option value="B-">B-</option>
-                                            <option value="O+">O+</option>
-                                            <option value="O-">O-</option>
-                                            <option value="AB+">AB+</option>
-                                            <option value="AB-">AB-</option>
-                                        </select>
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+    </form>
+    )
+}
 
-                        {/* Sex Field */}
-                        <FormField
-                            control={form.control}
-                            name="sex"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Sex</FormLabel>
-                                    <FormControl>
-                                        <select
-                                            id="sex"
-                                            className="input-bordered input w-full"
-                                            {...field}
-                                            disabled={isPending}
-                                        >
-                                            <option value="MALE">Male</option>
-                                            <option value="FEMALE">Female</option>
-                                        </select>
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        {/* Birthday Field */}
-                        <FormField
-  control={form.control}
-  name="birthday"
-  render={({ field }) => (
-    <FormItem>
-      <FormLabel>Birthday</FormLabel>
-      <FormControl>
-        <input
-          type="date"
-          id="birthday"
-          className="input-bordered input w-full"
-          {...field}
-          value={field.value ? field.value.toISOString().split('T')[0] : ''} // Convert Date to YYYY-MM-DD string
-          disabled={isPending}
-        />
-      </FormControl>
-      <FormMessage />
-    </FormItem>
-  )}
-/>
-
-                        {/* Role Field */}
-                        <FormField
-                            control={form.control}
-                            name="role"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Role</FormLabel>
-                                    <FormControl>
-                                        <select
-                                            id="role"
-                                            className="input-bordered input w-full"
-                                            {...field}
-                                            disabled={isPending}
-                                        >
-                                            <option value="TEACHER">TEACHER</option>
-                                            <option value="TEACHER_PLUS">TEACHER_PLUS</option>
-                                        </select>
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        {/* Subjects Field */}
-                        <FormField
-                            control={form.control}
-                            name="subjects"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Subjects</FormLabel>
-                                    <FormControl>
-                                        <input
-                                            type="text"
-                                            id="subjects"
-                                            placeholder="Enter subjects (comma separated)"
-                                            className="input-bordered input w-full"
-                                            {...field}
-                                            disabled={isPending}
-                                            onChange={(e) => {
-                                                field.onChange(e.target.value.split(',').map(s => s.trim()));
-                                            }}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        {/* Lessons Field */}
-                        {/* <FormField
-                            control={form.control}
-                            name="lessons"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Lessons</FormLabel>
-                                    <FormControl>
-                                        <input
-                                            type="text"
-                                            id="lessons"
-                                            placeholder="Enter lessons (comma separated)"
-                                            className="input-bordered input w-full"
-                                            {...field}
-                                            disabled={isPending}
-                                            onChange={(e) => {
-                                                field.onChange(e.target.value.split(',').map(s => s.trim()));
-                                            }}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        /> */}
-
-                        {/* Classes Field */}
-                        {/* <FormField
-                            control={form.control}
-                            name="classes"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Classes</FormLabel>
-                                    <FormControl>
-                                        <input
-                                            type="text"
-                                            id="classes"
-                                            placeholder="Enter classes (comma separated)"
-                                            className="input-bordered input w-full"
-                                            {...field}
-                                            disabled={isPending}
-                                            onChange={(e) => {
-                                                field.onChange(e.target.value.split(',').map(s => s.trim()));
-                                            }}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        /> */}
-                    </div>
-
-                    <FormError message={error} />
-                    <Formsuccess message={success} />
-
-                    <Button type="submit" className="w-full" disabled={isPending}>Register</Button>
-                </form>
-            </Form>
-        </CardWrapper>
-    );
-};
+export default TeacherForm

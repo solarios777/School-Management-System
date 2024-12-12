@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["strictUndefinedChecks"]
 }
 
 datasource db {
@@ -82,12 +83,13 @@ model Teacher {
   role      UserRole @default(TEACHER)
   password  String?
   assignments TeacherAssignment[]
+  superviser Superviser[]
 }
 
 
 
 model Parent {
-  id        String    @id
+  id        String      @id @default(cuid())
   username  String    @unique
   name      String
   surname   String
@@ -100,88 +102,101 @@ model Parent {
   students  Student[]
 }
 model Subject {
-  id       Int       @id @default(autoincrement())
+  id       String    @id @default(cuid())
   name     String    @unique
   assignments TeacherAssignment[]
   subjectClassGrades SubjectClassGrade[] // Relation to the junction table
 }
 
 model Grade {
-  id    Int @id @default(autoincrement())
+  id    String      @id @default(cuid())
   level Int @unique
-  enrollments Enrollment[]
-  assignments TeacherAssignment[]
+  GradeClass GradeClass[]
   subjectClassGrades SubjectClassGrade[] // Relation to the junction table
 }
 
 model Class {
-  id       Int    @id @default(autoincrement())
+  id       String      @id @default(cuid())
   name     String @unique
   events        Event[]
   announcements Announcement[]
-  supervisorId  String?
-  enrollments Enrollment[]
-  assignments TeacherAssignment[]
+  GradeClass GradeClass[]
   subjectClassGrades SubjectClassGrade[] // Relation to the junction table
 }
 
-model Enrollment {
-  id        Int      @id @default(autoincrement())
-  studentId String
-  gradeId   Int
-  classId   Int
-  year      Int
-  student   Student @relation(fields: [studentId], references: [id])
+model GradeClass{
+  id        String      @id @default(cuid())
+  gradeId   String
+  classId   String
+  enrollments Enrollment[]
+  assignments TeacherAssignment[]
+  superviser Superviser[]
   grade     Grade   @relation(fields: [gradeId], references: [id])
   class     Class   @relation(fields: [classId], references: [id])
+}
+model Enrollment {
+  id            String      @id @default(cuid())
+  studentId     String
+  gradeClassId  String
+  year          Int
+  student       Student     @relation(fields: [studentId], references: [id])
+  gradeClass    GradeClass  @relation(fields: [gradeClassId], references: [id])
 }
 
 model TeacherAssignment {
-  id        Int      @id @default(autoincrement())
-  teacherId String
-  gradeId   Int
-  classId   Int
-  subjectId Int
-  year      Int
-  teacher   Teacher @relation(fields: [teacherId], references: [id])
-  grade     Grade   @relation(fields: [gradeId], references: [id])
-  class     Class   @relation(fields: [classId], references: [id])
-  subject   Subject @relation(fields: [subjectId], references: [id])
+  id            String      @id @default(cuid())
+  teacherId     String
+  gradeClassId  String
+  subjectId     String
+  year          Int
+  teacher       Teacher     @relation(fields: [teacherId], references: [id])
+  gradeClass    GradeClass  @relation(fields: [gradeClassId], references: [id])
+  subject       Subject     @relation(fields: [subjectId], references: [id])
 }
 
+model Superviser {
+  id            String      @id @default(cuid())
+  teacherId     String
+  gradeClassId  String
+  year          Int
+  teacher       Teacher     @relation(fields: [teacherId], references: [id])
+  gradeClass    GradeClass  @relation(fields: [gradeClassId], references: [id])
+}
+
+
 model Assignment {
-  id        Int      @id @default(autoincrement())
+  id        String      @id @default(cuid())
   title     String
   startDate DateTime
   dueDate   DateTime
 }
 
 model Event {
-  id          Int      @id @default(autoincrement())
+  id          String      @id @default(cuid())
   title       String
   description String
   startTime   DateTime
   endTime     DateTime
 
-  classId Int?
+  classId String?
   class   Class? @relation(fields: [classId], references: [id])
 }
 
 model Announcement {
-  id          Int      @id @default(autoincrement())
+  id          String      @id @default(cuid())
   title       String
   description String
   date        DateTime
 
-  classId Int?
+  classId String?
   class   Class? @relation(fields: [classId], references: [id])
 }
 
 model SubjectClassGrade {
-  id        Int      @id @default(autoincrement())
-  subjectId Int
-  classId   Int
-  gradeId   Int
+  id        String      @id @default(cuid())
+  subjectId String
+  classId   String
+  gradeId   String
   year      Int
 
   subject   Subject @relation(fields: [subjectId], references: [id])

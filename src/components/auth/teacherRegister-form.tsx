@@ -13,7 +13,7 @@ import { Formsuccess } from "../form-success";
 import InputField from "../InputField";
 import { teacherRegister } from "../../../actions/teacherRegister";
 
-export const TeacherForm = () => {
+export const TeachernnnnnnnForm = () => {
   const [isPending, startTransition] = useTransition();
   const [success, setSuccess] = useState("");
   const [password, setPassword] = useState("");
@@ -61,7 +61,8 @@ export const TeacherForm = () => {
       backButtonLabel="Already have an account?"
       backButtonHref="/auth/login"
     >
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 ">
+        <div className="space-y-4 md:space-x-8 flex  flex-col md:flex-row">
         <div className="space-y-4">
           <InputField
             label="Username"
@@ -109,7 +110,8 @@ export const TeacherForm = () => {
             placeholder="Enter your phone number"
             disabled={isPending}
           />
-
+</div>
+<div className="space-y-4">
           <InputField
             label="Address"
             name="address"
@@ -173,6 +175,7 @@ export const TeacherForm = () => {
               { value: "ADMIN", label: "Admin" },
             ]}
           />
+        </div>
         </div>
 
         <FormError message={error} />

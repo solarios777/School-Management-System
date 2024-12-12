@@ -5,18 +5,18 @@ import BigCalendar from "@/components/BigCalender";
 import EventCalendar from "@/components/EventCalendar";
 import prisma from "@/lib/prisma";
 
-import { useCurrentUser } from "../../../../../hooks/use-currentUser";
+import { currentUser } from "@/lib/auth";
 
 
 const StudentPage = async () => {
-  const user=useCurrentUser()
+  const user=await currentUser()
   const role = user?.role
   const userId = user?.id
-  const classItem = await prisma.class.findMany({
-    where: {
-      students: { some: { id: userId! } },
-    },
-  });
+  // const classItem = await prisma.class.findMany({
+  //   where: {
+  //     student: { some: { id: userId! } },
+  //   },
+  // });
 
   
   return (
@@ -25,7 +25,7 @@ const StudentPage = async () => {
       <div className="w-full xl:w-2/3">
         <div className="h-full bg-white p-4 rounded-md">
           <h1 className="text-xl font-semibold">Schedule (4A)</h1>
-          <BigCalendarContainer type="classId" id={classItem[0].id} />
+          {/* <BigCalendarContainer type="classId" id={7} /> */}
         </div>
       </div>
       {/* RIGHT */}

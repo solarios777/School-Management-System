@@ -1,159 +1,92 @@
-"use client";
+"use cleint";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { sectionSchema,SectionSchema } from "../../../schema";
+import { Button } from "../ui/button";
 import InputField from "../InputField";
-import {
-  classSchema,
-  ClassSchema,
-  subjectSchema,
-  SubjectSchema,
-} from "@/lib/formValidationSchemas";
-import {
-  createClass,
-  createSubject,
-  updateClass,
-  updateSubject,
-} from "@/lib/actions";
+import { createSection,updateSection } from "../../../actions/classRegister ";
 import { useFormState } from "react-dom";
-import { Dispatch, SetStateAction, useEffect } from "react";
+import { error } from "console";
+import { Dispatch, SetStateAction, use, useEffect } from "react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 
-const ClassForm = ({
-  type,
-  data,
-  setOpen,
-  relatedData,
-}: {
-  type: "create" | "update";
-  data?: any;
-  setOpen: Dispatch<SetStateAction<boolean>>;
-  relatedData?: any;
+
+
+
+const ClassForm = async ({
+    type,
+    data,
+    setOpen,
+    relatedData
+}:{
+    type:"create" | "update",
+    data?:any,
+    setOpen:Dispatch<SetStateAction<boolean>>,
+    relatedData?:any
 }) => {
-  const {
+     const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<ClassSchema>({
-    resolver: zodResolver(classSchema),
+  } = useForm<SectionSchema>({
+    resolver: zodResolver(sectionSchema),
   });
-
-  // AFTER REACT 19 IT'LL BE USEACTIONSTATE
-
-  const [state, formAction] = useFormState(
-    type === "create" ? createClass : updateClass,
-    {
-      success: false,
-      error: false,
-    }
-  );
-
+  const router=useRouter();
+  const [state,formAction]=useFormState(type==="create"?createSection:updateSection,{
+    success:false,
+    error:false,
+    message:""
+  });
+  
   const onSubmit = handleSubmit((data) => {
-    console.log(data);
-    formAction(data);
+    formAction(data)
   });
-
-  const router = useRouter();
-
   useEffect(() => {
     if (state.success) {
-      toast(`Subject has been ${type === "create" ? "created" : "updated"}!`);
+      
+      toast.success(state.message);
       setOpen(false);
       router.refresh();
+    } else if (state.error) {
+      toast.error(state.message);
     }
-  }, [state, router, type, setOpen]);
+  }, [state]);
+  
 
-  const { teachers, grades } = relatedData;
+  
 
-  return (
-    <form className="flex flex-col gap-8" onSubmit={onSubmit}>
-      <h1 className="text-xl font-semibold">
-        {type === "create" ? "Create a new class" : "Update the class"}
-      </h1>
+    return (
+    <form className="flex flex-col gap-8 " onSubmit={onSubmit}>
+        <h1 className="text-xl font-semibold">{type==="create"?"Create a new Section":"Update the Section"} </h1>
+<div className="flex justify-between flex-wrap gap-4 ">
 
-      <div className="flex justify-between flex-wrap gap-4">
-        <InputField
-          label="Class name"
-          name="name"
-          defaultValue={data?.name}
-          register={register}
-          error={errors?.name}
-        />
-        <InputField
-          label="Capacity"
-          name="capacity"
-          defaultValue={data?.capacity}
-          register={register}
-          error={errors?.capacity}
-        />
-        {data && (
-          <InputField
-            label="Id"
-            name="id"
-            defaultValue={data?.id}
+         <InputField
+            label="class"
+            name="name"
             register={register}
-            error={errors?.id}
-            hidden
+            defaultValue={data?.name}
+            error={errors.name}
+            placeholder="Enter subject name"
+            // disabled={isPending}
           />
-        )}
-        <div className="flex flex-col gap-2 w-full md:w-1/4">
-          <label className="text-xs text-gray-500">Supervisor</label>
-          <select
-            className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
-            {...register("supervisorId")}
-            defaultValue={data?.teachers}
-          >
-            {teachers.map(
-              (teacher: { id: string; name: string; surname: string }) => (
-                <option
-                  value={teacher.id}
-                  key={teacher.id}
-                  selected={data && teacher.id === data.supervisorId}
-                >
-                  {teacher.name + " " + teacher.surname}
-                </option>
-              )
-            )}
-          </select>
-          {errors.supervisorId?.message && (
-            <p className="text-xs text-red-400">
-              {errors.supervisorId.message.toString()}
-            </p>
-          )}
-        </div>
-        <div className="flex flex-col gap-2 w-full md:w-1/4">
-          <label className="text-xs text-gray-500">Grade</label>
-          <select
-            className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
-            {...register("gradeId")}
-            defaultValue={data?.gradeId}
-          >
-            {grades.map((grade: { id: number; level: number }) => (
-              <option
-                value={grade.id}
-                key={grade.id}
-                selected={data && grade.id === data.gradeId}
-              >
-                {grade.level}
-              </option>
-            ))}
-          </select>
-          {errors.gradeId?.message && (
-            <p className="text-xs text-red-400">
-              {errors.gradeId.message.toString()}
-            </p>
-          )}
-        </div>
-      </div>
-      {state.error && (
-        <span className="text-red-500">Something went wrong!</span>
-      )}
-      <button className="bg-blue-400 text-white p-2 rounded-md">
-        {type === "create" ? "Create" : "Update"}
-      </button>
-    </form>
-  );
-};
+           {data && <InputField
+            label="id"
+            name="id"
+            register={register}
+            defaultValue={data?.id}
+            error={errors.id}
+            hidden
+            // placeholder="Enter subject name"
+            // disabled={isPending}
+          />}
 
-export default ClassForm;
+        </div>
+        <Button className="rounded-md">{type==="create"?"Create Subject":"Update Subject"}</Button>
+
+    </form>
+    )
+}
+
+export default ClassForm

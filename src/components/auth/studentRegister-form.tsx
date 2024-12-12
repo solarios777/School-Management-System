@@ -14,7 +14,7 @@ import { studentRegister } from "../../../actions/studentRegister";
 import InputField from "../InputField";
 // Reusable input field component
 
-export const StudentForm = () => {
+export const StudentRegisterForm = () => {
   const [isPending, startTransition] = useTransition();
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");

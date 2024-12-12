@@ -20,6 +20,7 @@ const config: Config = {
   			lamaPurpleLight: '#F1F0FF',
   			lamaYellow: '#FAE27C',
   			lamaYellowLight: '#FEFCE8',
+			mcsorange: '#FCA5A5',
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {

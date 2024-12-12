@@ -1,6 +1,6 @@
 "use server"
 import * as z from "zod"
-import { TeacherAssignmentSchema, teacherAssignmentSchema } from "../schema/index";
+import { SuperviserSchema } from "../schema/index";
 import prisma from "@/lib/prisma";
 
 type currentState={
@@ -10,20 +10,15 @@ type currentState={
 }
 
 
-export const createTeacherAssignment = async (
+
+export const createSuperviser = async (
   currentState: currentState,
-  data: TeacherAssignmentSchema
+  data: SuperviserSchema
 ) => {
     
     try {
-        const {teachername,subjectname,grade,classname,year}=data
+        const {teachername,grade,classname,year}=data
 
-        
-    console.log("data",data);
-    
-
-
-    
     
     // Find the grade by name
     const gradeId = await prisma.grade.findUnique({
@@ -31,24 +26,21 @@ export const createTeacherAssignment = async (
         select: { id: true } // Select only the ID
     });
 
-   
-
     if (!gradeId) {
         return { success: false, error: true, message: "Grade not found!" };
     }
     // Find the subject by name
    
-        await prisma.teacherAssignment.create({
+        await prisma.superviser.create({
         data: {
-            teacherId: teachername, // Use the found teacher ID
-            subjectId: subjectname,
+            teacherId: teachername, 
             gradeId: gradeId.id,
             classId: classname,
             year
 
         }
     }) 
-    return { success: true, error: false, message: " Teacher assigned successfully" };
+    return { success: true, error: false, message: "Homeroom teacher assigned successfully" };
 
     } catch (error) {
     return { success: false, error: true, message: "An unexpected error occurred" }; 

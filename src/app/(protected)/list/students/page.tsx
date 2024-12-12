@@ -6,14 +6,16 @@ import { currentUser } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { ITEMS_PER_PAGE } from "@/lib/settings";
 
-import { Class, Enrollment, Grade, Prisma, Student } from "@prisma/client";
+import { Class, Enrollment, Grade, GradeClass, Prisma, Student } from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
 
 type StudentList = Student & {
   enrollments: (Enrollment & {
-    class: Class;   
-    grade: Grade;      
+   gradeClass: GradeClass & {
+      grade: Grade;   // Include Grade relation
+      class: Class;   // Include Class relation
+    };     
   })[];
 };
 
@@ -77,11 +79,11 @@ const StudentListPage = async ({
         />
         <div className="flex flex-col">
           <h3 className="font-semibold">{item.name}</h3>
-          <p className="text-xs text-gray-500">{item.enrollments[0]?.grade?.level || 'N/A'}</p> {/* Displaying grade level */}
+          <p className="text-xs text-gray-500">{item.enrollments[0]?.gradeClass?.grade?.level || 'N/A'}</p> {/* Displaying grade level */}
         </div>
       </td>
       <td className="hidden md:table-cell">{item.username}</td>
-      <td className="hidden md:table-cell">{item.enrollments[0]?.grade?.level || 'N/A'} {item.enrollments[0]?.class?.name || 'N/A'}</td> {/* Displaying class name */}
+      <td className="hidden md:table-cell">{item.enrollments[0]?.gradeClass?.grade?.level || 'N/A'} {item.enrollments[0]?.gradeClass?.class?.name || 'N/A'}</td> {/* Displaying class name */}
       <td className="hidden md:table-cell">{item.phone}</td>
       <td className="hidden md:table-cell">{item.address}</td>
       <td>
@@ -124,11 +126,17 @@ const StudentListPage = async ({
     prisma.student.findMany({
       where: query,
       include: {
-        enrollments: { // Fetch enrollments, which includes the class and grade
-          include: {
+        enrollments: { 
+          include:{
+            gradeClass:{
+              include: {
             class: true,
             grade: true,
+            }
+            
           },
+          }
+          
         },
       },
       take: ITEMS_PER_PAGE,

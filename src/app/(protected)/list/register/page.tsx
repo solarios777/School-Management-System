@@ -1,13 +1,16 @@
 "use client";
 import Image from "next/image";
 import { useState } from "react";
-import {  SubjectRegisterForm } from "@/components/auth/subjectRegister-form";
-import { TeacherForm } from "@/components/auth/teacherRegister-form";
-import { StudentForm } from "@/components/auth/studentRegister-form";
+// import {  SubjectRegisterForm } from "@/components/auth/subjectRegister-form";
+// import { TeacherForm } from "@/components/auth/teacherRegister-form";
+import { StudentRegisterForm } from "@/components/auth/studentRegister-form";
 import { RegisterForm } from "@/components/auth/userRegister-form";
 import { AdminRegisterForm } from "@/components/auth/adminRegister-form";
-import { TeacherAssignmentForm } from "@/components/auth/teacherAssign";
+// import { TeacherAssignmentForm } from "@/components/auth/teacherAssign";
 import { StudentEnrollmentForm } from "@/components/auth/studentEnrollment";
+// import TeacherForm from "../../../auth/teacherRegister-form";
+import TeacherRegistrationForm from "./teacher/page";
+import { TeachernnnnnnnForm } from "@/components/auth/teacherRegister-form";
 
 interface NavigationItem {
   icon: string;
@@ -19,33 +22,34 @@ const navigationItems: NavigationItem[] = [
   {
     icon: "/student.png",
     label: "Student",
-    formComponent: <StudentForm/>, // Reference the form component
+    formComponent: <StudentRegisterForm/>, // Reference the form component
   },
   {
     icon: "/teacher.png",
     label: "Teacher",
-    formComponent: <TeacherForm />, // Reference the form component
+    formComponent: <TeachernnnnnnnForm />, // Reference the form component
   },
   {
     icon: "/staff.png", // Changed icon to staff
     label: "Staff",
     formComponent: <RegisterForm />, // Reference the form component
   },
-  {
-    icon: "/staff.png", // Changed icon to staff
-    label: "subject",
-    formComponent: <SubjectRegisterForm/>, // Reference the form component
-  },
+  // {
+  //   icon: "/staff.png", // Changed icon to staff
+  //   label: "subject",
+  //   formComponent: <SubjectRegisterForm/>, // Reference the form component
+  // },
   {
     icon: "/parent.png",
     label: "Parent",
     formComponent: <AdminRegisterForm />, // Reference the form component
   },
+  //  {
+  //   icon: "/parent.png",
+  //   label: "Assign Teacher",
+  //   formComponent: <TeacherAssignmentForm />, // Reference the form component
+  // },
    {
-    icon: "/parent.png",
-    label: "Assign Teacher",
-    formComponent: <TeacherAssignmentForm />, // Reference the form component
-  }, {
     icon: "/parent.png",
     label: "enroll student",
     formComponent: <StudentEnrollmentForm/>, // Reference the form component

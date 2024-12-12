@@ -1,7 +1,7 @@
 "use server";
 
 // import * as z from "zod";
-import { SubjectSchema, subjectSchema } from "../schema";
+import { SectionSchema } from "../schema";
 import prisma from "@/lib/prisma";
 // import { revalidatePath } from "next/cache";
 
@@ -14,31 +14,30 @@ type currentState={
 
  
 // create subject
-export const createSubject = async (
+export const createSection = async (
   currentState: currentState,
-  data: SubjectSchema
+  data: SectionSchema
 ) => {
   try {
     // Convert the subject name to uppercase
     const upperCaseName = data.name.toUpperCase();
 
     // Check if the subject already exists
-    const existingSubject = await prisma.subject.findUnique({
+    const existingClass = await prisma.class.findUnique({
       where: { name: upperCaseName },
     });
 
-    if (existingSubject) {
-      return { success: false, error: true, message: "Subject already exists!" };
+    if (existingClass) {
+      return { success: false, error: true, message: "Section already exists!" };
     }
 
     // Create a new subject
-    await prisma.subject.create({
+    await prisma.class.create({
       data: { name: upperCaseName },
     });
 
-    return { success: true, error: false, message: "Subject created successfully" };
+    return { success: true, error: false, message: "Section created successfully" };
   } catch (err) {
-    console.log("errrororoorooor",err);
     
     return { success: false, error: true, message: "An unexpected error occurred" };
   }
@@ -48,9 +47,9 @@ export const createSubject = async (
 
 // update subject
 
-export const updateSubject = async (
+export const updateSection = async (
   currentState: currentState,
-  data: SubjectSchema & { id: string } // Ensure `id` is required for updates
+  data: SectionSchema & { id: string } // Ensure `id` is required for updates
 ) => {
   
   try {
@@ -58,27 +57,27 @@ export const updateSubject = async (
     const upperCaseName = data.name.toUpperCase();
 
     // Check if a subject with the new name already exists (but is not the same record)
-    const existingSubject = await prisma.subject.findFirst({
+    const existingClass = await prisma.class.findFirst({
       where: {
         name: upperCaseName,
         NOT: { id: data.id }, // Exclude the current record from the check
       },
     });
 
-    if (existingSubject) {
+    if (existingClass) {
       return {
         success: false,
         error: true,
-        message: "Another subject with the same name already exists!",
+        message: "Another class with the same name already exists!",
       };
     }
     // Perform the update
-    await prisma.subject.update({
+    await prisma.class.update({
       where: { id: data.id },
       data: { name: upperCaseName },
     });
 
-    return { success: true, error: false, message: `Subject updated successfully` };
+    return { success: true, error: false, message: `Section updated successfully` };
   } catch (err) {
     return {
       success: false,
@@ -90,7 +89,7 @@ export const updateSubject = async (
 
 
 // delete subject
-export const deleteSubject = async (
+export const deleteSection = async (
   currentState: currentState,
   data: FormData// Ensure `id` is required for updates
 ) => {
@@ -98,11 +97,11 @@ export const deleteSubject = async (
   try {
     
     // Perform the update
-    await prisma.subject.delete({
+    await prisma.class.delete({
       where: { id: id}
     });
 
-    return { success: true, error: false, message: `Subject deleted successfully ` };
+    return { success: true, error: false, message: `Section deleted successfully ` };
   } catch (err) {
     return {
       success: false,
