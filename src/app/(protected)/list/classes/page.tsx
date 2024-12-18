@@ -3,23 +3,25 @@ import Pagination from "@/components/Pagination";
 import Table from "@/components/Table";
 import TableSearch from "@/components/TableSearch";
 import prisma from "@/lib/prisma";
-// import { ITEMS_PER_PAGE } from "@/lib/settings";
-
-import { Class, Grade, GradeClass, Prisma, Teacher } from "@prisma/client";
+import { Class, Grade, GradeClass, Prisma } from "@prisma/client";
 import Image from "next/image";
 import { currentUser } from "@/lib/auth";
 import FormContainer from "@/components/FormContainer";
 
-type ClassList= Grade & {
-  
-  gradeClass: GradeClass & {
-      grade: Grade;   // Include Grade relation
-      class: Class;   // Include Class relation
+type ClassList = Grade & {
+  GradeClass: (GradeClass & {
+    class: Class;
+    _count: {
+      enrollments: number; // Count of students
     };
-  
-}
-
-
+    superviser: {
+      teacher: {
+        name: string;
+        surname: string;
+      };
+    }[];
+  })[];
+};
 
 const ClassListPage = async ({
   searchParams,
@@ -28,7 +30,6 @@ const ClassListPage = async ({
 }) => {
   const user = await currentUser();
   const role = user?.role.toLowerCase();
-  const currentUserId = user?.id;
 
   const ITEMS_PER_PAGE = 12;
   const columns = [
@@ -37,7 +38,6 @@ const ClassListPage = async ({
       accessor: "level",
       className: "hidden md:table-cell",
     },
-    
     ...(role === "admin"
       ? [
           {
@@ -48,40 +48,68 @@ const ClassListPage = async ({
       : []),
   ];
 
-  const renderRow = (item: ClassList & { GradeClass: { class: Class }[] }) => (
-    <>
-      <tr className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-lamaPurpleLight">
-        <td className="flex items-center gap-4 p-4">{item.level}</td>
-        <td>
-          <div className="flex items-center gap-2">
-            {role === "admin" && (
-              <>
-                <FormContainer table="class" type="update" data={item} />
-                <FormContainer table="class" type="delete" id={item.id} />
-              </>
-            )}
-          </div>
-        </td>
-      </tr>
-      {item.GradeClass.length > 0 && (
-        <tr>
-          <td colSpan={columns.length} className="p-4">
-            <div className="pl-8">
-              <h3 className="font-semibold">Sections:</h3>
-              <ul>
-                {item.GradeClass.map((gc) => (
-                  <li key={gc.class.id}>{gc.class.name}</li>
-                ))}
-              </ul>
+  const renderRow = (item: ClassList) => (
+    <tr
+      key={item.id}
+      className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-lamaPurpleLight"
+    >
+      <td className="p-4">
+        <details>
+          <summary className="cursor-pointer">
+            {item.level}
+            <span className="ml-2 text-sm text-gray-500">
+              {item.GradeClass.filter((gc) => gc._count.enrollments > 0).length > 0
+                ? `(${item.GradeClass.filter((gc) => gc._count.enrollments > 0).length} sections)`
+                : "(No sections)"}
+            </span>
+          </summary>
+          {item.GradeClass.filter((gc) => gc._count.enrollments > 0).length > 0 && (
+            <div className="mt-2 pl-4">
+              <table className="w-full text-sm text-gray-700">
+                <thead>
+                  <tr>
+                    <th className="px-4 py-2 text-left">Section</th>
+                    <th className="px-4 py-2 text-left">Number of Students</th>
+                    <th className="px-4 py-2 text-left">Supervisor</th>
+                    {role === "admin" && <th className="px-4 py-2 text-left">Actions</th>}
+                  </tr>
+                </thead>
+                <tbody>
+                  {item.GradeClass.filter((gc) => gc._count.enrollments > 0)
+                    .sort((a, b) => a.class.name.localeCompare(b.class.name))
+                    .map((gc) => (
+                      <tr key={gc.class.id}>
+                        <td className="px-4 py-2">{gc.class.name}</td>
+                        <td className="px-4 py-2">{gc._count.enrollments}</td>
+                        <td className="px-4 py-2">
+                          {gc.superviser.length > 0
+                            ? gc.superviser
+                                .map(
+                                  (sup) => `${sup.teacher.name} ${sup.teacher.surname}`
+                                )
+                                .join(", ")
+                            : "No Supervisor"}
+                        </td>
+                        {role === "admin" && (
+                          <td className="px-4 py-2">
+                            <div className="flex items-center gap-2">
+                              <FormContainer table="class" type="update" data={gc} />
+                              <FormContainer table="class" type="delete" id={gc.class.id} />
+                            </div>
+                          </td>
+                        )}
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
             </div>
-          </td>
-        </tr>
-      )}
-    </>
+          )}
+        </details>
+      </td>
+    </tr>
   );
 
   const { page, ...queryParams } = searchParams;
-
   const p = page ? parseInt(page) : 1;
 
   const query: Prisma.GradeWhereInput = {};
@@ -105,7 +133,22 @@ const ClassListPage = async ({
       include: {
         GradeClass: {
           include: {
-            class: true, // Include class details
+            class: true,
+            superviser: {
+              include: {
+                teacher: {
+                  select: {
+                    name: true,
+                    surname: true,
+                  },
+                },
+              },
+            },
+            _count: {
+              select: {
+                enrollments: true,
+              },
+            },
           },
         },
       },

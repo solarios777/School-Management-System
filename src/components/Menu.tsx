@@ -2,7 +2,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useCurrentUser } from "../../hooks/use-currentUser";
-
+const Menu = () => {
+ const user = useCurrentUser();
+const role = user?.role?.toLowerCase(); 
 const menuItems = [
   {
     title: "MENU",
@@ -16,7 +18,7 @@ const menuItems = [
       {
         icon: "/home.png",
         label: "Home",
-        href: "/",
+        href: `/${role}`,
         visible: ["admin", "teacher", "student", "parent"],
       },
       {
@@ -124,9 +126,8 @@ const menuItems = [
   },
 ];
 
-const Menu = () => {
-  const user = useCurrentUser();
-  const role = user?.role?.toLowerCase(); // Ensure role is in lowercase
+
+ // Ensure role is in lowercase
 
   return (
     <div className="mt-4 text-sm">

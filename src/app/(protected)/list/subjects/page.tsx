@@ -1,16 +1,12 @@
 
-import FormModal from "@/components/FormModal";
 import Pagination from "@/components/Pagination";
 import Table from "@/components/Table";
 import TableSearch from "@/components/TableSearch";
 import prisma from "@/lib/prisma";
 import { ITEMS_PER_PAGE } from "@/lib/settings";
-
 import { Class, Grade, GradeClass, Prisma, Subject, Teacher, TeacherAssignment } from "@prisma/client";
 import Image from "next/image";
-
 import { currentUser } from "@/lib/auth";
-import { use, useEffect } from "react";
 import FormContainer  from "@/components/FormContainer";
 
 type SubjectList = Subject & {

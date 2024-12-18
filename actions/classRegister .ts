@@ -16,13 +16,13 @@ type currentState={
 // create subject
 export const createSection = async (
   currentState: currentState,
-  data: SectionSchema
+  data: SectionSchema // Section name is provided
 ) => {
   try {
-    // Convert the subject name to uppercase
+    // Convert the section name to uppercase
     const upperCaseName = data.name.toUpperCase();
 
-    // Check if the subject already exists
+    // Check if the section (class) already exists
     const existingClass = await prisma.class.findUnique({
       where: { name: upperCaseName },
     });
@@ -31,15 +31,35 @@ export const createSection = async (
       return { success: false, error: true, message: "Section already exists!" };
     }
 
-    // Create a new subject
-    await prisma.class.create({
+    // Create the new section in the Class table
+    const newClass = await prisma.class.create({
       data: { name: upperCaseName },
     });
 
-    return { success: true, error: false, message: "Section created successfully" };
+    // Fetch all existing grades
+    const grades = await prisma.grade.findMany();
+
+    if (!grades.length) {
+      return { success: false, error: true, message: "No grades found to associate with the section." };
+    }
+
+    // Create GradeClass entries for each grade
+    const gradeClassPromises = grades.map((grade) =>
+      prisma.gradeClass.create({
+        data: {
+          gradeId: grade.id,
+          classId: newClass.id, // Link to the newly created class
+        },
+      })
+    );
+
+    // Wait for all GradeClass entries to be created
+    await Promise.all(gradeClassPromises);
+
+    return { success: true, error: false, message: "Section added successfully for all grades." };
   } catch (err) {
-    
-    return { success: false, error: true, message: "An unexpected error occurred" };
+    console.error("Error creating section for all grades:", err);
+    return { success: false, error: true, message: "An unexpected error occurred while creating the section." };
   }
 };
 
@@ -63,7 +83,6 @@ export const updateSection = async (
         NOT: { id: data.id }, // Exclude the current record from the check
       },
     });
-
     if (existingClass) {
       return {
         success: false,

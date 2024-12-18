@@ -56,7 +56,7 @@ const forms: {
 } = {
   teacher: (setOpen,type, data,relatedData) => <TeacherForm type={type} data={data} setOpen={setOpen} relatedData={relatedData}/>,
   student: (setOpen,type, data,relatedData) => <StudentForm type={type} data={data} setOpen={setOpen} relatedData={relatedData}/>,
-  subject: (setOpen,type, data,relatedData) => <SubjectForm type={type} data={data} setOpen={setOpen} relatedData={relatedData}/>,
+  subject: (setOpen,type, data,relatedData) => <SuperviserForm type={type} data={data} setOpen={setOpen} relatedData={relatedData}/>,
   assignTeacher: (setOpen,type,data,relatedData) => <AssignTeacherForm type={type} data={data} setOpen={setOpen} relatedData={relatedData}/>,
   assignSuperviser: (setOpen,type,data,relatedData) => <SuperviserForm type={type} data={data} setOpen={setOpen} relatedData={relatedData}/>,
   class: (setOpen,type,data,relatedData) => <ClassForm type={type} data={data} setOpen={setOpen} relatedData={relatedData}/>,
