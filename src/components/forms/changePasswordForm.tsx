@@ -15,7 +15,7 @@ import { createSuperviser } from "../../../actions/AssignSuperviser";
 
 
 
-const SuperviserForm = ({
+const SuperviserForm = async({
     type,
     data,
     setOpen,
@@ -54,7 +54,7 @@ const SuperviserForm = ({
     }
   }, [state]);
 
-  const { teachers,classes } = relatedData;
+  const { teachers,classes } =await relatedData;
  
   
 

@@ -12,9 +12,7 @@ import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 
 
-
-
-const SubjectForm = async ({
+const SubjectForm = ({
     type,
     data,
     setOpen,

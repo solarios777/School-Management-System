@@ -38,7 +38,7 @@ export const createSubject = async (
 
     return { success: true, error: false, message: "Subject created successfully" };
   } catch (err) {
-    console.log("errrororoorooor",err);
+    console.log("error",err);
     
     return { success: false, error: true, message: "An unexpected error occurred" };
   }

@@ -1,3 +1,4 @@
+import FormContainer from "@/components/FormContainer";
 import FormModal from "@/components/FormModal";
 import Pagination from "@/components/Pagination";
 import Table from "@/components/Table";
@@ -33,8 +34,8 @@ const TeacherListPage = async ({
       accessor: "info",
     },
     {
-      header: "Teacher ID",
-      accessor: "teacherId",
+      header: "Username",
+      accessor: "username",
       className: "hidden md:table-cell",
     },
     {
@@ -67,6 +68,7 @@ const TeacherListPage = async ({
       key={item.id}
       className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-lamaPurpleLight"
     >
+    <Link href={`/list/teachers/${item.id}`}>
       <td className="flex items-center gap-4 p-4">
         <Image
           src={item.img || "/noAvatar.png"}
@@ -82,7 +84,10 @@ const TeacherListPage = async ({
           </p>
         </div>
       </td>
-      <td className="hidden md:table-cell">{item.id}</td>
+      </Link>
+
+      <td className="hidden md:table-cell">{item.username}</td>
+      
       <td className="hidden md:table-cell">
         {item.assignments[0]?.gradeClass?.grade?.level || "N/A"} {" "}
         {item.assignments[0]?.gradeClass?.class?.name || "N/A"}
@@ -97,7 +102,7 @@ const TeacherListPage = async ({
             </button>
           </Link>
           {role === "admin" && (
-            <FormModal table="teacher" type="delete" id={item.id} />
+            <FormContainer table="teacher" type="delete" id={item.id} />
           )}
         </div>
       </td>

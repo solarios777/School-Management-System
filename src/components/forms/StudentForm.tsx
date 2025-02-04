@@ -5,16 +5,26 @@ import { useForm } from "react-hook-form";
 import { studentSchema, StudentSchema } from "../../../schema";
 import { Button } from "../ui/button";
 import InputField from "../InputField";
+import { Dispatch, SetStateAction, useEffect } from "react";
+import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
+import { useFormState } from "react-dom";
+import { createStudent } from "../../../actions/studentRegister";
+
 
 
 
 
 const StudentForm = ({
-    type,
-    data
+     type,
+    data,
+    setOpen,
+    relatedData
 }:{
     type:"create" | "update",
-    data?:any
+    data?:any,
+    setOpen:Dispatch<SetStateAction<boolean>>,
+    relatedData?:any
 }) => {
      const {
     register,
@@ -24,21 +34,34 @@ const StudentForm = ({
     resolver: zodResolver(studentSchema),
   });
   
-  const onSubmit = handleSubmit((data) => console.log(data));
-
+  const router=useRouter();
+    const [state,formAction]=useFormState(createStudent,{
+      success:false,
+      error:false,
+      message:""
+    });
+    
+    const onSubmit = handleSubmit((data) => {
+      formAction(data)
+    });
+    useEffect(() => {
+      if (state.success) {
+        
+        toast.success(state.message);
+        toast.success(state.password);
+        
+  
+        setOpen(false);
+        router.refresh();
+      } else if (state.error) {
+        toast.error(state.message);
+      }
+    }, [state]);
     return (
     <form className="flex flex-col gap-8 h-screen overflow-y-scroll md:h-auto md:overflow-hidden p-8 md:p-0" onSubmit={onSubmit}>
         <h1 className="text-xl font-semibold">Create a new Student</h1>
         <span className="text-xs text-gray-400 font-medium">Authentication information</span>
 <div className="flex justify-between flex-wrap gap-4 ">
-
-        <InputField
-        label="Username"
-        type="text"
-        name="username"
-        register={register}
-        placeholder="Enter your username"
-        error={errors?.username}/>
         <InputField
             label="Email"
             name="email"
@@ -135,8 +158,8 @@ const StudentForm = ({
             error={errors.role}
             // disabled={isPending}
             options={[
-              { value: "TEACHER", label: "Teacher" },
-              { value: "ADMIN", label: "Admin" },
+             
+              { value: "STUDENT", label: "Student" },
             ]}
           />
           </div>

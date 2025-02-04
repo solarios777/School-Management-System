@@ -30,6 +30,7 @@ const ClassListPage = async ({
 }) => {
   const user = await currentUser();
   const role = user?.role.toLowerCase();
+  
 
   const ITEMS_PER_PAGE = 12;
   const columns = [
@@ -37,15 +38,7 @@ const ClassListPage = async ({
       header: "Grade",
       accessor: "level",
       className: "hidden md:table-cell",
-    },
-    ...(role === "admin"
-      ? [
-          {
-            header: "Actions",
-            accessor: "action",
-          },
-        ]
-      : []),
+    }
   ];
 
   const renderRow = (item: ClassList) => (
@@ -69,18 +62,19 @@ const ClassListPage = async ({
                 <thead>
                   <tr>
                     <th className="px-4 py-2 text-left">Section</th>
-                    <th className="px-4 py-2 text-left">Number of Students</th>
+                    <th className="px-4 py-2 text-left hidden md:table-cell">Number of Students</th>
                     <th className="px-4 py-2 text-left">Supervisor</th>
                     {role === "admin" && <th className="px-4 py-2 text-left">Actions</th>}
                   </tr>
                 </thead>
                 <tbody>
-                  {item.GradeClass.filter((gc) => gc._count.enrollments > 0)
+                  {item.GradeClass
+                  // .filter((gc) => gc._count.enrollments > 0)
                     .sort((a, b) => a.class.name.localeCompare(b.class.name))
                     .map((gc) => (
                       <tr key={gc.class.id}>
                         <td className="px-4 py-2">{gc.class.name}</td>
-                        <td className="px-4 py-2">{gc._count.enrollments}</td>
+                        <td className="px-4 py-2 hidden md:table-cell">{gc._count.enrollments}</td>
                         <td className="px-4 py-2">
                           {gc.superviser.length > 0
                             ? gc.superviser
@@ -93,8 +87,10 @@ const ClassListPage = async ({
                         {role === "admin" && (
                           <td className="px-4 py-2">
                             <div className="flex items-center gap-2">
-                              <FormContainer table="class" type="update" data={gc} />
-                              <FormContainer table="class" type="delete" id={gc.class.id} />
+                              <FormContainer table="assignSupervisor" type="update" data={gc} />
+                              <FormContainer table="assignSupervisor" type="create" data={{gc,item}}/>
+                              <FormContainer table="assignSupervisor" type="delete" id={gc.class.id} />
+
                             </div>
                           </td>
                         )}

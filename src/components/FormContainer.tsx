@@ -15,19 +15,23 @@ export type FormContainerProps = {
     | "attendance"
     | "event"
     | "assignTeacher"
+    |"assignSupervisor"
+    | "changePassword"
     | "announcement";
-  type: "create" | "update" | "delete";
+  type: "create" | "update" | "delete" | "changePassword";
   data?: any;
   id?: number | string;
+  username?: string;
+  role?: string;
 };
 
-const FormContainer = async ({ table, type, data, id }: FormContainerProps) => {
+const FormContainer = async ({ table, type, data, id ,username,role}: FormContainerProps) => {
 
   let relatedData = {};
 
   if (type !== "delete") {
     switch (table) {
-      case "subject":
+      case "assignSupervisor":
         try {
           const subjectTeacher = await prisma.teacher.findMany({
             select: { id: true, name: true, surname: true },
@@ -44,6 +48,36 @@ const FormContainer = async ({ table, type, data, id }: FormContainerProps) => {
           console.error("Error fetching teachers:", error);
         }
         break;
+        case "subject":
+        try {
+          const subjectTeacher = await prisma.teacher.findMany({
+            select: { id: true, name: true, surname: true },
+          });
+          
+          const classes=await prisma.class.findMany()
+          const Subjects=await prisma.subject.findMany()
+          relatedData={
+            teachers: subjectTeacher,
+            classes:classes,
+            subjects:Subjects
+          }
+        } catch (error) {
+          console.error("Error fetching teachers:", error);
+        }
+        break;
+         case "changePassword":
+        try {
+          const user=username
+          const userRole=role
+          relatedData={
+            username:user,
+            role:userRole
+            
+          }
+        } catch (error) {
+          console.error("Error fetching teachers:", error);
+        }
+        break;
 
       default:
         break;
@@ -52,7 +86,7 @@ const FormContainer = async ({ table, type, data, id }: FormContainerProps) => {
 
   return (
     <div>
-      <FormModal table={table} type={type} data={data} id={id} relatedData={relatedData} />
+      <FormModal table={table} type={type} data={data} id={id} relatedData={relatedData} username={username} role={role}/>
     </div>
   );
 };

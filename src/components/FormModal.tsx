@@ -48,19 +48,23 @@ const AssignTeacherForm = dynamic(() => import("./forms/AssignTeacherForm"), {
 });
 const  ClassForm= dynamic(() => import("./forms/ClassForm"), {
   loading: () => <h1>Loading...</h1>,
-});const SuperviserForm = dynamic(() => import("./forms/SuperviserForm"), {
+});
+const SuperviserForm = dynamic(() => import("./forms/SuperviserForm"), {
+  loading: () => <h1>Loading...</h1>,
+});
+const ChangePasswordForm = dynamic(() => import("./forms/changePasswordForm"), {
   loading: () => <h1>Loading...</h1>,
 });
 const forms: {
-  [key: string]: (setOpen: Dispatch<SetStateAction<boolean>>, type: "create" | "update", data?: any,relatedData?:any) => JSX.Element;
+  [key: string]: (setOpen: Dispatch<SetStateAction<boolean>>, type: "create" | "update", data?: any,relatedData?:any, username?:string,role?:string) => JSX.Element;
 } = {
   teacher: (setOpen,type, data,relatedData) => <TeacherForm type={type} data={data} setOpen={setOpen} relatedData={relatedData}/>,
   student: (setOpen,type, data,relatedData) => <StudentForm type={type} data={data} setOpen={setOpen} relatedData={relatedData}/>,
-  subject: (setOpen,type, data,relatedData) => <SuperviserForm type={type} data={data} setOpen={setOpen} relatedData={relatedData}/>,
+  subject: (setOpen,type, data,relatedData) => <SubjectForm type={type} data={data} setOpen={setOpen} relatedData={relatedData}/>,
   assignTeacher: (setOpen,type,data,relatedData) => <AssignTeacherForm type={type} data={data} setOpen={setOpen} relatedData={relatedData}/>,
-  assignSuperviser: (setOpen,type,data,relatedData) => <SuperviserForm type={type} data={data} setOpen={setOpen} relatedData={relatedData}/>,
+  assignSupervisor: (setOpen,type,data,relatedData) => <SuperviserForm type={type} data={data} setOpen={setOpen} relatedData={relatedData}/>,
   class: (setOpen,type,data,relatedData) => <ClassForm type={type} data={data} setOpen={setOpen} relatedData={relatedData}/>,
-
+  changePassword: (setOpen,type,data,relatedData) => <ChangePasswordForm type={type} data={data} setOpen={setOpen} relatedData={relatedData} />,
 
 };
 
@@ -69,7 +73,8 @@ const FormModal = ({
   type,
   data,
   id,
-  relatedData
+  relatedData,
+  
 }: FormContainerProps & {relatedData?:any}) => {
   const size = type === "create" ? "w-8 h-8" : "w-7 h-7";
   const bgColor =
@@ -109,7 +114,7 @@ const FormModal = ({
           Delete
         </button>
       </form>
-    ) : type === "create" || type === "update" ? (
+    ) : type === "create" || type === "update" || type === "changePassword"? (
       forms[table](setOpen,type, data,relatedData)
     ) : (
       "Form not found!"
@@ -122,7 +127,7 @@ const FormModal = ({
         className={`${size} flex items-center justify-center rounded-full ${bgColor}`}
         onClick={() => setOpen(true)}
       >
-        <Image src={`/${type}.png`} alt="" width={16} height={16} />
+        {type==="changePassword"?<button className="rounded-md bg-black text-white py-2 px-4">Change Password</button>:<Image src={`/${type}.png`} alt="" width={16} height={16} />}
       </button>
       {open && (
         <div className="w-screen h-screen absolute left-0 top-0 bg-black bg-opacity-60 z-50 flex items-center justify-center">

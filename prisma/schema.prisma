@@ -17,6 +17,13 @@ model Session {
 
   @@map("sessions")
 }
+model Counter {
+  id       String @id @default(cuid())
+  userType String @unique
+  count    Int    @default(0)
+  year     Int    // Add a field to track the year
+}
+
 
 model User {
   id            String    @id @default(cuid())

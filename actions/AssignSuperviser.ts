@@ -41,6 +41,20 @@ export const createSuperviser = async (
         year,
       },
     });
+    
+    const asssignedSupervisor = await prisma.superviser.findFirst({
+      where: {
+        teacherId: teachername,
+        year,
+      },
+    }); 
+     if (asssignedSupervisor) {
+      return {
+        success: false,
+        error: true,
+        message: "This teacher has already been assigned as a supervisor for another grade and section!",
+      };
+    }
 
     if (existingSupervisor) {
       return {

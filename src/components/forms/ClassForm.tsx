@@ -7,7 +7,6 @@ import { Button } from "../ui/button";
 import InputField from "../InputField";
 import { createSection,updateSection } from "../../../actions/classRegister ";
 import { useFormState } from "react-dom";
-import { error } from "console";
 import { Dispatch, SetStateAction, use, useEffect } from "react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
@@ -15,7 +14,7 @@ import { useRouter } from "next/navigation";
 
 
 
-const ClassForm = async ({
+const ClassForm =  ({
     type,
     data,
     setOpen,

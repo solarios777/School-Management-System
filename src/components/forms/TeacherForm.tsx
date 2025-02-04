@@ -5,16 +5,25 @@ import { useForm } from "react-hook-form";
 import { TeacherSchema, teacherSchema } from "../../../schema";
 import { Button } from "../ui/button";
 import InputField from "../InputField";
+import { Dispatch, SetStateAction, useEffect } from "react";
+import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
+import { useFormState } from "react-dom";
+import { createTeacher, updateTeacher } from "../../../actions/teacherRegister";
 
 
 
-
+ 
 const TeacherForm = ({
     type,
-    data
+    data,
+    setOpen,
+    relatedData
 }:{
     type:"create" | "update",
-    data?:any
+    data?:any,
+    setOpen:Dispatch<SetStateAction<boolean>>,
+    relatedData?:any
 }) => {
      const {
     register,
@@ -24,30 +33,56 @@ const TeacherForm = ({
     resolver: zodResolver(teacherSchema),
   });
   
-  const onSubmit = handleSubmit((data) => console.log(data));
+   const router=useRouter();
+  const [state,formAction]=useFormState(type==="create"?createTeacher:updateTeacher,{
+    success:false,
+    error:false,
+    message:""
+  });
+  
+  const onSubmit = handleSubmit((data) => {
+    formAction(data)
+  });
+  useEffect(() => {
+    if (state.success) {
+      
+      toast.success(state.message);
+      toast.success(state.password);
+      
 
+      setOpen(false);
+      router.refresh();
+    } else if (state.error) {
+      toast.error(state.message);
+    }
+  }, [state]);
     return (
     <form className="flex flex-col gap-8 h-screen overflow-y-scroll md:h-auto md:overflow-hidden p-8 md:p-0" onSubmit={onSubmit}>
-        <h1 className="text-xl font-semibold">Create a new Teacher</h1>
+        <h1 className="text-xl font-semibold">{type==="create"?"Create a new Teacher":"Update Teacher info"} </h1>
         <span className="text-xs text-gray-400 font-medium">Authentication information</span>
 <div className="flex justify-between flex-wrap gap-4 ">
 
-        <InputField
-        label="Username"
-        type="text"
-        name="username"
-        register={register}
-        placeholder="Enter your username"
-        error={errors?.username}/>
+        
         <InputField
             label="Email"
             name="email"
             register={register}
             error={errors.email}
             type="email"
-            placeholder="Enter your email"
+            defaultValue={data?.email}
             // disabled={isPending}
-          /></div>
+          />
+          {data && <InputField
+            label="id"
+            name="id"
+            register={register}
+            defaultValue={data?.id}
+            error={errors.id}
+            // hidden
+            // placeholder="Enter subject name"
+            // disabled={isPending}
+          />}
+          </div>
        <span className="text-xs text-gray-400 font-medium">Personal information</span>
 <div className="flex justify-between flex-wrap gap-4 ">
          <InputField
@@ -55,16 +90,17 @@ const TeacherForm = ({
             name="name"
             register={register}
             error={errors.name}
-            placeholder="Enter your name"
+            defaultValue={data?.name}
             // disabled={isPending}
           />
+          
 
           <InputField
             label="Surname"
             name="surname"
             register={register}
             error={errors.surname}
-            placeholder="Enter your surname"
+            defaultValue={data?.surname}
             // disabled={isPending}
           />
            <InputField
@@ -73,7 +109,7 @@ const TeacherForm = ({
             register={register}
             error={errors.phone}
             type="tel"
-            placeholder="Enter your phone number"
+            defaultValue={data?.phone}
             // disabled={isPending}
           />
           <InputField
@@ -81,7 +117,7 @@ const TeacherForm = ({
             name="address"
             register={register}
             error={errors.address}
-            placeholder="Enter your address"
+            defaultValue={data?.address}
             // disabled={isPending}
           />
 
@@ -91,7 +127,7 @@ const TeacherForm = ({
             as="select"
             register={register}
             error={errors.bloodType}
-            // disabled={isPending}
+            defaultValue={data?.bloodType}
             options={[
               { value: "", label: "Select Blood Type" },
               { value: "A+", label: "A+" },
@@ -111,7 +147,7 @@ const TeacherForm = ({
             as="select"
             register={register}
             error={errors.sex}
-            // disabled={isPending}
+            defaultValue={data?.sex}
             options={[
               { value: "MALE", label: "Male" },
               { value: "FEMALE", label: "Female" },
@@ -124,6 +160,7 @@ const TeacherForm = ({
             type="date"
             register={register}
             error={errors.birthday}
+            defaultValue={data?.birthday.toLocaleDateString("en-CA")}
             // disabled={isPending}
           />
 
@@ -133,7 +170,7 @@ const TeacherForm = ({
             as="select"
             register={register}
             error={errors.role}
-            // disabled={isPending}
+            defaultValue={data?.role}
             options={[
               { value: "TEACHER", label: "Teacher" },
               { value: "ADMIN", label: "Admin" },

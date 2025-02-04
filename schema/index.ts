@@ -49,15 +49,6 @@ export type AdminFormValues = z.infer<typeof AdminSchema>;
 
 export const teacherSchema = z.object({
   id: z.string().optional(),
-  username: z
-    .string()
-    .min(3, { message: "Username must be at least 3 characters long!" })
-    .max(20, { message: "Username must be at most 20 characters long!" }),
-  password: z
-    .string()
-    .min(8, { message: "Password must be at least 8 characters long!" })
-    .optional()
-    .or(z.literal("")),
   name: z.string().min(1, { message: "First name is required!" }),
   surname: z.string().min(1, { message: "Last name is required!" }),
   email: z
@@ -89,15 +80,6 @@ export type SectionSchema = z.infer<typeof sectionSchema>;
 
 export const studentSchema = z.object({
   id: z.string().optional(),
-  username: z
-    .string()
-    .min(3, { message: "Username must be at least 3 characters long!" })
-    .max(20, { message: "Username must be at most 20 characters long!" }),
-  password: z
-    .string()
-    .min(8, { message: "Password must be at least 8 characters long!" })
-    .optional()
-    .or(z.literal("")),
   name: z.string().min(1, { message: "First name is required!" }),
   surname: z.string().min(1, { message: "Last name is required!" }),
   email: z
@@ -115,6 +97,27 @@ export const studentSchema = z.object({
 });
 
 export type StudentSchema = z.infer<typeof studentSchema>;
+
+export const changePasswordSchema = z.object({
+  
+  id: z.string().optional(),
+  username: z
+    .string()
+    .min(3, { message: "Username must be at least 3 characters long!" })
+    .max(20, { message: "Username must be at most 20 characters long!" }),
+  oldPassword: z.string().min(6, { message: "Minimum 6 characters is required!" }),
+  newPassword: z
+    .string()
+    .min(6, { message: "Minimum 6 characters is required!" })
+    .max(20, { message: "Maximum 20 characters is required!" }),
+  confirmPassword: z
+    .string()
+    .min(6, { message: "Minimum 6 characters is required!" })
+    .max(20, { message: "Maximum 20 characters is required!" }),
+  role: z.enum(["TEACHER", "ADMIN", "STUDENT", "PARENT"], { message: "Role is required!" }),
+
+})
+export type ChangePasswordSchema = z.infer<typeof changePasswordSchema >;
 
 
 const currentYear = new Date().getFullYear();
