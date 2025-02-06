@@ -67,6 +67,27 @@ export const teacherSchema = z.object({
 
 export type TeacherSchema = z.infer<typeof teacherSchema>;
 
+export const parentSchema = z.object({
+  id: z.string().optional(),
+  name: z.string().min(1, { message: "First name is required!" }),
+  surname: z.string().min(1, { message: "Last name is required!" }),
+  email: z
+    .string()
+    .email({ message: "Invalid email address!" })
+    .optional()
+    .or(z.literal("")),
+  phone: z.string().optional(),
+  address: z.string(),
+  img: z.string().optional(),
+  bloodType: z.string().min(1, { message: "Blood Type is required!" }),
+  birthday: z.coerce.date({ message: "Birthday is required!" }),
+  sex: z.enum(["MALE", "FEMALE"], { message: "Sex is required!" }),
+  role: z.enum(["TEACHER", "ADMIN", "STUDENT", "PARENT"], { message: "Role is required!" }), // Add roles as needed
+});
+
+
+export type ParentSchema = z.infer<typeof parentSchema>;
+
 export const subjectSchema = z.object({
   id: z.string().optional(),
   name: z.string().min(1, { message: "Subject name is required!" }),

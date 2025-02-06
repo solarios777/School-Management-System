@@ -92,3 +92,55 @@ export const createStudent = async (
     };
   }
 };
+export const updateStudent = async (
+  currentState: CurrentState,
+  
+  data: Partial<StudentSchema>
+): Promise<{ success: boolean; error: boolean; message: string }> => {
+  try {
+    // Check if the teacher exists
+    const existingStudent = await prisma.student.findUnique({
+      where: { id: data.id },
+    });
+
+    if (!existingStudent) {
+      return {
+        success: false,
+        error: true,
+        message: "Student not found.",
+      };
+    }
+
+    // Update the teacher data except the password
+    await prisma.student.update({
+      where: { id: data.id },
+      data: {
+        // username: data.username || existingTeacher.username,
+        name: data.name || existingStudent.name,
+        surname: data.surname || existingStudent.surname,
+        email: data.email || existingStudent.email,
+        phone: data.phone || existingStudent.phone,
+        address: data.address || existingStudent.address,
+        img: data.img || existingStudent.img,
+        bloodType: data.bloodType || existingStudent.bloodType,
+        birthday: data.birthday || existingStudent.birthday,
+        sex: data.sex || existingStudent.sex,
+        role: data.role || existingStudent.role,
+      },
+    });
+
+    return {
+      success: true,
+      error: false,
+      message: "Student updated successfully.",
+    };
+  } catch (err) {
+    console.error("Error while updating Student:", err);
+
+    return {
+      success: false,
+      error: true,
+      message: "An unexpected error occurred.",
+    };
+  }
+};

@@ -1,4 +1,4 @@
-import FormModal from "@/components/FormModal";
+
 import Pagination from "@/components/Pagination";
 import { ITEMS_PER_PAGE } from "@/lib/settings";
 import Table from "@/components/Table";
@@ -8,6 +8,8 @@ import { Parent, Prisma, Student } from "@prisma/client";
 import prisma from "@/lib/prisma";
 import { useCurrentUser } from "../../../../../hooks/use-currentUser";
 import { currentUser } from "@/lib/auth";
+import FormContainer from "@/components/FormContainer";
+import Link from "next/link";
 
 
 type ParentList= Parent & {
@@ -61,10 +63,21 @@ const ParentListPage = async ({
       className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-lamaPurpleLight"
     >
       <td className="flex items-center gap-4 p-4">
+        <Link href={`/list/parents/${item.id}`}>
+         <div className="flex gap-4">
+        <Image
+          src={item.img || "/noAvatar.png"}
+          alt=""
+          width={40}
+          height={40}
+          className="md:hidden xl:block w-10 h-10 rounded-full object-cover"
+        />
         <div className="flex flex-col">
           <h3 className="font-semibold">{item.name}</h3>
           <p className="text-xs text-gray-500">{item?.email}</p>
         </div>
+        </div>
+        </Link>
       </td>
       <td className="hidden md:table-cell">{item.students.map(student=>student.name).join(",")}</td>
       <td className="hidden md:table-cell">{item.phone}</td>
@@ -73,8 +86,8 @@ const ParentListPage = async ({
         <div className="flex items-center gap-2">
           {role === "admin" && (
             <>
-              <FormModal table="parent" type="update" data={item} />
-              <FormModal table="parent" type="delete" id={item.id} />
+              <FormContainer table="parent" type="update" data={item} />
+              <FormContainer table="parent" type="delete" id={item.id} />
             </>
           )}
         </div>
@@ -128,7 +141,7 @@ const ParentListPage = async ({
             <button className="w-8 h-8 flex items-center justify-center rounded-full bg-lamaYellow">
               <Image src="/sort.png" alt="" width={14} height={14} />
             </button>
-            {role === "admin" && <FormModal table="parent" type="create" />}
+            {role === "admin" && <FormContainer table="parent" type="create" />}
           </div>
         </div>
       </div>

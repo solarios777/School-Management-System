@@ -9,7 +9,7 @@ import { Dispatch, SetStateAction, useEffect } from "react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { useFormState } from "react-dom";
-import { createStudent } from "../../../actions/studentRegister";
+import { createStudent, updateStudent } from "../../../actions/studentRegister";
 
 
 
@@ -35,7 +35,7 @@ const StudentForm = ({
   });
   
   const router=useRouter();
-    const [state,formAction]=useFormState(createStudent,{
+    const [state,formAction]=useFormState(type==="create"?createStudent:updateStudent,{
       success:false,
       error:false,
       message:""
@@ -59,7 +59,7 @@ const StudentForm = ({
     }, [state]);
     return (
     <form className="flex flex-col gap-8 h-screen overflow-y-scroll md:h-auto md:overflow-hidden p-8 md:p-0" onSubmit={onSubmit}>
-        <h1 className="text-xl font-semibold">Create a new Student</h1>
+        <h1 className="text-xl font-semibold">{type==="create"?"Create a new Student":"Update Student info"}</h1>
         <span className="text-xs text-gray-400 font-medium">Authentication information</span>
 <div className="flex justify-between flex-wrap gap-4 ">
         <InputField
@@ -68,9 +68,20 @@ const StudentForm = ({
             register={register}
             error={errors.email}
             type="email"
+            defaultValue={data?.email}
             placeholder="Enter your email"
             // disabled={isPending}
-          /></div>
+          />
+           {data && <InputField
+            label="id"
+            name="id"
+            register={register}
+            defaultValue={data?.id}
+            error={errors.id}
+            hidden
+            // placeholder="Enter subject name"
+            // disabled={isPending}
+          />}</div>
        <span className="text-xs text-gray-400 font-medium">Personal information</span>
 <div className="flex justify-between flex-wrap gap-4 ">
          <InputField
@@ -78,6 +89,7 @@ const StudentForm = ({
             name="name"
             register={register}
             error={errors.name}
+            defaultValue={data?.name}
             placeholder="Enter your name"
             // disabled={isPending}
           />
@@ -87,6 +99,7 @@ const StudentForm = ({
             name="surname"
             register={register}
             error={errors.surname}
+            defaultValue={data?.surname}
             placeholder="Enter your surname"
             // disabled={isPending}
           />
@@ -96,6 +109,7 @@ const StudentForm = ({
             register={register}
             error={errors.phone}
             type="tel"
+            defaultValue={data?.phone}
             placeholder="Enter your phone number"
             // disabled={isPending}
           />
@@ -104,6 +118,7 @@ const StudentForm = ({
             name="address"
             register={register}
             error={errors.address}
+            defaultValue={data?.address}
             placeholder="Enter your address"
             // disabled={isPending}
           />
@@ -113,6 +128,7 @@ const StudentForm = ({
             name="bloodType"
             as="select"
             register={register}
+            defaultValue={data?.bloodType}
             error={errors.bloodType}
             // disabled={isPending}
             options={[
@@ -134,6 +150,7 @@ const StudentForm = ({
             as="select"
             register={register}
             error={errors.sex}
+            defaultValue={data?.sex}
             // disabled={isPending}
             options={[
               { value: "MALE", label: "Male" },
@@ -147,6 +164,7 @@ const StudentForm = ({
             type="date"
             register={register}
             error={errors.birthday}
+            defaultValue={data?.birthday.toLocaleDateString("en-CA")}
             // disabled={isPending}
           />
 
@@ -156,6 +174,7 @@ const StudentForm = ({
             as="select"
             register={register}
             error={errors.role}
+            defaultValue={data?.role}
             // disabled={isPending}
             options={[
              

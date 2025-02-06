@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import { FormContainerProps } from "./FormContainer";
 import { deleteSection } from "../../actions/classRegister ";
 
+
 const deleteActionMap = {
   subject: deleteSubject,
   assignTeacher: deleteSubject,
@@ -40,6 +41,9 @@ const TeacherForm = dynamic(() => import("./forms/TeacherForm"), {
 const StudentForm = dynamic(() => import("./forms/StudentForm"), {
   loading: () => <h1>Loading...</h1>,
 });
+const ParentForm = dynamic(() => import("./forms/ParentForm"), {
+  loading: () => <h1>Loading...</h1>,
+});
 const SubjectForm = dynamic(() => import("./forms/SubjectForm"), {
   loading: () => <h1>Loading...</h1>,
 });
@@ -60,6 +64,7 @@ const forms: {
 } = {
   teacher: (setOpen,type, data,relatedData) => <TeacherForm type={type} data={data} setOpen={setOpen} relatedData={relatedData}/>,
   student: (setOpen,type, data,relatedData) => <StudentForm type={type} data={data} setOpen={setOpen} relatedData={relatedData}/>,
+  parent: (setOpen,type, data,relatedData) => <ParentForm type={type} data={data} setOpen={setOpen} relatedData={relatedData}/>,
   subject: (setOpen,type, data,relatedData) => <SubjectForm type={type} data={data} setOpen={setOpen} relatedData={relatedData}/>,
   assignTeacher: (setOpen,type,data,relatedData) => <AssignTeacherForm type={type} data={data} setOpen={setOpen} relatedData={relatedData}/>,
   assignSupervisor: (setOpen,type,data,relatedData) => <SuperviserForm type={type} data={data} setOpen={setOpen} relatedData={relatedData}/>,

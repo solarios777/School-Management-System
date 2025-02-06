@@ -69,7 +69,10 @@ const StudentListPage = async ({
       key={item.id}
       className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-lamaPurpleLight"
     >
+     
       <td className="flex items-center gap-4 p-4">
+         <Link href={`/list/students/${item.id}`}>
+         <div className="flex gap-4">
         <Image
           src={item.img || "/noAvatar.png"}
           alt=""
@@ -81,18 +84,16 @@ const StudentListPage = async ({
           <h3 className="font-semibold">{item.name}</h3>
           <p className="text-xs text-gray-500">{item.enrollments[0]?.gradeClass?.grade?.level || 'N/A'}</p> {/* Displaying grade level */}
         </div>
+        </div>
+        </Link>
       </td>
+      
       <td className="hidden md:table-cell">{item.username}</td>
       <td className="hidden md:table-cell">{item.enrollments[0]?.gradeClass?.grade?.level || 'N/A'} {item.enrollments[0]?.gradeClass?.class?.name || 'N/A'}</td> {/* Displaying class name */}
       <td className="hidden md:table-cell">{item.phone}</td>
       <td className="hidden md:table-cell">{item.address}</td>
       <td>
         <div className="flex items-center gap-2">
-          <Link href={`/list/students/${item.id}`}>
-            <button className="w-7 h-7 flex items-center justify-center rounded-full bg-lamaSky">
-              <Image src="/view.png" alt="" width={16} height={16} />
-            </button>
-          </Link>
           {role === "admin" && (
             <FormModal table="student" type="delete" id={item.id} />
           )}

@@ -103,6 +103,7 @@ model Parent {
   email     String?   @unique
   phone     String    @unique
   address   String
+  img       String?
   createdAt DateTime  @default(now())
   role      UserRole @default(PARENT)
   password  String?
