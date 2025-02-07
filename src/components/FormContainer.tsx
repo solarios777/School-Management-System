@@ -15,10 +15,11 @@ export type FormContainerProps = {
     | "attendance"
     | "event"
     | "assignTeacher"
-    |"assignSupervisor"
+    | "assignSupervisor"
+    | "enroll"
     | "changePassword"
     | "announcement";
-  type: "create" | "update" | "delete" | "changePassword";
+  type: "create" | "update" | "delete" | "changePassword" |"enroll";
   data?: any;
   id?: number | string;
   username?: string;
@@ -43,6 +44,18 @@ const FormContainer = async ({ table, type, data, id ,username,role}: FormContai
             teachers: subjectTeacher,
             classes:classes,
             subjects:Subjects
+          }
+        } catch (error) {
+          console.error("Error fetching teachers:", error);
+        }
+        break;
+        case "enroll":
+        try {
+          
+          const classes=await prisma.class.findMany()
+          relatedData={
+            
+            classes:classes,
           }
         } catch (error) {
           console.error("Error fetching teachers:", error);

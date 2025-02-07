@@ -71,6 +71,7 @@ export const createParent = async (
         birthday: data.birthday,
         sex: data.sex,
         role: data.role,
+        
       },
     });
 
@@ -87,7 +88,7 @@ export const createParent = async (
     return {
       success: false,
       error: true,
-      message: "An unexpected error occurred.",
+      message: `An unexpected error occurred. ${err}`,
     };
   }
 };

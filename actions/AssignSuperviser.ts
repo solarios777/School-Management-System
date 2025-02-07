@@ -49,10 +49,25 @@ export const createSuperviser = async (
       },
     }); 
      if (asssignedSupervisor) {
+      const gradeClass = await prisma.gradeClass.findUnique({
+        where: {
+          id: asssignedSupervisor.gradeClassId,
+        },
+      })
+      const grade = await prisma.grade.findUnique({
+        where: {
+          id: gradeClass?.gradeId,
+        },
+      })
+      const section= await prisma.class.findUnique({
+        where: {
+          id: gradeClass?.classId,
+        },
+      })
       return {
         success: false,
         error: true,
-        message: "This teacher has already been assigned as a supervisor for another grade and section!",
+        message: `This teacher has already been assigned as a supervisor for SECTION ${grade?.level} ${section?.name}`,
       };
     }
 

@@ -37,8 +37,7 @@ export const createStudent = async (
     }
 
     // Generate username
-      const username = await generateUsername('ST'); // Change 'ST' to 'TR' or 'PR' as needed
-    console.log(`Generated Username: ${username}`);
+      const username = await generateUsername('ST'); 
     
 
     // Generate a random password

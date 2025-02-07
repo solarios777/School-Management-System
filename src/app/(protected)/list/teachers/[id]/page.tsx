@@ -184,30 +184,30 @@ const SingleTeacherPage = async ({
             >
               Teacher&apos;s Classes
             </Link>
-            <Link
+            {/* <Link
               className="p-3 rounded-md bg-lamaPurpleLight"
               href={`/list/students?teacherId=${teacher.id}`}
             >
               Teacher&apos;s Students
-            </Link>
-            <Link
+            </Link> */}
+            {/* <Link
               className="p-3 rounded-md bg-lamaYellowLight"
               href={`/list/lessons?teacherId=${teacher.id}`}
             >
               Teacher&apos;s Lessons
-            </Link>
-            <Link
+            </Link> */}
+            {/* <Link
               className="p-3 rounded-md bg-pink-50"
               href={`/list/exams?teacherId=${teacher.id}`}
             >
               Teacher&apos;s Exams
-            </Link>
-            <Link
+            </Link> */}
+            {/* <Link
               className="p-3 rounded-md bg-lamaSkyLight"
               href={`/list/assignments?teacherId=${teacher.id}`}
             >
               Teacher&apos;s Assignments
-            </Link>
+            </Link> */}
           </div>
         </div>
         <Performance />

@@ -22,7 +22,7 @@ const AssignTeacherForm = async({
     setOpen,
     relatedData
 }:{
-    type:"create" | "update",
+    type:"create" | "update"|"changePassword" | "enroll",
     data?:any,
     setOpen:Dispatch<SetStateAction<boolean>>,
     relatedData?:any

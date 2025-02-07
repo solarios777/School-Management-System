@@ -9,12 +9,13 @@ type CurrentState = {
   success?: boolean;
   error?: boolean;
   message?: string;
+  password?: string;
 };
 
 export const createTeacher = async (
   currentState: CurrentState,
   data: TeacherSchema
-): Promise<{  password?: string; success: boolean; error: boolean; message: string }> => {
+): Promise<CurrentState>  => {
   try {
     // Check if email or phone already exists
     const existingTeacher = await prisma.teacher.findFirst({

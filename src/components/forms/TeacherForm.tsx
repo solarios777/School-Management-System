@@ -20,7 +20,7 @@ const TeacherForm = ({
     setOpen,
     relatedData
 }:{
-    type:"create" | "update",
+    type:"create" | "update"|"changePassword" | "enroll",
     data?:any,
     setOpen:Dispatch<SetStateAction<boolean>>,
     relatedData?:any
@@ -41,21 +41,21 @@ const TeacherForm = ({
   });
   
   const onSubmit = handleSubmit((data) => {
-    formAction(data)
-  });
-  useEffect(() => {
-    if (state.success) {
-      
-      toast.success(state.message);
-      toast.success(state.password);
-      
-
-      setOpen(false);
-      router.refresh();
-    } else if (state.error) {
-      toast.error(state.message);
-    }
-  }, [state]);
+      formAction(data)
+    });
+    useEffect(() => {
+      if (state.success) {
+        
+        toast.success(state.message);
+        toast.success(state.password);
+        
+  
+        setOpen(false);
+        router.refresh();
+      } else if (state.error) {
+        toast.error(state.message);
+      }
+    }, [state]);
     return (
     <form className="flex flex-col gap-8 h-screen overflow-y-scroll md:h-auto md:overflow-hidden p-8 md:p-0" onSubmit={onSubmit}>
         <h1 className="text-xl font-semibold">{type==="create"?"Create a new Teacher":"Update Teacher info"} </h1>

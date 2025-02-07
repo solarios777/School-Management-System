@@ -11,6 +11,7 @@ import { StudentEnrollmentForm } from "@/components/auth/studentEnrollment";
 // import TeacherForm from "../../../auth/teacherRegister-form";
 import TeacherRegistrationForm from "./teacher/page";
 import { TeachernnnnnnnForm } from "@/components/auth/teacherRegister-form";
+import EnrollStudentForm from "@/components/forms/EnrollStudentForm";
 
 interface NavigationItem {
   icon: string;
@@ -49,11 +50,11 @@ const navigationItems: NavigationItem[] = [
   //   label: "Assign Teacher",
   //   formComponent: <TeacherAssignmentForm />, // Reference the form component
   // },
-   {
-    icon: "/parent.png",
-    label: "enroll student",
-    formComponent: <StudentEnrollmentForm/>, // Reference the form component
-  },
+  //  {
+  //   icon: "/parent.png",
+  //   label: "enroll student",
+  //   formComponent: <EnrollStudentForm/>, // Reference the form component
+  // },
 ];
 
 const NavigationPanel: React.FC = () => {

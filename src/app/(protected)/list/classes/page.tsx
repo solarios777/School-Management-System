@@ -30,7 +30,6 @@ const ClassListPage = async ({
 }) => {
   const user = await currentUser();
   const role = user?.role.toLowerCase();
-  
 
   const ITEMS_PER_PAGE = 12;
   const columns = [
@@ -38,7 +37,7 @@ const ClassListPage = async ({
       header: "Grade",
       accessor: "level",
       className: "hidden md:table-cell",
-    }
+    },
   ];
 
   const renderRow = (item: ClassList) => (
@@ -68,34 +67,47 @@ const ClassListPage = async ({
                   </tr>
                 </thead>
                 <tbody>
-                  {item.GradeClass
-                  // .filter((gc) => gc._count.enrollments > 0)
-                    .sort((a, b) => a.class.name.localeCompare(b.class.name))
-                    .map((gc) => (
-                      <tr key={gc.class.id}>
-                        <td className="px-4 py-2">{gc.class.name}</td>
-                        <td className="px-4 py-2 hidden md:table-cell">{gc._count.enrollments}</td>
+                  {item.GradeClass.sort((a, b) =>
+                    a.class.name.localeCompare(b.class.name)
+                  ).map((gc) => (
+                    <tr key={gc.class.id}>
+                      <td className="px-4 py-2">{gc.class.name}</td>
+                      <td className="px-4 py-2 hidden md:table-cell">
+                        {gc._count.enrollments}
+                      </td>
+                      <td className="px-4 py-2">
+                        {gc.superviser.length > 0
+                          ? gc.superviser
+                              .map(
+                                (sup) =>
+                                  `${sup.teacher.name} ${sup.teacher.surname}`
+                              )
+                              .join(", ")
+                          : "No Supervisor"}
+                      </td>
+                      {role === "admin" && (
                         <td className="px-4 py-2">
-                          {gc.superviser.length > 0
-                            ? gc.superviser
-                                .map(
-                                  (sup) => `${sup.teacher.name} ${sup.teacher.surname}`
-                                )
-                                .join(", ")
-                            : "No Supervisor"}
+                          <div className="flex items-center gap-2">
+                            <FormContainer
+                              table="assignSupervisor"
+                              type="update"
+                              data={gc}
+                            />
+                            <FormContainer
+                              table="assignSupervisor"
+                              type="create"
+                              data={{ gc, item }}
+                            />
+                            <FormContainer
+                              table="assignSupervisor"
+                              type="delete"
+                              id={gc.class.id}
+                            />
+                          </div>
                         </td>
-                        {role === "admin" && (
-                          <td className="px-4 py-2">
-                            <div className="flex items-center gap-2">
-                              <FormContainer table="assignSupervisor" type="update" data={gc} />
-                              <FormContainer table="assignSupervisor" type="create" data={{gc,item}}/>
-                              <FormContainer table="assignSupervisor" type="delete" id={gc.class.id} />
-
-                            </div>
-                          </td>
-                        )}
-                      </tr>
-                    ))}
+                      )}
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
@@ -105,10 +117,24 @@ const ClassListPage = async ({
     </tr>
   );
 
-  const { page, ...queryParams } = searchParams;
+  const { page, teacherId, ...queryParams } = searchParams;
   const p = page ? parseInt(page) : 1;
 
   const query: Prisma.GradeWhereInput = {};
+
+  // Add filtering logic for teacherId
+  if (teacherId) {
+    query.GradeClass = {
+      some: {
+        OR: [
+          { superviser: { some: { teacherId: teacherId } } }, // Classes the teacher supervises
+          { assignments: { some: { teacherId: teacherId } } }, // Classes the teacher teaches
+        ],
+      },
+    };
+  }
+
+  // Handle search filters
   if (queryParams) {
     for (const [key, value] of Object.entries(queryParams)) {
       if (value !== undefined && value.trim() !== "") {
@@ -157,7 +183,7 @@ const ClassListPage = async ({
   return (
     <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
       <div className="flex items-center justify-between">
-        <h1 className="hidden md:block text-lg font-semibold">All Classes</h1>
+        <h1 className="hidden md:block text-lg font-semibold">Classes</h1>
         <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
           <TableSearch />
           <div className="flex items-center gap-4 self-end">

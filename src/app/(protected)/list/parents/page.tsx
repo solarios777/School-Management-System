@@ -32,6 +32,11 @@ const ParentListPage = async ({
       accessor: "info",
     },
     {
+      header: "Parent ID",
+      accessor: "parentId",
+      className: "hidden md:table-cell",
+    },
+    {
       header: "Student Names",
       accessor: "students",
       className: "hidden md:table-cell",
@@ -79,6 +84,7 @@ const ParentListPage = async ({
         </div>
         </Link>
       </td>
+      <td className="hidden md:table-cell">{item.username}</td>
       <td className="hidden md:table-cell">{item.students.map(student=>student.name).join(",")}</td>
       <td className="hidden md:table-cell">{item.phone}</td>
       <td className="hidden md:table-cell">{item.address}</td>

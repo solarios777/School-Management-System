@@ -97,16 +97,19 @@ model Teacher {
 
 model Parent {
   id        String      @id @default(cuid())
+  password  String?
   username  String    @unique
   name      String
   surname   String
   email     String?   @unique
-  phone     String    @unique
+  phone     String?   @unique
   address   String
   img       String?
+  sex       UserSex
+  bloodType String
   createdAt DateTime  @default(now())
   role      UserRole @default(PARENT)
-  password  String?
+  birthday  DateTime?
   students  Student[]
 }
 model Subject {

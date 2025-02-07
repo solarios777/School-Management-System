@@ -82,8 +82,9 @@ export const parentSchema = z.object({
   bloodType: z.string().min(1, { message: "Blood Type is required!" }),
   birthday: z.coerce.date({ message: "Birthday is required!" }),
   sex: z.enum(["MALE", "FEMALE"], { message: "Sex is required!" }),
-  role: z.enum(["TEACHER", "ADMIN", "STUDENT", "PARENT"], { message: "Role is required!" }), // Add roles as needed
+  role: z.enum(["TEACHER", "ADMIN", "STUDENT", "PARENT"], { message: "Role is required!" }),
 });
+
 
 
 export type ParentSchema = z.infer<typeof parentSchema>;
@@ -184,9 +185,10 @@ export const studentEnrollmentSchema= z.object({
     .min(3, { message: "Teacher name must be at least 3 characters long!" }),
   grade: z.coerce.number().min(1, { message: "Grade is required!" }),
   classname: z.coerce.string().min(1, { message: "Section is required!" }),
-  year: z
+ year: z.coerce
     .number()
     .int({ message: "Year must be an integer!" })
     .min(currentYear, { message: `Year must be ${currentYear}!` })
     .max(currentYear, { message: `Year must be ${currentYear}!` }),
 });
+export type StudentEnrollmentSchema = z.infer<typeof studentEnrollmentSchema>;

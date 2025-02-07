@@ -19,6 +19,7 @@ const config: Config = {
   			lamaPurple: '#CFCEFF',
   			lamaPurpleLight: '#F1F0FF',
   			lamaYellow: '#FAE27C',
+			lamared:"#FF0000",
   			lamaYellowLight: '#FEFCE8',
 			mcsorange: '#FCA5A5',
   			background: 'hsl(var(--background))',

@@ -14,9 +14,12 @@ async function main() {
           name: `Parent Name ${i + 1}`,
           surname: `Surname ${i + 1}`,
           email: `parent${i + 1}@example.com`,
+          sex: i % 2 === 0 ? 'MALE' : 'FEMALE',
+          bloodType: 'O+',
           phone: `12345678${i}`,
           address: `Address ${i + 1}`,
           password: 'securepassword',
+          birthday: new Date(2005 - i, 0, 1),
         },
       })
     )

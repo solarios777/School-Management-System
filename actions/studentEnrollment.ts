@@ -1,62 +1,76 @@
-"use server"
-import * as z from "zod"
-import { studentEnrollmentSchema } from "../schema/index";
+"use server";
+import { StudentEnrollmentSchema } from "../schema/index";
 import prisma from "@/lib/prisma";
 
+type currentState = {
+  success?: boolean;
+  error?: boolean;
+  message?: string;
+};
 
-export const StudentEnrollment=async(values: z.infer<typeof studentEnrollmentSchema>) => {
-    const valdatedFields = studentEnrollmentSchema.parse(values)
-    if(!valdatedFields){
-        return {error:"Invalid Credentials"}
-    }
+export const EnrollStudent = async (
+  currentState: currentState,
+  data: StudentEnrollmentSchema
+) => {
+  try {
+    const { studentname, grade, classname, year,id } = data;
 
-    const {studentname,grade,classname,year}=valdatedFields
-
-    
- // Find the teacher by name
-    const teacher = await prisma.student.findUnique({
-        where: { username:studentname},
-        select: { id: true } // Select only the ID
+    const gradeEntry = await prisma.grade.findFirst({
+      where: { level: Number(grade) },
     });
 
-    if (!teacher) {
-        return { error: "Teacher not found" };
+    if (!gradeEntry) {
+      return { success: false, error: true, message: "Grade not found!" };
     }
 
-    // Find the class by name
-    const classId = await prisma.class.findUnique({
-        where: { name: classname },
-        select: { id: true } // Select only the ID
+    
+    const gradeClass = await prisma.gradeClass.findFirst({
+      where: {
+        gradeId: gradeEntry.id,
+        classId: classname,
+      },
     });
 
-    if (!classId) {
-        return { error: "class not found" };
+    if (!gradeClass) {
+      return { success: false, error: true, message: "Grade and Section combination not found!" };
     }
-    
-    // Find the grade by name
-    const gradeId = await prisma.grade.findUnique({
-        where: { level: grade },
-        select: { id: true } // Select only the ID
-    });
 
-    if (!gradeId) {
-        return { error: "grade not found" };
-    }
-    // Find the subject by name
-    
-
-    // Create the teacher assignment
-    await prisma.enrollment.create({
+   const existingEnrollment = await prisma.enrollment.findFirst({
+       where: {
+           studentId: studentname,
+       }
+   })
+   if(existingEnrollment){
+    await prisma.enrollment.update({
+        where: {
+            id: existingEnrollment.id,
+        },
         data: {
-            studentId: teacher.id, // Use the found teacher ID
-            gradeId: gradeId.id,
-            classId: classId.id,
-            year
-
-        }
+            gradeClassId: gradeClass.id,
+            year: year,
+        },
     })
-return { 
-        success: "Student Enrolled successfully", 
-        
-    }; 
-}
+   }
+   else{
+    await prisma.enrollment.create({
+      data: {
+        studentId: studentname,
+        gradeClassId: gradeClass.id,
+        year: year,
+      },
+    });
+   }
+
+    return {
+      success: true,
+      error: false,
+      message: "student enrolled successfully",
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: true,
+      message: "An unexpected error occurred",
+    };
+  }
+};
