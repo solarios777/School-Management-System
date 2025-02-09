@@ -71,22 +71,39 @@ export const createSuperviser = async (
       };
     }
 
-    if (existingSupervisor) {
-      return {
-        success: false,
-        error: true,
-        message: "A supervisor is already assigned for this grade and section!",
-      };
+    // if (existingSupervisor) {
+    //   return {
+    //     success: false,
+    //     error: true,
+    //     message: "A supervisor is already assigned for this grade and section!",
+    //   };
+    // }
+    const alreadyAssigned = await prisma.superviser.findFirst({
+      where: {
+        gradeClassId: gradeClass.id,
+        year,
+      }
+    })
+    if (alreadyAssigned) {
+     await prisma.superviser.update({
+      where: {
+            id: alreadyAssigned.id,
+        },
+      data: {
+        teacherId: teachername,
+      },
+    });
     }
-
-    // Step 5: Create the Supervisor
-    await prisma.superviser.create({
+    else{
+   await prisma.superviser.create({
       data: {
         teacherId: teachername,
         gradeClassId: gradeClass.id,
         year,
       },
     });
+   }
+    
 
     return {
       success: true,

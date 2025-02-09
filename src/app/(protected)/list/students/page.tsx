@@ -1,22 +1,23 @@
+import AGgrid from "@/components/AGgrid";
 import FormModal from "@/components/FormModal";
-import Pagination from "@/components/Pagination";
-import Table from "@/components/Table";
 import TableSearch from "@/components/TableSearch";
 import { currentUser } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { ITEMS_PER_PAGE } from "@/lib/settings";
-
-import { Class, Enrollment, Grade, GradeClass, Prisma, Student } from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
+import { Prisma } from "@prisma/client";
 
-type StudentList = Student & {
-  enrollments: (Enrollment & {
-   gradeClass: GradeClass & {
-      grade: Grade;   // Include Grade relation
-      class: Class;   // Include Class relation
-    };     
-  })[];
+type StudentList = {
+  id: string;
+  sex: string;
+  name: string;
+  username: string;
+  phone?: string;
+  address: string;
+  img?: string;
+  grade?: string;
+  class?: string;
 };
 
 const StudentListPage = async ({
@@ -26,129 +27,53 @@ const StudentListPage = async ({
 }) => {
   const user = await currentUser();
   const role = user?.role.toLowerCase();
-  const currentUserId = user?.id;
 
   const columns = [
-    {
-      header: "Info",
-      accessor: "info",
-    },
-    {
-      header: "Student ID",
-      accessor: "studentId",
-      className: "hidden md:table-cell",
-    },
-    {
-      header: "Grade",
-      accessor: "grade",
-      className: "hidden md:table-cell",
-    },
-   
-    {
-      header: "Phone",
-      accessor: "phone",
-      className: "hidden lg:table-cell",
-    },
-    {
-      header: "Address",
-      accessor: "address",
-      className: "hidden lg:table-cell",
-    },
-    ...(role === "admin"
-      ? [
-          {
-            header: "Actions",
-            accessor: "action",
-          },
-        ]
-      : []),
+    { header: "Name", accessor: "name" },
+    { header: "Username", accessor: "username" },
+    { header: "Sex", accessor: "sex" },
+    { header: "Grade", accessor: "grade" },
+    { header: "Class", accessor: "class" },
+    { header: "Phone", accessor: "phone" },
+    { header: "Address", accessor: "address" },
+    ...(role === "admin" ? [{ header: "Actions", accessor: "action" }] : []),
   ];
 
-  const renderRow = (item: StudentList) => (
-    <tr
-      key={item.id}
-      className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-lamaPurpleLight"
-    >
-     
-      <td className="flex items-center gap-4 p-4">
-         <Link href={`/list/students/${item.id}`}>
-         <div className="flex gap-4">
-        <Image
-          src={item.img || "/noAvatar.png"}
-          alt=""
-          width={40}
-          height={40}
-          className="md:hidden xl:block w-10 h-10 rounded-full object-cover"
-        />
-        <div className="flex flex-col">
-          <h3 className="font-semibold">{item.name}</h3>
-          <p className="text-xs text-gray-500">{item.enrollments[0]?.gradeClass?.grade?.level || 'N/A'}</p> {/* Displaying grade level */}
-        </div>
-        </div>
-        </Link>
-      </td>
-      
-      <td className="hidden md:table-cell">{item.username}</td>
-      <td className="hidden md:table-cell">{item.enrollments[0]?.gradeClass?.grade?.level || 'N/A'} {item.enrollments[0]?.gradeClass?.class?.name || 'N/A'}</td> {/* Displaying class name */}
-      <td className="hidden md:table-cell">{item.phone}</td>
-      <td className="hidden md:table-cell">{item.address}</td>
-      <td>
-        <div className="flex items-center gap-2">
-          {role === "admin" && (
-            <FormModal table="student" type="delete" id={item.id} />
-          )}
-        </div>
-      </td>
-    </tr>
-  );
-
-  const { page, ...queryParams } = searchParams;
-  const p = page ? parseInt(page) : 1;
-
-  const query: Prisma.StudentWhereInput = {};
-
-  if (queryParams) {
-    for (const [key, value] of Object.entries(queryParams)) {
-      if (value !== undefined) {
-        switch (key) {
-          case "teacherId":
-            break;
-          case "search":
-            query.name = { contains: value, mode: "insensitive" };
-            break;
-          default:
-            break;
-        }
-      }
-    }
-  }
+  const { search } = searchParams;
+  
+  const query: Prisma.StudentWhereInput = search
+    ? { name: { contains: search, mode: "insensitive" } }
+    : {};
 
   const [data, count] = await prisma.$transaction([
     prisma.student.findMany({
       where: query,
       include: {
-        enrollments: { 
-          include:{
-            gradeClass:{
-              include: {
-            class: true,
-            grade: true,
-            }
-            
-          },
-          }
-          
+        enrollments: {
+          include: { gradeClass: { include: { grade: true, class: true } } },
         },
       },
-      take: ITEMS_PER_PAGE,
-      skip: ITEMS_PER_PAGE * (p - 1),
     }),
     prisma.student.count({ where: query }),
   ]);
 
+  // Transform data to match AG Grid
+  const formattedData: StudentList[] = data.map((student) => ({
+  id: student.id,
+  name: `${student.name} ${student.surname}`,
+  username: student.username,
+  sex: student.sex,
+  phone: student.phone || "N/A",
+  address: student.address,
+  img: student.img || "/noAvatar.png",
+  grade: student.enrollments[0]?.gradeClass?.grade?.level?.toString() || "N/A",
+  class: student.enrollments[0]?.gradeClass?.class?.name || "N/A",
+  action: role === "admin" ? <FormModal table="student" type="delete" id={student.id} /> : null,
+}));
+
+
   return (
     <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
-      {/* TOP */}
       <div className="flex items-center justify-between">
         <h1 className="hidden md:block text-lg font-semibold">All Students</h1>
         <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
@@ -166,10 +91,9 @@ const StudentListPage = async ({
           </div>
         </div>
       </div>
-      {/* LIST */}
-      <Table columns={columns} renderRow={renderRow} data={data} />
-      {/* PAGINATION */}
-      <Pagination page={p} count={count} />
+      <AGgrid columns={columns} data={formattedData} list="students" />
+      
+
     </div>
   );
 };
