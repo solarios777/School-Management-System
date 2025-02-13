@@ -3,6 +3,8 @@ import { uuid } from 'uuidv4';
 
 const prisma = new PrismaClient();
 
+
+
 async function main() {
   // Create Parents
   const parents = await Promise.all(
@@ -139,6 +141,44 @@ async function main() {
     })
   );
 
+// Create Attendance Records
+// Create Attendance Records
+await Promise.all(
+  students.flatMap((student) => {
+    const attendanceRecords = Array.from({ length: 20 }, () => {
+      const randomDay = Math.floor(Math.random() * 29) + 1; // Random day (1-29)
+      const randomMonth = Math.floor(Math.random() * 12); // Random month (0-11)
+      const randomYear = 2025; // Fixed year
+
+      const normalizedDate = new Date(randomYear, randomMonth, randomDay); // Use random day
+
+      // Function to determine attendance status
+      const getRandomStatus = () => {
+        const randomValue = Math.random();
+        if (randomValue < 0.8) {
+          return 'PRESENT'; // 80% chance
+        } else if (randomValue < 0.95) {
+          return 'LATE'; // 15% chance
+        } else {
+          return 'ABSENT'; // 5% chance
+        }
+      };
+
+      return prisma.attendance.create({
+        data: {
+          day: randomDay,
+          studentId: student.id,
+          status: getRandomStatus(), // Populate status based on probabilities
+          date: normalizedDate, // Store as full DateTime
+        },
+      });
+    });
+
+    return attendanceRecords;
+  })
+);
+
+
   // Create SubjectClassGrades
   await Promise.all(
     subjects.flatMap(subject => 
@@ -148,7 +188,7 @@ async function main() {
             subjectId: subject.id,
             classId: gradeClass.classId,
             gradeId: gradeClass.gradeId,
-            year: 2023,
+            year: 2024,
           },
         })
       )

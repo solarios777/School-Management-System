@@ -70,6 +70,7 @@ model Student {
   birthday    DateTime
   role        UserRole @default(STUDENT)
   enrollments Enrollment[]
+  attendance  Attendance[]
   parentId    String?         // Optional parent ID
   parent      Parent?         @relation(fields: [parentId], references: [id]) 
 }
@@ -216,7 +217,22 @@ model SubjectClassGrade {
 
   @@unique([subjectId, classId, gradeId, year]) 
 }
+model Attendance {
+  id       String   @id @default(cuid())
+  studentId String
+  status    AttendanceStatus @default(PRESENT)
+  day       Int
+  date      DateTime
 
+  student   Student @relation(fields: [studentId], references: [id])
+}
+
+enum AttendanceStatus {
+  PRESENT 
+  LATE
+  ABSENT
+
+}
 enum UserRole {
   ADMIN 
   TEACHER 

@@ -23,6 +23,7 @@
     "add": "^2.0.6",
     "ag-grid-community": "^32.3.3",
     "ag-grid-react": "^32.3.3",
+    "axios": "^1.7.9",
     "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",
     "button": "^1.1.1",
