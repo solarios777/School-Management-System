@@ -1,6 +1,7 @@
 
 import AGgrid from "@/components/AGgrid";
 import prisma from "@/lib/prisma";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 
 const SingleClassPage = async ({ params }: { params: { id: string } }) => {
@@ -56,6 +57,9 @@ const SingleClassPage = async ({ params }: { params: { id: string } }) => {
         <h1 className="text-lg font-semibold"> 
           {studentCount} Students
         </h1>
+      </div>
+      <div>
+        <Link href={`/`}>Attendance</Link>
       </div>
       <div>
         

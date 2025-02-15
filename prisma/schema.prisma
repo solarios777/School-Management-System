@@ -220,7 +220,7 @@ model SubjectClassGrade {
 model Attendance {
   id       String   @id @default(cuid())
   studentId String
-  status    AttendanceStatus @default(PRESENT)
+  status    AttendanceStatus?
   day       Int
   date      DateTime
 

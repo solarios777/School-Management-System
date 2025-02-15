@@ -1,14 +1,12 @@
 import { PrismaClient } from '@prisma/client';
-import { uuid } from 'uuidv4';
+import { v4 as uuid } from 'uuid';
 
 const prisma = new PrismaClient();
-
-
 
 async function main() {
   // Create Parents
   const parents = await Promise.all(
-    Array.from({ length: 10 }, (_, i) => 
+    Array.from({ length: 50 }, (_, i) =>
       prisma.parent.create({
         data: {
           id: uuid(),
@@ -21,7 +19,7 @@ async function main() {
           phone: `12345678${i}`,
           address: `Address ${i + 1}`,
           password: 'securepassword',
-          birthday: new Date(2005 - i, 0, 1),
+          birthday: new Date(1980 - i, 0, 1),
         },
       })
     )
@@ -29,7 +27,7 @@ async function main() {
 
   // Create Students
   const students = await Promise.all(
-    Array.from({ length: 10 }, (_, i) => 
+    Array.from({ length: 50 }, (_, i) =>
       prisma.student.create({
         data: {
           username: `student_user_${i + 1}`,
@@ -41,16 +39,19 @@ async function main() {
           bloodType: 'O+',
           sex: i % 2 === 0 ? 'MALE' : 'FEMALE',
           password: 'securepassword',
-          birthday: new Date(2005 - i, 0, 1), // Different birthdays
+          birthday: new Date(2010 - (i % 6), 0, 1),
           parentId: parents[i].id,
         },
       })
     )
   );
 
+  // Create a temporary array to track enrollment
+  const studentList = students.map((s) => ({ ...s, enrolled: false }));
+
   // Create Teachers
   const teachers = await Promise.all(
-    Array.from({ length: 10 }, (_, i) => 
+    Array.from({ length: 10 }, (_, i) =>
       prisma.teacher.create({
         data: {
           username: `teacher_user_${i + 1}`,
@@ -62,7 +63,7 @@ async function main() {
           bloodType: 'A+',
           sex: i % 2 === 0 ? 'MALE' : 'FEMALE',
           password: 'securepassword',
-          birthday: new Date(1980 - i, 0, 1), // Different birthdays
+          birthday: new Date(1980 - i, 0, 1),
         },
       })
     )
@@ -70,136 +71,119 @@ async function main() {
 
   // Create Subjects
   const subjects = await Promise.all(
-    ['Mathematics', 'Science', 'History', 'Chemistry', 'Biology', 'English', 'Physics', 'Geography', 'Literature'].map(name => 
-      prisma.subject.create({ data: { name } })
-    )
+    [
+      'Mathematics',
+      'Science',
+      'History',
+      'Chemistry',
+      'Biology',
+      'English',
+      'Physics',
+      'Geography',
+      'Literature',
+    ].map((name) => prisma.subject.create({ data: { name } }))
   );
 
-  // Create Grades
+  // Create Grades (1, 2, 3, 4)
   const grades = await Promise.all(
-    Array.from({ length: 12 }, (_, i) => 
+    [1, 2, 3, 4].map((level) =>
       prisma.grade.create({
-        data: {
-          level: i + 1,
-        },
+        data: { level },
       })
     )
   );
 
-  // Create Classes
-  const classes = await Promise.all(
-    ['A', 'B', 'C', 'D', 'E'].map(name => 
+  // Create Sections (A, B)
+  const sections = await Promise.all(
+    ['A', 'B'].map((name) =>
       prisma.class.create({
-        data: {
-          name: name
-        },
+        data: { name },
       })
     )
   );
 
-  // Create GradeClass Combinations
+  // Create Grade-Class Combinations
   const gradeClasses = await Promise.all(
-    classes.flatMap(classItem => 
-      grades.map(grade => 
+    grades.flatMap((grade) =>
+      sections.map((section) =>
         prisma.gradeClass.create({
           data: {
             gradeId: grade.id,
-            classId: classItem.id,
+            classId: section.id,
           },
         })
       )
     )
   );
 
-  // Create Enrollments
+  // Enroll Students in each Grade-Class
+  let studentIndex = 0;
   await Promise.all(
-    students.map((student, index) => {
-      const gradeClass = gradeClasses[index % gradeClasses.length]; // Assign GradeClass in a loop
-      return prisma.enrollment.create({
-        data: {
-          studentId: student.id,
-          gradeClassId: gradeClass.id,
-          year: 2023,
-        },
-      });
-    })
-  );
+    gradeClasses.flatMap((gradeClass) => {
+      const enrollments = [];
 
-  // Create Teacher Assignments
-  await Promise.all(
-    teachers.map((teacher, index) => {
-      const gradeClass = gradeClasses[index % gradeClasses.length]; // Assign GradeClass in a loop
-      const subject = subjects[index % subjects.length]; // Assign Subject in a loop
-      return prisma.teacherAssignment.create({
-        data: {
-          teacherId: teacher.id,
-          gradeClassId: gradeClass.id,
-          subjectId: subject.id,
-          year: 2023,
-        },
-      });
-    })
-  );
-
-// Create Attendance Records
-// Create Attendance Records
-await Promise.all(
-  students.flatMap((student) => {
-    const attendanceRecords = Array.from({ length: 20 }, () => {
-      const randomDay = Math.floor(Math.random() * 29) + 1; // Random day (1-29)
-      const randomMonth = Math.floor(Math.random() * 12); // Random month (0-11)
-      const randomYear = 2025; // Fixed year
-
-      const normalizedDate = new Date(randomYear, randomMonth, randomDay); // Use random day
-
-      // Function to determine attendance status
-      const getRandomStatus = () => {
-        const randomValue = Math.random();
-        if (randomValue < 0.8) {
-          return 'PRESENT'; // 80% chance
-        } else if (randomValue < 0.95) {
-          return 'LATE'; // 15% chance
-        } else {
-          return 'ABSENT'; // 5% chance
+      // Ensure at least 3 males and 3 females
+      for (let i = 0; i < 6; i++) {
+        const gender = i < 3 ? 'MALE' : 'FEMALE';
+        const student = studentList.find(
+          (s) => s.sex === gender && !s.enrolled
+        );
+        if (student) {
+          enrollments.push(
+            prisma.enrollment.create({
+              data: {
+                studentId: student.id,
+                gradeClassId: gradeClass.id,
+                year: 2023,
+              },
+            })
+          );
+          student.enrolled = true;
         }
-      };
+      }
 
-      return prisma.attendance.create({
-        data: {
-          day: randomDay,
-          studentId: student.id,
-          status: getRandomStatus(), // Populate status based on probabilities
-          date: normalizedDate, // Store as full DateTime
-        },
-      });
-    });
+      // Add 2 more students (any gender) to ensure at least 5 per class
+      while (enrollments.length < 5) {
+        const student = studentList[studentIndex];
+        enrollments.push(
+          prisma.enrollment.create({
+            data: {
+              studentId: student.id,
+              gradeClassId: gradeClass.id,
+              year: 2023,
+            },
+          })
+        );
+        student.enrolled = true;
+        studentIndex++;
+      }
 
-    return attendanceRecords;
-  })
-);
+      return enrollments;
+    })
+  );
 
-
-  // Create SubjectClassGrades
+  // Assign Teachers to each Grade-Class-Subject Combination
   await Promise.all(
-    subjects.flatMap(subject => 
-      gradeClasses.map(gradeClass => 
-        prisma.subjectClassGrade.create({
+    gradeClasses.flatMap((gradeClass) => {
+      return subjects.map((subject, index) => {
+        const teacher = teachers[index % teachers.length];
+        return prisma.teacherAssignment.create({
           data: {
+            teacherId: teacher.id,
+            gradeClassId: gradeClass.id,
             subjectId: subject.id,
-            classId: gradeClass.classId,
-            gradeId: gradeClass.gradeId,
-            year: 2024,
+            year: 2023,
           },
-        })
-      )
-    )
+        });
+      });
+    })
   );
 
   console.log('Seeding completed.');
 }
 
 main()
-  .catch(e => {
+  .catch((e) => {
     console.error(e);
     process.exit(1);
   })

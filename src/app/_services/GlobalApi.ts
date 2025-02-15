@@ -1,23 +1,40 @@
-import axios from "axios";
+import axios from 'axios';
 
 const axiosInstance = axios.create({
-  baseURL: "/api",
+  baseURL: '/api',
   headers: {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
   },
 });
 
-// Add a response interceptor
 axiosInstance.interceptors.response.use(
-  (response) => {
-    // Any status code that lies within the range of 2xx causes this function to trigger
-    return response;
-  },
+  (response) => response,
   (error) => {
-    // Any status codes outside the range of 2xx cause this function to trigger
-    console.error("API Error:", error.response?.data || error.message);
+    console.error('API Error:', error.response?.data || error.message);
     return Promise.reject(error);
   }
 );
+
+// New function to fetch attendance data
+export const fetchAttendanceData = async (month?: string, grade?: string, section?: string) => {
+  try {
+    const queryParams = new URLSearchParams();
+    if (month) queryParams.append('month', month);
+    if (grade) queryParams.append('grade', grade);
+    if (section) queryParams.append('section', section);
+
+const response = await axiosInstance.get(`/status?${queryParams.toString()}`);
+
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching attendance data:', error);
+    return {
+      totalStudents: 0,
+      present: 0,
+      absent: 0,
+      late: 0,
+    };
+  }
+};
 
 export default axiosInstance;
