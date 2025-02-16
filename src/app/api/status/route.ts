@@ -26,14 +26,16 @@ export async function GET(req: NextRequest) {
   const grade = searchParams.get("grade");
   const section = searchParams.get("section");
 
-  // Fetch data for the last 7 days
-  const startDate = moment().subtract(6, "days").startOf("day").toDate();
-  const endDate = moment().endOf("day").toDate();
+  // Set start and end date based on the selected month or current month
+  const startDate = moment(month, "YYYY-MM").startOf("month").toDate();
+  const endDate = moment(month, "YYYY-MM").endOf("month").toDate();
 
+  // Build the base where clause with date filtering
   let whereClause: any = {
     date: { gte: startDate, lte: endDate },
   };
 
+  // Apply grade and section filters if selected
   if (grade && section) {
     whereClause.student = {
       enrollments: {

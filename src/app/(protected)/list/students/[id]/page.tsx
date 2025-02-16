@@ -155,9 +155,9 @@ const SingleStudentPage = async ({
             </Link>
             <Link
               className="p-3 rounded-md bg-lamaPurpleLight"
-              href={`/list/assignments?studentId=${student.id}`}
+              href={`/list/calanderAttendance?studentId=${student.id}`}
             >
-              Student&apos;s Assignments
+              Student&apos;s Attendance
             </Link>
             {role === "admin" && (
               <FormContainer table="enroll" type="enroll"  data={student}/>

@@ -93,13 +93,15 @@ const AttendanceGrid: React.FC<AttendanceListProps> = ({
     return uniqueRecord;
   };
 
-  const daysInMonth = (year: any, month: any) =>
-    new Date(year, month + 1, 0).getDate();
-  const numberOfDays = daysInMonth(
-    moment(selectedMonth).format("YYYY"),
-    moment(selectedMonth).format("MM")
-  );
-  const daysArray = Array.from({ length: numberOfDays }, (_, i) => i + 1);
+ const daysInMonth = (year: number, month: number) => 
+  new Date(year, month + 1, 0).getDate();
+
+const numberOfDays = daysInMonth(
+  moment(selectedMonth).year(), 
+  moment(selectedMonth).month() // Use .month() instead of .format("MM")
+);
+
+const daysArray = Array.from({ length: numberOfDays }, (_, i) => i + 1);
 
   const handleDayChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const value = event.target.value;

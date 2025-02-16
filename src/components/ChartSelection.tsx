@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useState, useEffect } from "react";
 import {
   Popover,
@@ -11,7 +10,7 @@ import { CalendarDays } from "lucide-react";
 import moment from "moment";
 import { Calendar } from "@/components/ui/calendar";
 import StatusList from "./StatusList";
-import { fetchAttendanceData } from "@/app/_services/GlobalApi"; // Axios function
+import { fetchAttendanceData, fetchBarChartData } from "@/app/_services/GlobalApi";
 import BarCharAtten from "./BarCharAtten";
 import PieChartAtten from "./PieChartAtten";
 
@@ -67,14 +66,29 @@ const ChartSelection: React.FC<SelectionClientProps> = ({ grades, classes }) => 
     lateFemale: 0,
   });
 
+  // State for Bar Chart Data
+  const [barChartData, setBarChartData] = useState([]);
+
+  // Fetch Attendance Data for StatusList and PieChart
   useEffect(() => {
-    const getData = async () => {
+    const getAttendanceData = async () => {
       const formattedMonth = moment(month).format("YYYY-MM");
       const data = await fetchAttendanceData(formattedMonth, selectedGrade, selectedClass);
       setAttendanceData(data);
     };
-    getData();
+    getAttendanceData();
   }, [month, selectedGrade, selectedClass]);
+
+  // Fetch Bar Chart Data
+  useEffect(() => {
+    const getBarChartData = async () => {
+      const data = await fetchBarChartData(selectedGrade, selectedClass);
+      setBarChartData(data);
+    };
+    getBarChartData();
+  }, [selectedGrade, selectedClass]);
+ 
+  
 
   return (
     <>
@@ -137,10 +151,17 @@ const ChartSelection: React.FC<SelectionClientProps> = ({ grades, classes }) => 
       </div>
 
       {/* Attendance Summary */}
+      <div>
       <StatusList attendanceData={attendanceData} />
-      <div className="grid grid-cols-1 md:grid-cols-2">
-        <BarCharAtten />
-        <PieChartAtten attendanceData={attendanceData} />
+      </div>
+      <div className=" grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+        <div  className=" hidden md:block md:col-span-2"  >
+             <BarCharAtten  data={barChartData} />
+        </div>
+        <div>
+             <PieChartAtten attendanceData={attendanceData} />
+        </div>
+        
       </div>
     </>
   );

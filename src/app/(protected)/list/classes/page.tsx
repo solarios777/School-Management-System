@@ -91,7 +91,7 @@ const ClassListPage = async ({
  const flattenedData = grades.flatMap((grade) =>
   grade.GradeClass.map((gc) => ({
     id: gc.id, // Add ID for row click navigation
-    grade: grade.level,
+    grade: `G - ${grade.level}`,
     section: gc.class.name,
     students: gc._count.enrollments,
     supervisor:

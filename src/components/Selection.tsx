@@ -104,7 +104,6 @@ const SelectionClient: React.FC<SelectionClientProps> = ({ grades, classes }) =>
       <Button onClick={handleSubmit}>Search</Button>
     </div>
       <AttendanceGrid attendanceData={attendanceData} selectedMonth={month}/>
-
     </>
   );
 };

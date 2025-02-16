@@ -19,12 +19,12 @@ const COLORS = {
   present: "#4CAF50", // Green
   absent: "#F44336",  // Red
   late: "#FFEB3B",    // Yellow
-  presentMale: "  #00BFFF", // Darker Green
+  presentMale: "rgb(31, 195, 31)", // Darker Green
   presentFemale: "#32CD32", // Lighter Green
-  absentMale: "#CD5C5C", // Darker Red
-  absentFemale: "#FFA07A", // Lighter Red
-  lateMale: "#FFFFE0", // Darker Yellow
-  lateFemale: "#FAFAD2", // Lighter Yellow
+  absentMale: "rgb(237, 65, 65)", // Darker Red
+  absentFemale: "rgb(243, 93, 55)", // Lighter Red
+  lateMale: "rgb(215, 215, 56)", // Darker Yellow
+  lateFemale: "rgb(240, 240, 8)", // Lighter Yellow
 };
 
 const PieChartAtten: React.FC<{ attendanceData: AttendanceData }> = ({ attendanceData }) => {
@@ -32,9 +32,9 @@ const PieChartAtten: React.FC<{ attendanceData: AttendanceData }> = ({ attendanc
 
   // Inner Pie Data (Total Present, Absent, Late)
   const dataInner = [
-    { name: "P", value: present, color: COLORS.present },
-    { name: "A", value: absent, color: COLORS.absent },
-    { name: "L", value: late, color: COLORS.late },
+    { name: "P-", value: present, color: COLORS.present },
+    { name: "A-", value: absent, color: COLORS.absent },
+    { name: "L-", value: late, color: COLORS.late },
   ];
 
   // Outer Pie Data (Breakdown of Male/Female)
@@ -58,7 +58,7 @@ const PieChartAtten: React.FC<{ attendanceData: AttendanceData }> = ({ attendanc
             cx="50%"
             cy="50%"
             innerRadius={0}
-            outerRadius={100}
+            outerRadius={150}
             label={({ cx, cy, midAngle, innerRadius, outerRadius, percent, index }) => {
               const RADIAN = Math.PI / 180;
               const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
@@ -84,7 +84,7 @@ const PieChartAtten: React.FC<{ attendanceData: AttendanceData }> = ({ attendanc
             cx="50%"
             cy="50%"
             innerRadius={110}
-            outerRadius={140}
+            outerRadius={240}
             label={({ cx, cy, midAngle, innerRadius, outerRadius, percent, index }) => {
               const RADIAN = Math.PI / 180;
               const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
@@ -92,7 +92,7 @@ const PieChartAtten: React.FC<{ attendanceData: AttendanceData }> = ({ attendanc
               const y = cy + radius * Math.sin(-midAngle * RADIAN);
 
               return (
-                <Text x={x} y={y} fill="black" textAnchor="middle" dominantBaseline="central" fontSize={15} fontWeight="bold">
+                <Text x={x} y={y} fill="black" textAnchor="middle" dominantBaseline="central" fontSize={18} fontWeight="bold">
                   {`${dataOuter[index].name} ${(percent * 100).toFixed(0)}%`}
                 </Text>
               );

@@ -1,13 +1,11 @@
-
 import AGgrid from "@/components/AGgrid";
 import prisma from "@/lib/prisma";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
 const SingleClassPage = async ({ params }: { params: { id: string } }) => {
-  
   // console.log("params",params.id);
-  
+
   const classId = params.id;
 
   // Fetch class details
@@ -52,18 +50,25 @@ const SingleClassPage = async ({ params }: { params: { id: string } }) => {
     <div className="bg-white p-4 rounded-md m-4">
       <div className="flex justify-between items-center border-b pb-4 mb-4">
         <h1 className="text-lg font-semibold">
-          Grade  {grade.level}  {section.name} 
+          Grade {grade.level} {section.name}
         </h1>
-        <h1 className="text-lg font-semibold"> 
-          {studentCount} Students
-        </h1>
+        <h1 className="text-lg font-semibold">{studentCount} Students</h1>
       </div>
-      <div>
-        <Link href={`/`}>Attendance</Link>
+      <div className="mb-4">
+        <Link
+        className="px-4 py-2 bg-black text-white rounded-md "
+          href={{
+            pathname: `/list/attendance/${classId}`,
+            query: {
+              gradeId: grade.id,
+              classId: section.id,
+            },
+          }}
+        >
+          Attendance
+        </Link>
       </div>
-      <div>
-        
-      </div>
+      <div></div>
       <AGgrid columns={studentColumns} data={students} list="students" />
     </div>
   );
