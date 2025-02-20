@@ -5,7 +5,7 @@ import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import { useRouter } from "next/navigation";
 
-const AGgrid = ({
+const DetailClassList = ({
   columns,
   data,
   list
@@ -60,4 +60,4 @@ const AGgrid = ({
   );
 };
 
-export default AGgrid;
+export default DetailClassList;

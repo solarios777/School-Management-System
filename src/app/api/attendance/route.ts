@@ -60,26 +60,37 @@ export async function PATCH(request: Request) {
   try {
     const { studentId, date, status } = await request.json();
     const formattedDate = new Date(date);
-    const dayOfMonth = formattedDate.getDate();
+    const startOfDay = new Date(
+      formattedDate.getFullYear(),
+      formattedDate.getMonth(),
+      formattedDate.getDate()
+    );
+    const endOfDay = new Date(startOfDay);
+    endOfDay.setDate(endOfDay.getDate() + 1);
 
     // Check if attendance record exists for the student on the given date
     const existingAttendance = await prisma.attendance.findFirst({
       where: {
         studentId,
-        date: formattedDate,
+        date: {
+          gte: startOfDay,
+          lt: endOfDay,
+        },
       },
     });
 
     if (existingAttendance) {
+      // Update the existing record without changing the day or date
       await prisma.attendance.update({
         where: { id: existingAttendance.id },
         data: { status },
       });
     } else {
+      // Only create if no existing record for that day
       await prisma.attendance.create({
         data: {
           studentId,
-          day: dayOfMonth,
+          day: formattedDate.getDate(),
           date: formattedDate,
           status,
         },
@@ -95,4 +106,3 @@ export async function PATCH(request: Request) {
     );
   }
 }
-

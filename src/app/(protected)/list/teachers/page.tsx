@@ -5,6 +5,7 @@ import { currentUser } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import Image from "next/image";
 import { Prisma } from "@prisma/client";
+import FormContainer from "@/components/FormContainer";
 
 type TeacherList = {
   id: string;
@@ -91,7 +92,8 @@ const TeacherListPage = async ({
             <button className="w-8 h-8 flex items-center justify-center rounded-full bg-lamaYellow">
               <Image src="/sort.png" alt="" width={14} height={14} />
             </button>
-            {role === "admin" && <FormModal table="teacher" type="create" />}
+            {role === "admin" && <FormContainer table="assignTeacher" type="enroll" />}
+            {role === "admin" && <FormContainer table="teacher" type="create" />}
           </div>
         </div>
       </div>

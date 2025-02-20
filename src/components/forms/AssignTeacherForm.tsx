@@ -8,7 +8,7 @@ import InputField from "../InputField";
 import { createSubject } from "../../../actions/subjectRegister";
 import { useFormState } from "react-dom";
 import { error } from "console";
-import { Dispatch, SetStateAction, use, useEffect } from "react";
+import { Dispatch, SetStateAction, use, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { createTeacherAssignment } from "../../../actions/teacherAssign";
@@ -16,7 +16,7 @@ import { createTeacherAssignment } from "../../../actions/teacherAssign";
 
 
 
-const AssignTeacherForm = async({
+const AssignTeacherForm = ({
     type,
     data,
     setOpen,
@@ -35,6 +35,7 @@ const AssignTeacherForm = async({
     resolver: zodResolver(teacherAssignmentSchema),
   });
   const router=useRouter();
+    const [academicYears, setAcademicYears] = useState<string[]>([]);
   const [state,formAction]=useFormState(createTeacherAssignment,{
     success:false,
     error:false,
@@ -43,6 +44,9 @@ const AssignTeacherForm = async({
   
   const onSubmit = handleSubmit((data) => {
     formAction(data)
+    
+    
+    
   });
   useEffect(() => {
     if (state.success) {
@@ -54,14 +58,35 @@ const AssignTeacherForm = async({
       toast.error(state.message);
     }
   }, [state]);
+  useEffect(() => {
+      const generateAcademicYears = () => {
+        const currentYear = new Date().getFullYear();
+        const currentMonth = new Date().getMonth() + 1; // Month is zero-based (Jan = 0)
+        
+        // If the current month is before September, the academic year is the previous year
+        const startYear = currentMonth < 9 ? currentYear - 1 : currentYear;
+  
+        const years: string[] = [];
+        for (let i = -2; i < 3; i++) { // Generate 5 academic years dynamically
+          const nextYear = startYear + i;
+          years.push(`${nextYear}/${(nextYear + 1) % 100}`); // Format: YYYY/YY
+        }
+        return years;
+      };
+  
+      setAcademicYears(generateAcademicYears());
+    }, []);
 
-  const { teachers,classes,subjects } =await relatedData;
+  const { teachers,classes,subjects,grades } =relatedData;
  
+  
+  
+  
   
 
     return (
     <form className="flex flex-col gap-8 " onSubmit={onSubmit}>
-        <h1 className="text-xl font-semibold">{type==="create"?"Create a new subject":"Update the Subject"} </h1>
+        <h1 className="text-xl font-semibold">{type==="enroll"?"Assign teacher for a subject":"Update the assignment"} </h1>
 <div className="flex justify-between flex-wrap gap-4 ">
 
            <InputField
@@ -79,21 +104,23 @@ const AssignTeacherForm = async({
     })),
   ]}
 />
-           <InputField
-                label="Grade"
-                name="grade"
-                register={register}
-                error={errors.grade}
-                as="select"
-                options={[
-                    { value: "", label: "Select Grade" },
-                    ...Array.from({ length: 12 }, (_, index) => ({
-                    value: (index + 1).toString(),
-                    label: (index + 1).toString(),
-                    })),
-                ]}
-                //   disabled={isPending}
-                />
+       <InputField
+  label="Grade"
+  name="grade"
+  register={register}
+  error={errors.grade}
+  as="select"
+  options={[
+    { value: "", label: "Select Grade" },
+    ...grades
+      .sort((a: { level: number }, b: { level: number }) => a.level - b.level)
+      .map((gradeItem: { id: string; level: number }) => ({
+        value: gradeItem.id,
+        label: `Grade ${gradeItem.level}`,
+      })),
+  ]}
+/>
+
              
 <InputField
   label="Section"
@@ -125,66 +152,24 @@ const AssignTeacherForm = async({
     })),
   ]}
 />
-{/* 
-               <div className="flex flex-col gap-2 w-full md:w-1/4">
-  <label className="text-xs text-gray-500">Section</label>
-  <select
-    multiple
-    className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
-    {...register("classname")}
-    defaultValue={data?.classname || []}
-  >
-    <option value="" disabled>
-      Select sections
-    </option>
-    {classes
-      .sort((a: { name: string }, b: { name: string }) =>
-        a.name.localeCompare(b.name)
-      )
-      .map((classItem: { id: string; name: string }) => (
-        <option key={classItem.id} value={classItem.id}>
-          {classItem.name}
-        </option>
-      ))}
-  </select>
-  {errors.classname?.message && (
-    <p className="text-xs text-red-400">{errors.classname.message}</p>
-  )}
-</div> */}
 
-         {/* <div className="flex flex-col gap-2 w-full md:w-1/4">
-          <label className="text-xs text-gray-500">Teachers</label>
-          <select
-            multiple
-            className="ring-[1.5px] ring-gray-300 p-2 rounded-md text-sm w-full"
-            {...register("teachername")}
-            defaultValue={data?.teachers}
-          >
-            {teachers.map(
-              (teacher: { id: string; name: string; surname: string }) => (
-                <option value={teacher.id} key={teacher.id}>
-                  {teacher.name + " " + teacher.surname}
-                </option>
-              )
-            )}
-          </select>
-          {errors.teachername?.message && (
-            <p className="text-xs text-red-400">
-              {errors.teachername.message.toString()}
-            </p>
-          )}
-        </div> */}
+       
         <InputField
-          label="Year"
-          name="year"
-          type="number"
-          register={register}
-          error={errors.year}
-          // disabled={isPending}
-          defaultValue={new Date().getFullYear()}
-        />
+  label="Year"
+  name="year"
+  register={register}
+  error={errors.year}
+  as="select"
+  options={[
+    { value: "", label: "Select Year" },
+    ...academicYears.map((year) => ({
+      value: year,
+      label: year,
+    })),
+  ]}
+/>
           </div>
-        <Button className="rounded-md">{type==="create"?"Create Subject":"Update Subject"}</Button>
+        <Button className="rounded-md">{type==="enroll"?"Assign teacher":"Update Assignment"}</Button>
 
     </form>
     )

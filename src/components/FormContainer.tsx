@@ -37,13 +37,32 @@ const FormContainer = async ({ table, type, data, id ,username,role}: FormContai
           const subjectTeacher = await prisma.teacher.findMany({
             select: { id: true, name: true, surname: true },
           });
-          
+          const grades=await prisma.grade.findMany()
           const classes=await prisma.class.findMany()
           const Subjects=await prisma.subject.findMany()
           relatedData={
             teachers: subjectTeacher,
             classes:classes,
-            subjects:Subjects
+            subjects:Subjects,
+            grades:grades
+          }
+        } catch (error) {
+          console.error("Error fetching teachers:", error);
+        }
+        break;
+        case "assignTeacher":
+        try {
+          const subjectTeacher = await prisma.teacher.findMany({
+            select: { id: true, name: true, surname: true },
+          });
+          const grades=await prisma.grade.findMany()
+          const classes=await prisma.class.findMany()
+          const Subjects=await prisma.subject.findMany()
+          relatedData={
+            teachers: subjectTeacher,
+            classes:classes,
+            subjects:Subjects,
+            grades:grades
           }
         } catch (error) {
           console.error("Error fetching teachers:", error);

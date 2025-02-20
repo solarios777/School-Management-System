@@ -14,44 +14,38 @@ export const createTeacherAssignment = async (
   currentState: currentState,
   data: TeacherAssignmentSchema
 ) => {
-    
-    try {
-        const {teachername,subjectname,grade,classname,year}=data
+  try {
+    const { teachername, subjectname, grade, classname, year } = data;
 
-        
-    console.log("data",data);
-    
-
-
-    
-    
-    // Find the grade by name
-    const gradeId = await prisma.grade.findUnique({
-        where: { level: grade },
-        select: { id: true } // Select only the ID
+    const gradeClass = await prisma.gradeClass.findFirst({
+      where: {
+        gradeId: grade,
+        classId: classname
+      },
+      select: {
+        id: true,
+      }
     });
 
-   
-
-    if (!gradeId) {
-        return { success: false, error: true, message: "Grade not found!" };
+    // Check if gradeClass exists
+    if (!gradeClass) {
+      return { success: false, error: true, message: "Grade and Class combination not found" };
     }
-    // Find the subject by name
-   
-        await prisma.teacherAssignment.create({
-        data: {
-            teacherId: teachername, // Use the found teacher ID
-            subjectId: subjectname,
-            gradeId: gradeId.id,
-            classId: classname,
-            year
 
-        }
-    }) 
-    return { success: true, error: false, message: " Teacher assigned successfully" };
+    await prisma.teacherAssignment.create({
+      data: {
+        teacherId: teachername,
+        subjectId: subjectname,
+        gradeClassId: gradeClass.id, // Extract ID here
+        year
+      }
+    });
+    
+    return { success: true, error: false, message: "Teacher assigned successfully" };
 
-    } catch (error) {
-    return { success: false, error: true, message: "An unexpected error occurred" }; 
-    }
+  } catch (error) {
+    console.error("Error in createTeacherAssignment:", error);
+    return { success: false, error: true, message: "An unexpected error occurred" };
+  }
 }
 

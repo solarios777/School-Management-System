@@ -54,13 +54,13 @@ const SuperviserForm = ({
     }
   }, [state]);
 
-  const { teachers,classes } = relatedData;
+  const { teachers,classes,grades } = relatedData;
  
   
 
     return (
     <form className="flex flex-col gap-8 " onSubmit={onSubmit}>
-        <h1 className="text-xl font-semibold">{type==="create"?"Create a new Superviser":"Update the Superviser"} </h1>
+        <h1 className="text-xl font-semibold">{type==="enroll"?"Create a new Superviser":"Update the Superviser"} </h1>
 <div className="flex justify-between flex-wrap gap-4 ">
            <InputField
                 label="Grade"
@@ -126,7 +126,7 @@ const SuperviserForm = ({
           defaultValue={new Date().getFullYear()}
         />
           </div>
-        <Button className="rounded-md">{type==="create"?"Create Subject":"Update Subject"}</Button>
+        <Button className="rounded-md">{type==="enroll"?"Create superviser":"Update Superviser"}</Button>
 
     </form>
     )

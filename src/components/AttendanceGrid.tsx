@@ -6,7 +6,7 @@ import "ag-grid-community/styles/ag-theme-alpine.css";
 import AttendanceCheckbox from "./AttendanceCheckbox";
 import { ColDef } from "ag-grid-community";
 import axiosInstance from "@/app/_services/GlobalApi";
-
+import Link from "next/link";
 type Attendance = {
   date: string;
   day: number;
@@ -45,39 +45,50 @@ const AttendanceGrid: React.FC<AttendanceListProps> = ({
     }
   }, [attendanceData, selectedDay]);
 
-  const updateColumnDefs = () => {
-    const updatedColumnDefs: ColDef[] = [
-      {
-        headerName: "Username",
-        field: "username",
-        filter: true,
-        floatingFilter: true,
-      },
-      {
-        headerName: "Student Name",
-        field: "name",
-        filter: true,
-        floatingFilter: true,
-      },
-    ];
+ 
 
-    daysArray.forEach((day) => {
-      if (selectedDay === null || selectedDay === day) {
-        updatedColumnDefs.push({
-          field: day.toString(),
-          headerName: day.toString(),
-          width: 60,
-          cellRenderer: (params: any) => (
-            <AttendanceCheckbox data={params.data} day={day} node={params.node} />
-          ),
-          filter: "agTextColumnFilter",
-          floatingFilter: true,
-        });
-      }
-    });
+const updateColumnDefs = () => {
+  const updatedColumnDefs: ColDef[] = [
+    {
+      headerName: "Username",
+      field: "username",
+      filter: true,
+      floatingFilter: true,
+      cellRenderer: (params: any) => (
+        <Link
+          className=""
+          href={`/list/calanderAttendance?studentId=${params.data.id}`}
+        >
+          {params.value}
+        </Link>
+      ),
+    },
+    {
+      headerName: "Student Name",
+      field: "name",
+      filter: true,
+      floatingFilter: true,
+    },
+  ];
 
-    setColumnDefs(updatedColumnDefs);
-  };
+  daysArray.forEach((day) => {
+    if (selectedDay === null || selectedDay === day) {
+      updatedColumnDefs.push({
+        field: day.toString(),
+        headerName: day.toString(),
+        width: 60,
+        cellRenderer: (params: any) => (
+          <AttendanceCheckbox data={params.data} day={day} node={params.node} />
+        ),
+        filter: "agTextColumnFilter",
+        floatingFilter: true,
+      });
+    }
+  });
+
+  setColumnDefs(updatedColumnDefs);
+};
+
 
   const getUniqueRecord = (): Student[] => {
     const uniqueRecord: Student[] = [];
@@ -108,35 +119,39 @@ const daysArray = Array.from({ length: numberOfDays }, (_, i) => i + 1);
     setSelectedDay(value ? parseInt(value) : null);
   };
 
-  const handleMarkAllPresent = async () => {
-    if (selectedDay) {
-      try {
-        await Promise.all(
-          rowData.map(async (student) => {
-            await axiosInstance.patch("/attendance", {
-              studentId: student.id,
-              date: moment(selectedMonth)
-                .date(selectedDay)
-                .format("YYYY-MM-DD"),
-              status: "PRESENT",
-            });
-          })
-        );
+ const handleMarkAllPresent = async () => {
+  if (selectedDay) {
+    try {
+      await Promise.all(
+        rowData.map(async (student) => {
+          await axiosInstance.patch("/attendance", {
+            studentId: student.id,
+            date: moment(selectedMonth)
+              .date(selectedDay)
+              .format("YYYY-MM-DD"),
+            status: "PRESENT",
+          });
+        })
+      );
 
-        // Update the UI after successful update
-        setRowData((prevData) =>
-          prevData.map((student) => {
-            const updatedAttendance = student.attendance.map((att) =>
-              att.day === selectedDay ? { ...att, status: "PRESENT" } : att
-            );
-            return { ...student, attendance: updatedAttendance };
-          })
-        );
-      } catch (error) {
-        console.error("Failed to update all students to PRESENT:", error);
-      }
+      // Update the UI after successful update
+      setRowData((prevData) =>
+        prevData.map((student) => {
+          const updatedAttendance = student.attendance.map((att) =>
+            att.day === selectedDay ? { ...att, status: "PRESENT" } : att
+          );
+          return { ...student, attendance: updatedAttendance };
+        })
+      );
+
+      // Force the grid to redraw to show the updated checkboxes
+      setRowData((prevData) => [...prevData]);
+    } catch (error) {
+      console.error("Failed to update all students to PRESENT:", error);
     }
-  };
+  }
+};
+
 
   return (
     <>

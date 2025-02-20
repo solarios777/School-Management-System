@@ -71,6 +71,8 @@ model Student {
   role        UserRole @default(STUDENT)
   enrollments Enrollment[]
   attendance  Attendance[]
+  result      Result[]
+  rank        Rank[]
   parentId    String?         // Optional parent ID
   parent      Parent?         @relation(fields: [parentId], references: [id]) 
 }
@@ -90,9 +92,15 @@ model Teacher {
   birthday  DateTime?
   role      UserRole @default(TEACHER)
   password  String?
+
   assignments TeacherAssignment[]
-  superviser Superviser[]
+  superviser  Superviser[]
+
+  createdResults Result[] @relation(name: "CreatedResults")
+  updatedResults Result[] @relation(name: "UpdatedResults")
 }
+
+
 
 
 
@@ -116,6 +124,7 @@ model Parent {
 model Subject {
   id       String    @id @default(cuid())
   name     String    @unique
+  result   Result[]
   assignments TeacherAssignment[]
   subjectClassGrades SubjectClassGrade[] // Relation to the junction table
 }
@@ -150,7 +159,7 @@ model Enrollment {
   id            String      @id @default(cuid())
   studentId     String
   gradeClassId  String
-  year          Int
+  year          String
   student       Student     @relation(fields: [studentId], references: [id])
   gradeClass    GradeClass  @relation(fields: [gradeClassId], references: [id])
 }
@@ -160,7 +169,7 @@ model TeacherAssignment {
   teacherId     String
   gradeClassId  String
   subjectId     String
-  year          Int
+  year          String
   teacher       Teacher     @relation(fields: [teacherId], references: [id])
   gradeClass    GradeClass  @relation(fields: [gradeClassId], references: [id])
   subject       Subject     @relation(fields: [subjectId], references: [id])
@@ -170,7 +179,7 @@ model Superviser {
   id            String      @id @default(cuid())
   teacherId     String
   gradeClassId  String
-  year          Int
+  year          String
   teacher       Teacher     @relation(fields: [teacherId], references: [id])
   gradeClass    GradeClass  @relation(fields: [gradeClassId], references: [id])
 }
@@ -209,7 +218,7 @@ model SubjectClassGrade {
   subjectId String
   classId   String
   gradeId   String
-  year      Int
+  year      String
 
   subject   Subject @relation(fields: [subjectId], references: [id])
   class     Class   @relation(fields: [classId], references: [id])
@@ -226,6 +235,46 @@ model Attendance {
 
   student   Student @relation(fields: [studentId], references: [id])
 }
+
+model Result {
+  id           String   @id @default(cuid())
+  studentId    String
+  subjectId    String
+  marks        Float
+  examType     String
+  semester     String
+  year         String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  createdById  String
+  updatedById  String?
+
+  student      Student  @relation(fields: [studentId], references: [id])
+  subject      Subject  @relation(fields: [subjectId], references: [id])
+
+  createdBy    Teacher  @relation(name: "CreatedResults", fields: [createdById], references: [id])
+  updatedBy    Teacher? @relation(name: "UpdatedResults", fields: [updatedById], references: [id])
+
+  @@unique([studentId, subjectId, examType, year]) // Prevent duplicate results for the same exam
+}
+
+
+
+model Rank {
+  id         String   @id @default(cuid())
+  studentId  String
+  totalMarks Float
+  rank       Int
+  examType   String
+  year       String
+  createdAt  DateTime @default(now())
+
+  student    Student  @relation(fields: [studentId], references: [id])
+
+  @@unique([studentId, examType, year]) // Unique rank per exam type and year
+}
+
+
 
 enum AttendanceStatus {
   PRESENT 

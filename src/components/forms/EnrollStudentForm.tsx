@@ -8,7 +8,7 @@ import InputField from "../InputField";
 import { createSubject } from "../../../actions/subjectRegister";
 import { useFormState } from "react-dom";
 import { error } from "console";
-import { Dispatch, SetStateAction, use, useEffect } from "react";
+import { Dispatch, SetStateAction, use, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { createTeacherAssignment } from "../../../actions/teacherAssign";
@@ -36,6 +36,7 @@ const EnrollStudentForm = ({
     resolver: zodResolver(studentEnrollmentSchema),
   });
   const router=useRouter();
+  const [academicYears, setAcademicYears] = useState<string[]>([]);
   const [state,formAction]=useFormState(EnrollStudent,{
     success:false,
     error:false,
@@ -55,6 +56,24 @@ const EnrollStudentForm = ({
       toast.error(state.message);
     }
   }, [state]);
+  useEffect(() => {
+      const generateAcademicYears = () => {
+        const currentYear = new Date().getFullYear();
+        const currentMonth = new Date().getMonth() + 1; // Month is zero-based (Jan = 0)
+        
+        // If the current month is before September, the academic year is the previous year
+        const startYear = currentMonth < 9 ? currentYear - 1 : currentYear;
+  
+        const years: string[] = [];
+        for (let i = -2; i < 3; i++) { // Generate 5 academic years dynamically
+          const nextYear = startYear + i;
+          years.push(`${nextYear}/${(nextYear + 1) % 100}`); // Format: YYYY/YY
+        }
+        return years;
+      };
+  
+      setAcademicYears(generateAcademicYears());
+    }, []);
 
   const { classes } =relatedData;
  
@@ -107,14 +126,20 @@ const EnrollStudentForm = ({
 />
 
  <InputField
-          label="Year"
-          name="year"
-          type="number"
-          register={register}
-          error={errors.year}
-          // disabled={isPending}
-          defaultValue={new Date().getFullYear()}
-        />
+  label="Year"
+  name="year"
+  register={register}
+  error={errors.year}
+  as="select"
+  options={[
+    { value: "", label: "Select Year" },
+    ...academicYears.map((year) => ({
+      value: year,
+      label: year,
+    })),
+  ]}
+/>
+
            
        
           </div>

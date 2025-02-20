@@ -149,7 +149,7 @@ export const superviserSchema = z.object({
   teachername: z
     .string()
     .min(3, { message: "Teacher name must be at least 3 characters long!" }),
-  grade: z.coerce.number().min(1, { message: "Grade is required!" }),
+  grade: z.coerce.string().min(1, { message: "Grade is required!" }),
   classname: z.coerce.string().min(1, { message: "Section is required!" }),
   year: z.coerce
     .number()
@@ -167,13 +167,11 @@ export const teacherAssignmentSchema = z.object({
     .string()
     .min(3, { message: "Teacher name must be at least 3 characters long!" }),
   subjectname: z.string().min(1, { message: "Subject name is required!" }),
-  grade: z.coerce.number().min(1, { message: "Grade is required!" }),
+  grade: z.coerce.string().min(1, { message: "Grade is required!" }),
   classname: z.coerce.string().min(1, { message: "Section is required!" }),
   year: z.coerce
-    .number()
-    .int({ message: "Year must be an integer!" })
-    .min(currentYear, { message: `Year must be ${currentYear}!` })
-    .max(currentYear, { message: `Year must be ${currentYear}!` }),
+    .string()
+    .min(3, { message: "Year is required!" }),
 });
 
 export type TeacherAssignmentSchema = z.infer<typeof teacherAssignmentSchema>;
@@ -186,9 +184,7 @@ export const studentEnrollmentSchema= z.object({
   grade: z.coerce.number().min(1, { message: "Grade is required!" }),
   classname: z.coerce.string().min(1, { message: "Section is required!" }),
  year: z.coerce
-    .number()
-    .int({ message: "Year must be an integer!" })
-    .min(currentYear, { message: `Year must be ${currentYear}!` })
-    .max(currentYear, { message: `Year must be ${currentYear}!` }),
+    .string()
+    .min(3, { message: "Year is required!" }),
 });
 export type StudentEnrollmentSchema = z.infer<typeof studentEnrollmentSchema>;

@@ -1,9 +1,13 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, AttendanceStatus } from '@prisma/client';
 import { v4 as uuid } from 'uuid';
+import { subDays } from 'date-fns';
 
 const prisma = new PrismaClient();
 
 async function main() {
+  // const students = await prisma.student.findMany();
+  // const subjects = await prisma.subject.findMany();
+  const currentYear = new Date().getFullYear();
   // Create Parents
   const parents = await Promise.all(
     Array.from({ length: 50 }, (_, i) =>
@@ -134,7 +138,7 @@ async function main() {
               data: {
                 studentId: student.id,
                 gradeClassId: gradeClass.id,
-                year: 2023,
+                year: "2024/25",
               },
             })
           );
@@ -150,7 +154,7 @@ async function main() {
             data: {
               studentId: student.id,
               gradeClassId: gradeClass.id,
-              year: 2023,
+              year: "2024/2025",
             },
           })
         );
@@ -172,12 +176,100 @@ async function main() {
             teacherId: teacher.id,
             gradeClassId: gradeClass.id,
             subjectId: subject.id,
-            year: 2023,
+            year: "2024/25",
           },
         });
       });
     })
   );
+  for (let i = 0; i < 5; i++) {
+    const date = subDays(new Date(), i);
+    await Promise.all(
+      students.map((student) => {
+        // Random attendance status
+        const statusOptions: AttendanceStatus[] = ['PRESENT', 'ABSENT', 'LATE'];
+        const status =
+          statusOptions[Math.floor(Math.random() * statusOptions.length)];
+
+        return prisma.attendance.create({
+          data: {
+            studentId: student.id,
+            status,
+            date,
+            day: date.getDay(),
+          },
+        });
+      })
+    );
+  }
+
+  // 2. Populate Results for each student in each subject
+  
+  await Promise.all(
+    students.flatMap((student) =>
+      subjects.flatMap((subject) =>
+      {
+          
+
+          return prisma.result.create({
+            data: {
+              studentId: student.id,
+              subjectId: subject.id,
+              marks:45,
+              
+              examType:"MID_TERM",
+              year: "2024/25",
+            },
+          });
+      }
+      )
+    )
+  );
+
+  // 3. Calculate and Populate Rank for each student based on total marks
+  // for (const examType:) {
+  //   const studentTotals: { studentId: string; totalMarks: number }[] = [];
+
+  //   // Calculate total marks per student
+  //   for (const student of students) {
+  //     const totalMarks = await prisma.result.aggregate({
+  //       _sum: {
+  //         marks: true,
+  //       },
+  //       where: {
+  //         studentId: student.id,
+  //         examType,
+  //         year: "2024/25",
+  //       },
+  //     });
+
+  //     studentTotals.push({
+  //       studentId: student.id,
+  //       totalMarks: totalMarks._sum.marks || 0,
+  //     });
+  //   }
+
+  //   // Sort students by total marks in descending order to calculate rank
+  //   studentTotals.sort((a, b) => b.totalMarks - a.totalMarks);
+
+  //   // Assign rank
+  //   await Promise.all(
+  //     studentTotals.map((studentTotal, index) =>
+  //       prisma.rank.create({
+  //         data: {
+  //           studentId: studentTotal.studentId,
+  //           totalMarks: studentTotal.totalMarks,
+  //           rank: index + 1,
+  //           examType,
+  //           year: "2024/25",
+  //         },
+  //       })
+  //     )
+  //   );
+  // }
+
+
+
 
   console.log('Seeding completed.');
 }
