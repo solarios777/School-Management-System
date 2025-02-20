@@ -100,7 +100,26 @@ model Teacher {
   updatedResults Result[] @relation(name: "UpdatedResults")
 }
 
+model Result {
+  id           String   @id @default(cuid())
+  studentId    String
+  subjectId    String
+  marks        Float?
+  examType     String
+  semester     String
+  year         String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  createdById  String
+  updatedById  String?
 
+  student      Student  @relation(fields: [studentId], references: [id])
+  subject      Subject  @relation(fields: [subjectId], references: [id])
+  createdBy    Teacher  @relation(name: "CreatedResults", fields: [createdById], references: [id])
+  updatedBy    Teacher? @relation(name: "UpdatedResults", fields: [updatedById], references: [id])
+
+  @@unique([studentId, subjectId, examType, year]) // Prevent duplicate results for the same exam
+}
 
 
 
@@ -236,27 +255,7 @@ model Attendance {
   student   Student @relation(fields: [studentId], references: [id])
 }
 
-model Result {
-  id           String   @id @default(cuid())
-  studentId    String
-  subjectId    String
-  marks        Float
-  examType     String
-  semester     String
-  year         String
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  createdById  String
-  updatedById  String?
 
-  student      Student  @relation(fields: [studentId], references: [id])
-  subject      Subject  @relation(fields: [subjectId], references: [id])
-
-  createdBy    Teacher  @relation(name: "CreatedResults", fields: [createdById], references: [id])
-  updatedBy    Teacher? @relation(name: "UpdatedResults", fields: [updatedById], references: [id])
-
-  @@unique([studentId, subjectId, examType, year]) // Prevent duplicate results for the same exam
-}
 
 
 

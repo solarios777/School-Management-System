@@ -205,26 +205,26 @@ async function main() {
 
   // 2. Populate Results for each student in each subject
   
-  await Promise.all(
-    students.flatMap((student) =>
-      subjects.flatMap((subject) =>
-      {
+  // await Promise.all(
+  //   students.flatMap((student) =>
+  //     subjects.flatMap((subject) =>
+  //     {
           
 
-          return prisma.result.create({
-            data: {
-              studentId: student.id,
-              subjectId: subject.id,
-              marks:45,
+  //         return prisma.result.create({
+  //           data: {
+  //             studentId: student.id,
+  //             subjectId: subject.id,
               
-              examType:"MID_TERM",
-              year: "2024/25",
-            },
-          });
-      }
-      )
-    )
-  );
+  //             createdBy: student.id,
+  //             examType:"MID_TERM",
+  //             year: "2024/25",
+  //           },
+  //         });
+  //     }
+  //     )
+  //   )
+  // );
 
   // 3. Calculate and Populate Rank for each student based on total marks
   // for (const examType:) {

@@ -116,4 +116,14 @@ export const fetchStudents = async (
     };
   }
 };
+export const submitResults = async (results: any[]) => {
+  try {
+    const response = await axiosInstance.post("/submitResults/submitNormalresult", results);
+    return response.data;
+  } catch (error) {
+    console.error("Error submitting results:", error);
+    throw error;
+  }
+};
+
 export default axiosInstance;

@@ -9,10 +9,11 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { fetchStudents } from "@/app/_services/GlobalApi";
+import { fetchStudents, submitResults } from "@/app/_services/GlobalApi";
 import ResultAGGrid from "@/components/resultComponents/resultAGgrid";
 import * as XLSX from "xlsx";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import axios from "axios";
 
 interface Grade {
   id: string;
@@ -60,6 +61,7 @@ const ResultDashboard: React.FC<ResultDashboardProps> = ({ grades, classes, subj
   const [dataSource, setDataSource] = useState<"api" | "file" | null>(null);
   const [noStudentsFound, setNoStudentsFound] = useState<boolean>(false);
   const [isSelectionModalOpen, setIsSelectionModalOpen] = useState<boolean>(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
 
   useEffect(() => {
@@ -89,7 +91,7 @@ const ResultDashboard: React.FC<ResultDashboardProps> = ({ grades, classes, subj
         setDataSource("api");
 
         const dynamicAssessments = Object.keys(studentsData[0]).filter(
-          (key) => !["id", "name", "username", "grade", "section", "rollNumber"].includes(key)
+          (key) => !["id", "name", "username", "grade","email","surname","section", "rollNumber"].includes(key)
         );
         setAssessmentTypes(dynamicAssessments);
       }
@@ -149,16 +151,69 @@ const ResultDashboard: React.FC<ResultDashboardProps> = ({ grades, classes, subj
     };
     reader.readAsArrayBuffer(file);
   };
-  const handleSubmit = () => {
+  const handleSubmit = async() => {
     if (dataSource === "api") {
-      console.log({ year, semester, selectedGrade, selectedClass, subject });
+       setIsSubmitting(true);
+    try {
+      const formattedData = students.map((student) => ({
+        studentId: student.id,
+        year,
+        semester,
+        gradeId: selectedGrade,
+        classId: selectedClass,
+        subjectId: subject,
+        scores: assessmentTypes.map((assessment) => ({
+          examType: assessment,
+          marks: student[assessment] || 0,
+        })),
+      }));
+
+      console.log(formattedData);
+        const response = await submitResults(formattedData);
+
+      alert("Results submitted successfully!");
+      console.log("API Response:", response);
+      
+      
+    } catch (error) {
+      console.error("Error submitting results:", error);
+      alert("Failed to submit results");
+    } finally {
+      setIsSubmitting(false);
+    }
     } else if (dataSource === "file") {
       setIsSelectionModalOpen(true);
     }
   };
 
   const confirmSelection = () => {
-    console.log({ uploadedyear, uploadedsemester, uploadedselectedGrade, uploadedselectedClass, uploadedsubject });
+    
+    setIsSubmitting(true);
+    try {
+      const formattedData = students.map((student) => ({
+        studentId: student.name,
+        studentusername: student.username,
+        year:uploadedyear,
+        semester: uploadedsemester,
+        gradeId: uploadedselectedGrade,
+        classId: uploadedselectedClass,
+        subjectId: uploadedsubject,
+        scores: assessmentTypes.map((assessment) => ({
+          assessmentType: assessment,
+          score: student[assessment] || 0,
+        })),
+      }));
+
+      console.log(formattedData);
+      
+      
+    } catch (error) {
+      console.error("Error submitting results:", error);
+      alert("Failed to submit results");
+    } finally {
+      setIsSubmitting(false);
+    }
+    
     setIsSelectionModalOpen(false);
   };
 
@@ -256,7 +311,9 @@ const ResultDashboard: React.FC<ResultDashboardProps> = ({ grades, classes, subj
           </div>
           
           
-          <Button onClick={handleSubmit} className="bg-green-500 hover:bg-green-600 text-white">Submit</Button>
+          <Button onClick={handleSubmit} disabled={isSubmitting} className="bg-green-500 hover:bg-green-600 text-white">
+      {isSubmitting ? "Submitting..." : "Submit Results"}
+    </Button>
           </div>
           <ResultAGGrid students={students} assessmentTypes={assessmentTypes} />
           
