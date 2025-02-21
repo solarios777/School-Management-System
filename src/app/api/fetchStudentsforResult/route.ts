@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import  prisma  from "@/lib/prisma";
+import prisma from "@/lib/prisma";
 import { currentUser } from "@/lib/auth";
-
 
 export async function GET(req: NextRequest) {
   try {
@@ -59,6 +58,17 @@ export async function GET(req: NextRequest) {
           name: true,
           surname: true,
           email: true,
+          result: {
+            where: {
+              subjectId,
+              semester,
+              year,
+            },
+            select: {
+              examType: true,
+              marks: true,
+            },
+          },
         },
       });
 
@@ -99,6 +109,17 @@ export async function GET(req: NextRequest) {
           name: true,
           surname: true,
           email: true,
+          result: {
+            where: {
+              subjectId,
+              semester,
+              year,
+            },
+            select: {
+              examType: true,
+              marks: true,
+            },
+          },
         },
       });
 

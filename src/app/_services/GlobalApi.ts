@@ -109,13 +109,29 @@ export const fetchStudents = async (
     const response = await axiosInstance.get("/fetchStudentsforResult", {
       params: { year, semester, gradeId, classId, subjectId },
     });
-    return response.data;
+
+    // Transform student data to merge results into a single object
+    const transformedStudents = response.data.map((student: any) => {
+      const transformedResults = student.result.reduce((acc: any, res: any) => {
+        acc[res.examType] = res.marks; // Convert examType into a key and assign marks
+        return acc;
+      }, {});
+
+      return {
+        ...student,
+        ...transformedResults, // Spread the transformed results into the student object
+      };
+    });
+
+    return transformedStudents;
   } catch (error) {
+    console.error("Error fetching students:", error);
     return {
       message: error,
     };
   }
 };
+
 export const submitNormalResults = async (results: any[]) => {
   try {
     const response = await axiosInstance.post("/submitResults/submitNormalresult", results);

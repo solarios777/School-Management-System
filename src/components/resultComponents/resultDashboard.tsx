@@ -62,6 +62,7 @@ const ResultDashboard: React.FC<ResultDashboardProps> = ({ grades, classes, subj
   const [noStudentsFound, setNoStudentsFound] = useState<boolean>(false);
   const [isSelectionModalOpen, setIsSelectionModalOpen] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
 
 
   useEffect(() => {
@@ -73,32 +74,40 @@ const ResultDashboard: React.FC<ResultDashboardProps> = ({ grades, classes, subj
     setAcademicYears(generateAcademicYears());
   }, []);
 
- const loadStudents = async () => {
-    if (!year || !semester || !selectedGrade || !selectedClass || !subject) {
-      alert("Please select all fields before loading students.");
+const loadStudents = async () => {
+  if (!year || !semester || !selectedGrade || !selectedClass || !subject) {
+    alert("Please select all fields before loading students.");
+    return;
+  }
+
+  try {
+    const studentsData = await fetchStudents(year, semester, selectedGrade, selectedClass, subject);
+
+    if (studentsData.length === 0) {
+      setNoStudentsFound(true);
+      setStudents([]);
+      setAssessmentTypes([]); // Clear assessment types if no students found
       return;
     }
 
-    try {
-      const studentsData = await fetchStudents(year, semester, selectedGrade, selectedClass, subject);
-      
-      if (studentsData.length === 0) {
-        setNoStudentsFound(true);
-        setStudents([]);
-      } else {
-        setNoStudentsFound(false);
-        setStudents(studentsData);
-        setDataSource("api");
+    setNoStudentsFound(false);
+    setStudents(studentsData);
 
-        const dynamicAssessments = Object.keys(studentsData[0]).filter(
-          (key) => !["id", "name", "username", "grade","email","surname","section", "rollNumber"].includes(key)
-        );
-        setAssessmentTypes(dynamicAssessments);
-      }
-    } catch (error) {
-      console.error("Error loading students:", error);
-    }
-  };
+    // Extract assessment types dynamically (excluding standard student fields)
+    const dynamicAssessments = Object.keys(studentsData[0]).filter(
+      (key) =>
+        !["id", "name", "username", "grade", "email", "surname", "section", "rollNumber"].includes(key) &&
+        key !== "result" // Explicitly remove unwanted "result"
+    );
+
+    setAssessmentTypes(dynamicAssessments.length > 0 ? dynamicAssessments : []);
+    setDataSource("api");
+  } catch (error) {
+    console.error("Error loading students:", error);
+  }
+};
+
+
 
   const handleAddAssessment = () => {
     if (newAssessment.trim() && !assessmentTypes.includes(newAssessment)) {
@@ -172,11 +181,10 @@ const ResultDashboard: React.FC<ResultDashboardProps> = ({ grades, classes, subj
         const response = await submitNormalResults(formattedData);
 
       alert("Results submitted successfully!");
-      console.log("API Response:", response);
+      
       
       
     } catch (error) {
-      console.error("Error submitting results:", error);
       alert("Failed to submit results");
     } finally {
       setIsSubmitting(false);
@@ -186,7 +194,7 @@ const ResultDashboard: React.FC<ResultDashboardProps> = ({ grades, classes, subj
     }
   };
 
-  const confirmSelection = async () => {
+ const confirmSelection = async () => {
   setIsSubmitting(true);
   try {
     const formattedData = students.map((student) => ({
@@ -207,20 +215,23 @@ const ResultDashboard: React.FC<ResultDashboardProps> = ({ grades, classes, subj
 
     const response = await submitUploadedResults(formattedData);
 
-    if (response.error) {
-      throw new Error(response.error);
-    }
-
     alert(`✅ Success: ${response.message || "Results submitted successfully!"}`);
-    console.log("API Response:", response);
-  } catch (error) {
-    console.error("Error submitting results:", error);
-    alert(`❌ Error: ${error || "Failed to submit results!"}`);
+    
+  } catch (error: any) {
+
+    // Extract the error message properly
+    const errorMessage =
+      error.response?.data?.error ||
+      error.message ||
+      "Failed to submit results!";
+
+    alert(`❌ Error: ${errorMessage}`);
   } finally {
     setIsSubmitting(false);
     setIsSelectionModalOpen(false);
   }
 };
+
 
 
   return (

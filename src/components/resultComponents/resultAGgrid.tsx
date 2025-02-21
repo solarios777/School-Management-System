@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
@@ -18,19 +18,27 @@ interface ResultAGGridProps {
 }
 
 const ResultAGGrid: React.FC<ResultAGGridProps> = ({ students, assessmentTypes }) => {
-  const columnDefs = [
+  const baseColumns = [
     { headerName: "ID", field: "id", hide: true },
     { headerName: "Roll No", field: "rollNumber", sortable: true },
     { headerName: "Name", field: "name", sortable: true },
     { headerName: "Username", field: "username", sortable: true },
-    ...assessmentTypes.map((assessment) => ({
-      headerName: assessment,
-      field: assessment,
-      editable: true,
-    })),
   ];
 
-  return <div className="ag-theme-alpine " style={{ height: "700px", width: "100%"}} ><AgGridReact rowData={students} columnDefs={columnDefs} pagination={true} /></div>;
+  const assessmentColumns =
+    assessmentTypes.length > 0
+      ? assessmentTypes.map((assessment) => ({
+          headerName: assessment,
+          field: assessment,
+          editable: true,
+        }))
+      : [];
+
+  return (
+    <div className="ag-theme-alpine" style={{ height: "700px", width: "100%" }}>
+      <AgGridReact rowData={students} columnDefs={[...baseColumns, ...assessmentColumns]} pagination={true} />
+    </div>
+  );
 };
 
 export default ResultAGGrid;
