@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import  prisma  from "@/lib/prisma";
+import prisma  from "@/lib/prisma";
 import { currentUser } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
@@ -19,8 +19,17 @@ export async function POST(req: NextRequest) {
 
     const processedResults = await Promise.all(
       body.map(async (entry) => {
-        const { studentId, subjectId, examType, year, semester, scores, gradeId, classId } = entry;
+        const { studentusername, studentId: studentName, subjectId, examType, year, semester, scores, gradeId, classId } = entry;
         
+        // Find the Student ID using username and name
+        const student = await prisma.student.findFirst({
+          where: { username: studentusername, name: studentName },
+        });
+
+        if (!student) {
+          return NextResponse.json({ error: "Student not found" }, { status: 400 });
+        }
+
         // Find the GradeClass ID
         const gradeClass = await prisma.gradeClass.findFirst({
           where: { gradeId, classId },
@@ -47,11 +56,11 @@ export async function POST(req: NextRequest) {
         }
 
         return Promise.all(
-          scores.map(async ({ examType, marks }) => {
-            const numericMarks = parseFloat(marks) || null;
+          scores.map(async ({ assessmentType, score }) => {
+            const numericMarks = parseFloat(score) || null;
             
             const existingResult = await prisma.result.findFirst({
-              where: { studentId, subjectId, examType, year },
+              where: { studentId: student.id, subjectId, examType: assessmentType, year },
             });
 
             if (existingResult) {
@@ -66,10 +75,10 @@ export async function POST(req: NextRequest) {
             } else {
               return prisma.result.create({
                 data: {
-                  studentId,
+                  studentId: student.id,
                   subjectId,
                   marks: numericMarks,
-                  examType,
+                  examType: assessmentType,
                   semester,
                   year,
                   createdByTeacherId: role === "TEACHER" ? userId : null,

@@ -9,7 +9,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { fetchStudents, submitResults } from "@/app/_services/GlobalApi";
+import { fetchStudents, submitNormalResults, submitUploadedResults, } from "@/app/_services/GlobalApi";
 import ResultAGGrid from "@/components/resultComponents/resultAGgrid";
 import * as XLSX from "xlsx";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -168,8 +168,8 @@ const ResultDashboard: React.FC<ResultDashboardProps> = ({ grades, classes, subj
         })),
       }));
 
-      console.log(formattedData);
-        const response = await submitResults(formattedData);
+      
+        const response = await submitNormalResults(formattedData);
 
       alert("Results submitted successfully!");
       console.log("API Response:", response);
@@ -186,36 +186,42 @@ const ResultDashboard: React.FC<ResultDashboardProps> = ({ grades, classes, subj
     }
   };
 
-  const confirmSelection = () => {
-    
-    setIsSubmitting(true);
-    try {
-      const formattedData = students.map((student) => ({
-        studentId: student.name,
-        studentusername: student.username,
-        year:uploadedyear,
-        semester: uploadedsemester,
-        gradeId: uploadedselectedGrade,
-        classId: uploadedselectedClass,
-        subjectId: uploadedsubject,
-        scores: assessmentTypes.map((assessment) => ({
-          assessmentType: assessment,
-          score: student[assessment] || 0,
-        })),
-      }));
+  const confirmSelection = async () => {
+  setIsSubmitting(true);
+  try {
+    const formattedData = students.map((student) => ({
+      studentId: student.name,
+      studentusername: student.username,
+      year: uploadedyear,
+      semester: uploadedsemester,
+      gradeId: uploadedselectedGrade,
+      classId: uploadedselectedClass,
+      subjectId: uploadedsubject,
+      scores: assessmentTypes.map((assessment) => ({
+        assessmentType: assessment,
+        score: student[assessment] || 0,
+      })),
+    }));
 
-      console.log(formattedData);
-      
-      
-    } catch (error) {
-      console.error("Error submitting results:", error);
-      alert("Failed to submit results");
-    } finally {
-      setIsSubmitting(false);
+    console.log("Formatted Data:", formattedData);
+
+    const response = await submitUploadedResults(formattedData);
+
+    if (response.error) {
+      throw new Error(response.error);
     }
-    
+
+    alert(`✅ Success: ${response.message || "Results submitted successfully!"}`);
+    console.log("API Response:", response);
+  } catch (error) {
+    console.error("Error submitting results:", error);
+    alert(`❌ Error: ${error || "Failed to submit results!"}`);
+  } finally {
+    setIsSubmitting(false);
     setIsSelectionModalOpen(false);
-  };
+  }
+};
+
 
   return (
     <>
