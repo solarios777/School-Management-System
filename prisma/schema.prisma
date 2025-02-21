@@ -39,20 +39,24 @@ model User {
 
 model Admin {
   id        String @id @default(cuid())
-  username  String    @unique
+  username  String @unique
   name      String
   surname   String
-  email     String?   @unique
-  phone     String?   @unique
+  email     String? @unique
+  phone     String? @unique
   address   String
   img       String?
   bloodType String
   sex       UserSex
-  createdAt DateTime  @default(now())
+  createdAt DateTime @default(now())
   birthday  DateTime?
   role      UserRole @default(ADMIN)
   password  String?
+
+  createdResults  Result[] @relation(name: "CreatedByAdmin") 
+  updatedResults  Result[] @relation(name: "UpdatedByAdmin") 
 }
+
 
 model Student {
   id          String @id @default(cuid())
@@ -79,26 +83,27 @@ model Student {
 
 model Teacher {
   id        String @id @default(cuid())
-  username  String    @unique
+  username  String @unique
   name      String
   surname   String
-  email     String?   @unique
-  phone     String?   @unique
+  email     String? @unique
+  phone     String? @unique
   address   String
   img       String?
   bloodType String
   sex       UserSex
-  createdAt DateTime  @default(now())
+  createdAt DateTime @default(now())
   birthday  DateTime?
   role      UserRole @default(TEACHER)
   password  String?
 
-  assignments TeacherAssignment[]
-  superviser  Superviser[]
+  assignments      TeacherAssignment[]
+  superviser      Superviser[]
 
-  createdResults Result[] @relation(name: "CreatedResults")
-  updatedResults Result[] @relation(name: "UpdatedResults")
+  createdResults  Result[] @relation(name: "CreatedByTeacher")
+  updatedResults  Result[] @relation(name: "UpdatedByTeacher")
 }
+
 
 model Result {
   id           String   @id @default(cuid())
@@ -110,16 +115,23 @@ model Result {
   year         String
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
-  createdById  String
-  updatedById  String?
+
+  createdByTeacherId String?
+  createdByAdminId   String?
+  updatedByTeacherId String?
+  updatedByAdminId   String?
 
   student      Student  @relation(fields: [studentId], references: [id])
   subject      Subject  @relation(fields: [subjectId], references: [id])
-  createdBy    Teacher  @relation(name: "CreatedResults", fields: [createdById], references: [id])
-  updatedBy    Teacher? @relation(name: "UpdatedResults", fields: [updatedById], references: [id])
 
-  @@unique([studentId, subjectId, examType, year]) // Prevent duplicate results for the same exam
+  createdByTeacher  Teacher? @relation(name: "CreatedByTeacher", fields: [createdByTeacherId], references: [id])
+  createdByAdmin    Admin?   @relation(name: "CreatedByAdmin", fields: [createdByAdminId], references: [id])
+  updatedByTeacher  Teacher? @relation(name: "UpdatedByTeacher", fields: [updatedByTeacherId], references: [id])
+  updatedByAdmin    Admin?   @relation(name: "UpdatedByAdmin", fields: [updatedByAdminId], references: [id])
+
+  @@unique([studentId, subjectId, examType, year]) // Prevent duplicate results
 }
+
 
 
 

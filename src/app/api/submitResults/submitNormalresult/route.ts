@@ -1,93 +1,65 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import prisma  from "@/lib/prisma";
 import { currentUser } from "@/lib/auth";
 
-const prisma = new PrismaClient();
-
 export async function POST(req: NextRequest) {
-  const user = await currentUser();
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const userId = user.id;
-
   try {
-    const body = await req.json();
-
-    if (!Array.isArray(body)) {
-      return NextResponse.json({ error: "Invalid data format" }, { status: 400 });
+    const user = await currentUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Extract unique exam types from the request
-    const uniqueExamTypes = Array.from(
-      new Set(body.flatMap((result) => result.scores.map((score) => score.examType)))
-    );
+    const role = user.role;
+    const userId = user.id;
 
-    // Get existing results (but don't save/update them)
-    const existingResults = await prisma.result.findMany({
-      where: {
-        subjectId: body[0].subjectId,
-        semester: body[0].semester,
-        year: body[0].year,
-        studentId: { in: body.map((r) => r.studentId) },
-        examType: { in: uniqueExamTypes },
-      },
-      select: {
-        studentId: true,
-        subjectId: true,
-        examType: true,
-        year: true,
-      },
-    });
+    const body = await req.json();
+    if (!Array.isArray(body) || body.length === 0) {
+      return NextResponse.json({ error: "Invalid request data" }, { status: 400 });
+    }
 
-    // Convert existing results to a Set for quick lookup
-    const existingResultsSet = new Set(
-      existingResults.map(
-        (r) => `${r.studentId}-${r.subjectId}-${r.examType}-${r.year}`
-      )
-    );
+    const processedResults = await Promise.all(
+      body.map(async (entry) => {
+        const { studentId, subjectId, examType, year, semester, scores } = entry;
 
-    // Prepare the data without saving to the database
-    const preparedResults = body.flatMap((result) =>
-      result.scores.map((score) => {
-        const key = `${result.studentId}-${result.subjectId}-${score.examType}-${result.year}`;
+        return Promise.all(
+          scores.map(async ({ examType, marks }) => {
+            const numericMarks = parseFloat(marks) || null;
+            
+            const existingResult = await prisma.result.findFirst({
+              where: { studentId, subjectId, examType, year },
+            });
 
-        if (existingResultsSet.has(key)) {
-          // Prepare data for update
-          return {
-            operation: "update",
-            studentId: result.studentId,
-            subjectId: result.subjectId,
-            marks: score.marks,
-            examType: score.examType,
-            semester: result.semester,
-            year: result.year,
-            updatedById: userId,
-          };
-        } else {
-          // Prepare data for insert
-          return {
-            operation: "create",
-            studentId: result.studentId,
-            subjectId: result.subjectId,
-            marks: score.marks,
-            examType: score.examType,
-            semester: result.semester,
-            year: result.year,
-            createdById: userId,
-          };
-        }
+            if (existingResult) {
+              return prisma.result.update({
+                where: { id: existingResult.id },
+                data: {
+                  marks: numericMarks,
+                  updatedByTeacherId: role === "TEACHER" ? userId : null,
+                  updatedByAdminId: role === "ADMIN" ? userId : null,
+                },
+              });
+            } else {
+              return prisma.result.create({
+                data: {
+                  studentId,
+                  subjectId,
+                  marks: numericMarks,
+                  examType,
+                  semester,
+                  year,
+                  createdByTeacherId: role === "TEACHER" ? userId : null,
+                  createdByAdminId: role === "ADMIN" ? userId : null,
+                },
+              });
+            }
+          })
+        );
       })
     );
 
-    // Log the prepared data in the backend console
-    console.log("Prepared Results:", JSON.stringify(preparedResults, null, 2));
-
-    // Return the prepared results to the frontend
-    return NextResponse.json({ message: "Prepared results data", data: preparedResults }, { status: 200 });
+    return NextResponse.json({ message: "Results saved successfully." });
   } catch (error) {
-    console.error("Error preparing results:", error);
-    return NextResponse.json({ error: "Failed to prepare results" }, { status: 500 });
+    console.error("Error processing results:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
