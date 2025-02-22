@@ -149,6 +149,7 @@ export async function POST(req: NextRequest) {
                   subjectId,
                   marks: numericMarks,
                   examType: assessmentType,
+                  gradeClassId: gradeClass.id,
                   semester,
                   year,
                   createdByTeacherId: role === "TEACHER" ? userId : null,

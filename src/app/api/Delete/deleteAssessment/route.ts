@@ -1,43 +1,41 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import  prisma  from "@/lib/prisma"; // Ensure correct Prisma path
+import { NextRequest, NextResponse } from "next/server";
+import  prisma  from "@/lib/prisma";
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
-  if (req.method !== "DELETE") {
-    return res.status(405).json({ message: "Method Not Allowed" });
-  }
-
+export async function DELETE(req: NextRequest) {
   try {
-    const { assessmentId, source } = req.body;
+    const { year, semester, gradeId, classId, subjectId, examType } = await req.json();
 
-    if (!assessmentId || !source) {
-      return res.status(400).json({ message: "Missing required parameters" });
+    if (!year || !semester || !gradeId || !classId || !subjectId || !examType) {
+      return NextResponse.json({ success: false, message: "Missing required fields." }, { status: 400 });
+    }
+    const gradeClass = await prisma.gradeClass.findFirst({
+      where: {
+        gradeId,
+        classId,
+      },
+    });
+
+    if (!gradeClass) {
+      return NextResponse.json({ success: false, message: "Invalid grade or class." }, { status: 400 });
     }
 
-    if (source === "api") {
-      // Delete assessment and related marks
-      await prisma.result.deleteMany({
-        where: { examType: assessmentId },
-      });
+    const deletedRecords = await prisma.result.deleteMany({
+      where: {
+        year,
+        semester,
+        gradeClassId: gradeClass.id,
+        subjectId,
+        examType,
+      },
+    });
 
-      return res.status(200).json({ message: "Assessment deleted from API" });
+    if (deletedRecords.count === 0) {
+      return NextResponse.json({ success: false, message: "No matching assessment found." }, { status: 404 });
     }
 
-    if (source === "uploaded") {
-      // Handle deletion from extracted file
-      return res.status(200).json({ message: "Assessment removed from file" });
-    }
-
-    if (source === "new") {
-      // Simply remove from state
-      return res.status(200).json({ message: "New assessment deleted" });
-    }
-
-    return res.status(400).json({ message: "Invalid source type" });
+    return NextResponse.json({ success: true, message: "Assessment deleted successfully." });
   } catch (error) {
     console.error("Error deleting assessment:", error);
-    return res.status(500).json({ message: "Internal Server Error" });
+    return NextResponse.json({ success: false, message: "Internal server error." }, { status: 500 });
   }
 }

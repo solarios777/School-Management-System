@@ -113,6 +113,7 @@ model Result {
   examType     String
   semester     String
   year         String
+  gradeClassId String
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 

@@ -162,19 +162,25 @@ export const fetchStudentResults = async (studentId: string) => {
 };
 
 export const deleteAssessment = async (
-  assessmentId: string,
-  source: "api" | "uploaded" | "new"
+  year: string,
+  semester: string,
+  gradeId: string,
+  classId: string,
+  subjectId: string,
+  examType: string,
 ) => {
+  
   try {
     const response = await axiosInstance.delete("/Delete/deleteAssessment", {
-      data: { assessmentId, source },
+      data: { year, semester, gradeId, classId, subjectId, examType },
     });
     return response.data;
   } catch (error) {
     console.error("Error deleting assessment:", error);
-    throw error;
+    return { success: false, message: "Failed to delete assessment." };
   }
 };
+
 
 
 export default axiosInstance;
