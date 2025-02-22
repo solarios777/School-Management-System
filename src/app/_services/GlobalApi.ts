@@ -180,6 +180,43 @@ export const deleteAssessment = async (
     return { success: false, message: "Failed to delete assessment." };
   }
 };
+export const setResultDeadline = async (year: string, semester: number, deadline: string) => {
+  try {
+    const response = await axiosInstance.post("/admin/resultRelease", {
+      year,
+      semester,
+      deadline,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error setting result deadline:", error);
+    throw new Error("Failed to set result deadline.");
+  }
+};
+
+export const getResultDeadline = async (year: string, semester: number) => {
+  try {
+    const response = await axiosInstance.get(`/admin/resultRelease?year=${year}&semester=${semester}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching result deadline:", error);
+    throw new Error("Failed to fetch result deadline.");
+  }
+};
+
+export const getNearestDeadline = async () => {
+  try {
+    const response = await fetch("/api/admin/resultRelease", {
+      method: "GET",
+    });
+    if (!response.ok) throw new Error("Failed to fetch nearest deadline");
+    return await response.json();
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+};
+
 
 
 

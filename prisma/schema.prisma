@@ -282,6 +282,15 @@ model Rank {
   @@unique([studentId, examType, year]) // Unique rank per exam type and year
 }
 
+model ResultRelease {
+  id         String   @id @default(cuid())
+  year       String
+  semester   Int
+  deadline   DateTime
+  isReleased Boolean  @default(false) // Determines if students can view results
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
 
 
 enum AttendanceStatus {
