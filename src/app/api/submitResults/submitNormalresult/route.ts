@@ -29,6 +29,35 @@ export async function POST(req: NextRequest) {
         if (!gradeClass) {
           return NextResponse.json({ error: "Invalid grade or class" }, { status: 400 });
         }
+        const grade = await prisma.grade.findUnique({
+          where: { id: gradeId },
+          select: { level: true },
+        })
+       
+        const section = await prisma.class.findUnique({
+          where: { id: classId },
+          select: { name: true },
+        })
+         if (!grade || !section) {
+          return NextResponse.json({ error: "Invalid grade or class" }, { status: 400 });
+        }
+        
+        const student = await prisma.student.findUnique({
+          where: { id: studentId },
+          select: { name: true },
+        })
+
+        if (!student) {
+          return NextResponse.json({ error: "Student not found" }, { status: 404 });
+        }
+
+        const enrollment = await prisma.enrollment.findFirst({
+          where: { studentId, gradeClassId: gradeClass.id },
+        });
+
+        if (!enrollment) {
+          return NextResponse.json({ error: `${student.name} is not enrolled in ${grade.level} ${section.name}` }, { status: 403 });
+        }
 
         // If role is TEACHER, verify their assignment
         if (role === "TEACHER") {

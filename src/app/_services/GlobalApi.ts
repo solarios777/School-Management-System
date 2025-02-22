@@ -73,21 +73,21 @@ export const fetchBarChartData = async (grade?: string, section?: string) => {
     return [];
   }
 };
-export const fetchResults = async (grade: string, section: string, examType: string) => {
-  try {
-    const response = await axios.get('/results', {
-      params: {
-        grade,
-        section,
-        examType,
-      },
-    });
-    return "true true";
-  } catch (error) {
-    console.error('Error fetching results:', error);
-    throw error;
-  }
-};
+// export const fetchResults = async (grade: string, section: string, examType: string) => {
+//   try {
+//     const response = await axios.get('/results', {
+//       params: {
+//         grade,
+//         section,
+//         examType,
+//       },
+//     });
+//     return "true true";
+//   } catch (error) {
+//     console.error('Error fetching results:', error);
+//     throw error;
+//   }
+// };
 // Fetches grades, sections, and subjects for the current user
 export const fetchUserSelections = async () => {
   try {
@@ -150,5 +150,31 @@ export const submitUploadedResults = async (results: any[]) => {
     throw error;
   }
 };
+
+export const fetchStudentResults = async (studentId: string) => {
+  try {
+    const response = await axiosInstance.get(`/results/singlestudentResult?studentId=${studentId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching student results:", error);
+    throw error;
+  }
+};
+
+export const deleteAssessment = async (
+  assessmentId: string,
+  source: "api" | "uploaded" | "new"
+) => {
+  try {
+    const response = await axiosInstance.delete("/Delete/deleteAssessment", {
+      data: { assessmentId, source },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error deleting assessment:", error);
+    throw error;
+  }
+};
+
 
 export default axiosInstance;

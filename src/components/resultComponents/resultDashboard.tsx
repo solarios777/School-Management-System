@@ -12,7 +12,15 @@ import {
 import { fetchStudents, submitNormalResults, submitUploadedResults, } from "@/app/_services/GlobalApi";
 import ResultAGGrid from "@/components/resultComponents/resultAGgrid";
 import * as XLSX from "xlsx";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+
 import axios from "axios";
 
 interface Grade {
@@ -60,7 +68,9 @@ const ResultDashboard: React.FC<ResultDashboardProps> = ({ grades, classes, subj
   const [newAssessment, setNewAssessment] = useState<string>("");
   const [dataSource, setDataSource] = useState<"api" | "file" | null>(null);
   const [noStudentsFound, setNoStudentsFound] = useState<boolean>(false);
-  const [isSelectionModalOpen, setIsSelectionModalOpen] = useState<boolean>(false);
+  const [isuploadSelectionModalOpen, setIsuploadSelectionModalOpen] = useState<boolean>(false);
+  const [isnormalSelectionModalOpen, setIsnormalSelectionModalOpen] = useState<boolean>(false);
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   
 
@@ -86,7 +96,7 @@ const loadStudents = async () => {
     if (studentsData.length === 0) {
       setNoStudentsFound(true);
       setStudents([]);
-      setAssessmentTypes([]); // Clear assessment types if no students found
+      setAssessmentTypes([]);
       return;
     }
 
@@ -160,8 +170,17 @@ const loadStudents = async () => {
     };
     reader.readAsArrayBuffer(file);
   };
-  const handleSubmit = async() => {
+  const handleDeleteAssessment = (assessment: string) => {
+    setAssessmentTypes(assessmentTypes.filter((a) => a !== assessment));
+  }
+  const handlesummitSelection = () => {
     if (dataSource === "api") {
+      setIsnormalSelectionModalOpen(true);
+    } else if (dataSource === "file") {
+      setIsuploadSelectionModalOpen(true);
+    }
+  }
+  const handlenormalSubmit = async() => {
        setIsSubmitting(true);
     try {
       const formattedData = students.map((student) => ({
@@ -188,13 +207,11 @@ const loadStudents = async () => {
       alert("Failed to submit results");
     } finally {
       setIsSubmitting(false);
+      setIsnormalSelectionModalOpen(false);
     }
-    } else if (dataSource === "file") {
-      setIsSelectionModalOpen(true);
     }
-  };
 
- const confirmSelection = async () => {
+ const confirmuploadSelection = async () => {
   setIsSubmitting(true);
   try {
     const formattedData = students.map((student) => ({
@@ -228,7 +245,7 @@ const loadStudents = async () => {
     alert(`❌ Error: ${errorMessage}`);
   } finally {
     setIsSubmitting(false);
-    setIsSelectionModalOpen(false);
+    setIsuploadSelectionModalOpen(false);
   }
 };
 
@@ -249,8 +266,8 @@ const loadStudents = async () => {
           <Select onValueChange={setSemester}>
             <SelectTrigger><SelectValue placeholder="Semester" /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="sem-I">Sem-I</SelectItem>
-              <SelectItem value="sem-II">Sem-II</SelectItem>
+              <SelectItem value="1">Sem-I</SelectItem>
+              <SelectItem value="2">Sem-II</SelectItem>
             </SelectContent>
           </Select>
 
@@ -326,9 +343,20 @@ const loadStudents = async () => {
           />
           <Button onClick={handleAddAssessment}>Add Assessment</Button>
           </div>
+          {assessmentTypes.length > 0 && <div>
+          <select name="assessment" id="">
+            {assessmentTypes.map((assessment) => (
+              <option key={assessment} value={assessment}>
+                {assessment}
+              </option>
+            ))}
+          </select>
+          <Button className="bg-red-500 hover:bg-red-600 text-white" onClick={handleDeleteAssessment}>Delete Assessment</Button>
+          </div>}
+
           
           
-          <Button onClick={handleSubmit} disabled={isSubmitting} className="bg-green-500 hover:bg-green-600 text-white">
+          <Button onClick={handlesummitSelection} disabled={isSubmitting} className="bg-green-500 hover:bg-green-600 text-white">
       {isSubmitting ? "Submitting..." : "Submit Results"}
     </Button>
           </div>
@@ -337,7 +365,21 @@ const loadStudents = async () => {
         </div>
       )}
     {}
-    <Dialog open={isSelectionModalOpen} onOpenChange={setIsSelectionModalOpen}>
+    <Dialog open={isnormalSelectionModalOpen} onOpenChange={setIsnormalSelectionModalOpen}>
+  
+  <DialogContent >
+    <DialogHeader>
+      <DialogDescription>
+        Please make sure the data is correct. The following button will submit the results.
+      </DialogDescription>
+      
+    </DialogHeader>
+    <Button onClick={handlenormalSubmit} className="bg-green-500 hover:bg-green-600 text-white">Confirm</Button>
+      
+  </DialogContent>
+</Dialog>
+
+    <Dialog open={isuploadSelectionModalOpen} onOpenChange={setIsuploadSelectionModalOpen}>
         <DialogContent className="max-w-4xl w-full h-auto">
           <DialogHeader>
             <DialogTitle>Select Data Before Submitting</DialogTitle>
@@ -354,8 +396,8 @@ const loadStudents = async () => {
           <Select onValueChange={setUploadedSemester}>
             <SelectTrigger><SelectValue placeholder="Semester" /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="sem-I">Sem-I</SelectItem>
-              <SelectItem value="sem-II">Sem-II</SelectItem>
+              <SelectItem value="1">Sem-I</SelectItem>
+              <SelectItem value="2">Sem-II</SelectItem>
             </SelectContent>
           </Select>
 
@@ -397,7 +439,10 @@ const loadStudents = async () => {
           
         </CardContent>
       </Card>
-          <Button onClick={confirmSelection} className="bg-green-500 hover:bg-green-600 text-white">Confirm</Button>
+      <DialogDescription>
+        Please make sure the data is correct. The following button will submit the results.
+      </DialogDescription>
+          <Button onClick={confirmuploadSelection} className="bg-green-500 hover:bg-green-600 text-white">Confirm</Button>
         </DialogContent>
       </Dialog>
     </>

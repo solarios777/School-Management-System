@@ -152,6 +152,10 @@ const SingleStudentPage = async ({
             >
               Student&apos;s Classes
             </Link>
+            <Link className="p-3 rounded-md bg-lamaSkyLight" href={`/list/singleStudentResult?studentId=${student.id}`}>
+  Student&apos;s Results
+</Link>
+
             <Link
               className="p-3 rounded-md bg-lamaPurpleLight"
               href={`/list/calanderAttendance?studentId=${student.id}`}

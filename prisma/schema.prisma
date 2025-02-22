@@ -267,10 +267,6 @@ model Attendance {
   student   Student @relation(fields: [studentId], references: [id])
 }
 
-
-
-
-
 model Rank {
   id         String   @id @default(cuid())
   studentId  String

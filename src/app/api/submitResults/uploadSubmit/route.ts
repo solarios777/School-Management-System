@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { currentUser } from "@/lib/auth";
 
+type ScoreEntry = {
+  assessmentType: string; // Allowing any string for flexibility
+  score: number | string; // Accepting both number and string for parsing
+};
+
 export async function POST(req: NextRequest) {
   try {
     const user = await currentUser();
@@ -14,15 +19,28 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
 
     if (!Array.isArray(body) || body.length === 0) {
-      return NextResponse.json({ error: "Invalid request data" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Invalid request data" },
+        { status: 400 }
+      );
     }
 
     const errors: string[] = [];
 
     await Promise.all(
       body.map(async (entry) => {
-        const { studentusername, studentId: studentName, subjectId, examType, year, semester, scores, gradeId, classId } = entry;
-        
+        const {
+          studentusername,
+          studentId: studentName,
+          subjectId,
+          examType,
+          year,
+          semester,
+          scores,
+          gradeId,
+          classId,
+        } = entry;
+
         const student = await prisma.student.findFirst({
           where: { username: studentusername, name: studentName },
         });
@@ -40,8 +58,18 @@ export async function POST(req: NextRequest) {
           errors.push(`Invalid grade or class for student ${studentName}`);
           return;
         }
-         // Fetch the subject name
+
         
+        const enrolledStudent = await prisma.enrollment.findFirst({
+          where: { studentId: student.id, gradeClassId: gradeClass.id },
+        })
+
+        if (!enrolledStudent) {
+          errors.push(`${studentName} is not enrolled in this class.`);
+          return;
+        }
+        // Fetch the subject name
+
         if (role === "TEACHER") {
           const assignment = await prisma.teacherAssignment.findFirst({
             where: {
@@ -54,38 +82,41 @@ export async function POST(req: NextRequest) {
 
           if (!assignment) {
             const subject = await prisma.subject.findUnique({
-          where: { id: subjectId },
-        });
+              where: { id: subjectId },
+            });
 
-        if (!subject) {
-          errors.push(`Invalid subject selection for student ${studentName}`);
-          return;
-        }
-        const grade = await prisma.grade.findUnique({
-          where: { id: gradeId },
-        });
+            if (!subject) {
+              errors.push(
+                `Invalid subject selection for student ${studentName}`
+              );
+              return;
+            }
+            const grade = await prisma.grade.findUnique({
+              where: { id: gradeId },
+            });
 
-        if (!grade) {
-          errors.push(`Invalid grade selection for student ${studentName}`);
-          return;
-        }
-        const section = await prisma.class.findUnique({
-          where: { id: classId },
-        });
+            if (!grade) {
+              errors.push(`Invalid grade selection for student ${studentName}`);
+              return;
+            }
+            const section = await prisma.class.findUnique({
+              where: { id: classId },
+            });
 
-        if (!section) {
-          errors.push(`Invalid section selection for student ${studentName}`);
-          return;
-        }
-             const subjectName = subject.name;
+            if (!section) {
+              errors.push(
+                `Invalid section selection for student ${studentName}`
+              );
+              return;
+            }
+            const subjectName = subject.name;
             const gradeLevel = grade.level;
             const className = section.name;
 
             const errorMessage = `Unauthorized teacher for ${semester} of ${year} for Grade ${gradeLevel}${className} - ${subjectName}`;
-if (!errors.includes(errorMessage)) {
-  errors.push(errorMessage);
-}
-
+            if (!errors.includes(errorMessage)) {
+              errors.push(errorMessage);
+            }
           }
         }
 
@@ -94,7 +125,12 @@ if (!errors.includes(errorMessage)) {
             const numericMarks = parseFloat(score) || null;
 
             const existingResult = await prisma.result.findFirst({
-              where: { studentId: student.id, subjectId, examType: assessmentType, year },
+              where: {
+                studentId: student.id,
+                subjectId,
+                examType: assessmentType,
+                year,
+              },
             });
 
             if (existingResult) {
@@ -131,6 +167,9 @@ if (!errors.includes(errorMessage)) {
 
     return NextResponse.json({ message: "Results saved successfully." });
   } catch (error) {
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }
