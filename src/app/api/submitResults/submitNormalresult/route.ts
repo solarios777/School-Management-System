@@ -3,6 +3,7 @@ import  prisma  from "@/lib/prisma";
 import { currentUser } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
+  const errors: string[] = [];
   try {
     const user = await currentUser();
     if (!user) {
@@ -17,6 +18,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid request data" }, { status: 400 });
     }
 
+    
     const processedResults = await Promise.all(
       body.map(async (entry) => {
         const { studentId, subjectId, examType, year, semester, scores, gradeId, classId } = entry;
@@ -59,6 +61,8 @@ export async function POST(req: NextRequest) {
           return NextResponse.json({ error: `${student.name} is not enrolled in ${grade.level} ${section.name}` }, { status: 403 });
         }
 
+       
+
         // If role is TEACHER, verify their assignment
         if (role === "TEACHER") {
           const assignment = await prisma.teacherAssignment.findFirst({
@@ -69,9 +73,41 @@ export async function POST(req: NextRequest) {
               year,
             },
           });
+          
 
           if (!assignment) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+            const subject = await prisma.subject.findUnique({
+              where: { id: subjectId },
+            });
+
+            if (!subject) {
+              errors.push(`Invalid subject selection for student ${student.name}`);
+              return;
+            }
+            const grade = await prisma.grade.findUnique({
+              where: { id: gradeId },
+            });
+
+            if (!grade) {
+              errors.push(`Invalid grade selection for student ${student.name}`);
+              return;
+            }
+            const section = await prisma.class.findUnique({
+              where: { id: classId },
+            });
+
+            if (!section) {
+              errors.push(`Invalid section selection for student ${student.name}`);
+              return;
+            }
+            const subjectName = subject.name;
+            const gradeLevel = grade.level;
+            const className = section.name;
+
+            const errorMessage = `Unauthorized teacher for ${semester} of ${year} for Grade ${gradeLevel}${className} - ${subjectName}`;
+            if (!errors.includes(errorMessage)) {
+              errors.push(errorMessage);
+            }
           }
         }
 

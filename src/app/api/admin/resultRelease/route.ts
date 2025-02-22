@@ -2,46 +2,16 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { currentUser } from "@/lib/auth";
 
-// ✅ GET method to fetch deadline by year & semester
-// export async function GET(req: NextRequest) {
-//   try {
-//     const user = await currentUser();
-//     const role = user?.role?.toUpperCase();
 
-//     if (!user || role !== "ADMIN") {
-//       return NextResponse.json({ message: "Forbidden: Only admins can set deadlines" }, { status: 403 });
-//     }
-
-//     const { searchParams } = new URL(req.url);
-//     const year = searchParams.get("year");
-//     const semester = searchParams.get("semester");
-
-//     if (!year || !semester) {
-//       return NextResponse.json({ message: "Missing required fields" }, { status: 400 });
-//     }
-
-//     const resultRelease = await prisma.resultRelease.findFirst({
-//       where: {
-//         year: year as string,
-//         semester: Number(semester),
-//       },
-//     });
-
-//     return NextResponse.json(resultRelease, { status: 200 });
-//   } catch (error) {
-//     console.error("Unexpected error:", error);
-//     return NextResponse.json({ message: "Internal Server Error", error }, { status: 500 });
-//   }
-// }
 
 export async function GET(req: NextRequest) {
   try {
     const user = await currentUser();
     const role = user?.role?.toUpperCase();
 
-    if (!user || role !== "ADMIN") {
-      return NextResponse.json({ message: "Forbidden: Only admins can set deadlines" }, { status: 403 });
-    }
+    // if (!user || role !== "ADMIN") {
+    //   return NextResponse.json({ message: "Forbidden: Only admins can set deadlines" }, { status: 403 });
+    // }
 
     const nearestDeadline = await prisma.resultRelease.findFirst({
       where: { deadline: { gte: new Date() } }, // Get only future deadlines

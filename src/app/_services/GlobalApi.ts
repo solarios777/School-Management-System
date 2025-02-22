@@ -196,7 +196,7 @@ export const setResultDeadline = async (year: string, semester: number, deadline
 
 export const getResultDeadline = async (year: string, semester: number) => {
   try {
-    const response = await axiosInstance.get(`/admin/resultRelease?year=${year}&semester=${semester}`);
+    const response = await axiosInstance.get(`/admin/getdeadline?year=${year}&semester=${semester}`);
     return response.data;
   } catch (error) {
     console.error("Error fetching result deadline:", error);
