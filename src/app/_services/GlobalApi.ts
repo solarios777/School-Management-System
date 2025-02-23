@@ -219,5 +219,32 @@ export const getNearestDeadline = async () => {
 
 
 
+export const releaseResults = async (year: string, semester: number) => {
+  try {
+    const response = await axiosInstance.patch("/admin/isReleased", { year, semester });
+    return response.data;
+  } catch (error) {
+    console.error("Error releasing results:", error);
+    throw error;
+  }
+};
+
+
+export const checkReleaseStatus = async (year: string, semester: number) => {
+  try {
+    const response = await axiosInstance.get(`/admin/result-release-status`, {
+      params: { year, semester },
+    });
+    return response.data; // Expected response: { isReleased: boolean }
+  } catch (error) {
+    console.error("Error checking release status:", error);
+    throw error;
+  }
+};
+
+
+
+
+
 
 export default axiosInstance;

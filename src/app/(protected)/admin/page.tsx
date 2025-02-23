@@ -1,3 +1,4 @@
+import ReleaseResults from "@/components/Admin/isReleased";
 import SetResultDeadline from "@/components/Admin/SetResultDeadline";
 import Announcements from "@/components/Announcements";
 import AttendanceChartContainer from "@/components/AttendanceChartContainer";
@@ -32,8 +33,13 @@ const AdminPage = ({
 
           </div>
           {/* ATTENDANCE CHART */}
-          <div className="w-full lg:w-2/3 h-[450px]">
+          <div className="w-full lg:w-1/3 h-[450px]">
             <SetResultDeadline />
+            
+          </div>
+          <div className="w-full lg:w-1/3 h-[450px]">
+            
+            <ReleaseResults/>
           </div>
         </div>
         {/* BOTTOM CHART */}

@@ -17,6 +17,30 @@ export async function POST(req: NextRequest) {
     const role = user.role;
     const userId = user.id;
     const body = await req.json();
+    const errors: string[] = [];
+
+     // Extract year and semester from the first entry (assuming all entries share the same)
+    const { year, semester } = body[0];
+    const semesterNumber = Number(semester);
+
+    // Fetch result release deadline for the provided year and semester
+    const resultRelease = await prisma.resultRelease.findFirst({
+      where: { year, semester: semesterNumber },
+    });
+
+    if (resultRelease ) {
+     
+
+    const today = new Date();
+    const deadline = new Date(resultRelease.deadline);
+    const isDeadlinePassed = today > deadline;
+
+    // If role is TEACHER and deadline has passed, prevent submission
+    if (role === "TEACHER" && isDeadlinePassed) {
+      errors.push("Submission deadline has passed.");
+      return NextResponse.json({ error: "Opps! Submission deadline has passed." }, { status: 403 });
+    }
+  }
 
     if (!Array.isArray(body) || body.length === 0) {
       return NextResponse.json(
@@ -25,7 +49,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const errors: string[] = [];
+    
 
     await Promise.all(
       body.map(async (entry) => {

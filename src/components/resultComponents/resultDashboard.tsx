@@ -325,10 +325,16 @@ const confirmDelete = async (assessment: string) => {
       }));
 
       const response = await submitNormalResults(formattedData);
+alert(
+        `✅ Success: ${response.message || "Results submitted successfully!"}`
+      );
+    } catch (error: any) {
+      const errorMessage =
+        error.response?.data?.error ||
+        error.message ||
+        "Failed to submit results!";
 
-      alert("Results submitted successfully!");
-    } catch (error) {
-      alert("Failed to submit results");
+      alert(`❌ Error: ${errorMessage}`);
     } finally {
       setIsSubmitting(false);
       setIsnormalSelectionModalOpen(false);
