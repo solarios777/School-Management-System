@@ -6,14 +6,14 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import {
   fetchStudentResults,
   fetchStudentRank,
 } from "@/app/_services/GlobalApi"; // Import API for rank fetching
 import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
-import ResultsTable from "@/components/resultComponents/resultsTable";
+
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Select,
@@ -23,9 +23,11 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import html2canvas from "html2canvas";
-
+import { motion } from "framer-motion"; // Animation library
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import { set } from "date-fns";
+import { DialogDescription } from "@radix-ui/react-dialog";
 
 interface Result {
   id: string;
@@ -58,6 +60,10 @@ export default function SingleStudentResult({
   const [selectedYear, setSelectedYear] = useState<string>("");
   const [selectedSemester, setSelectedSemester] = useState<string>("1");
   const [studentName, setStudentName]=useState<string>("")
+  const [studentUserName, setStudentUserName]=useState<string>("")
+  const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
 
   useEffect(() => {
     const fetchResults = async () => {
@@ -67,7 +73,8 @@ export default function SingleStudentResult({
         setResults(data.results);
         setGrade(data.grade);
         setSection(data.section);
-        setStudentName(data)
+        setStudentName(`${data.name} ${data.surname}`)
+        setStudentUserName(data.username)
 
 
         // Fetch ranks for each semester-year combination
@@ -101,7 +108,7 @@ export default function SingleStudentResult({
 
     fetchResults();
   }, [searchParams.studentId]);
-  console.log(studentName);
+  
   
 
   const groupedResults = results.reduce((acc: Record<string, any>, result) => {
@@ -167,7 +174,7 @@ export default function SingleStudentResult({
   
   // const printRef = useRef(null);
 
-  const handleDownloadPDF = () => {
+  const handleHighDownloadPDF = () => {
     if (!printRef.current) return;
 
     html2canvas(printRef.current, { scale: 2 }).then((canvas) => {
@@ -179,8 +186,29 @@ export default function SingleStudentResult({
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
       pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
       pdf.save(`Result_${selectedData.year}_${selectedData.semester}.pdf`);
-    });}
+    })
+    setIsDialogOpen(false)
+    ;}
+
+     useEffect(() => {
+    setCurrentYear(new Date().getFullYear());
+  }, []);
     
+  const handleNormalDownloadPDF = () => {
+  if (!printRef.current) return;
+
+  html2canvas(printRef.current, { scale: 1.5, useCORS: true }).then((canvas) => {
+    const imgData = canvas.toDataURL("image/jpeg", 0.7); // Convert to JPEG with 70% quality
+    const pdf = new jsPDF("p", "mm", "a4");
+
+    const imgWidth = 210; // A4 width in mm
+    const imgHeight = (canvas.height * imgWidth) / canvas.width; // Maintain aspect ratio
+
+    pdf.addImage(imgData, "JPEG", 0, 10, imgWidth, imgHeight); // Position below header
+    pdf.save(`Result_${selectedData.year}_${selectedData.semester}.pdf`);
+  });
+  setIsDialogOpen(false)
+};
     
   
   return (
@@ -222,63 +250,128 @@ export default function SingleStudentResult({
         </Card>
 
      
-<div className="flex gap-4 mt-4">
-        <button onClick={handleDownloadPDF} className="px-4 py-2 bg-blue-500 text-white rounded">
-          Download PDF
-        </button>
-      </div>
+{/* Download Button that opens the dialog */}
+       <Button
+        onClick={() => setIsDialogOpen(true)}
+        className="px-6 py-3 text-lg font-semibold bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300"
+      >
+        Download PDF
+      </Button>
+
+      {/* Animated Dialog */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent
+          
+          className="rounded-xl shadow-2xl border border-gray-200 bg-white p-6"
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+          >
+            {/* Dialog Title with Gradient Text */}
+            <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-blue-500 to-indigo-600 text-transparent bg-clip-text text-center">
+              Download Student Result
+            </DialogTitle>
+
+            {/* Description */}
+            <DialogDescription className="text-gray-600 text-center mt-2">
+              Choose the quality of the PDF you want to download.
+            </DialogDescription>
+
+            {/* Button Options */}
+            <DialogFooter className="flex justify-center gap-6 mt-6">
+              <Button
+                variant="outline"
+                onClick={handleNormalDownloadPDF}
+                className="px-5 py-2 text-gray-700 border-gray-300 hover:bg-gray-100 hover:border-gray-400 transition-all duration-300"
+              >
+                Normal Quality
+              </Button>
+              <Button
+                onClick={handleHighDownloadPDF}
+                className="px-5 py-2 bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all duration-300"
+              >
+                High Quality
+              </Button>
+            </DialogFooter>
+          </motion.div>
+        </DialogContent>
+      </Dialog>
         {/* Print and Download Buttons */}
         <div>
       
 
       <div ref={printRef} className="p-5 border border-gray-300 rounded-md bg-white shadow-md">
-        {selectedData ? (
-          <div>
-            <div className="justify-center">
-               <Image src="/android-chrome-512x512.png" alt="" width={100} height={100} />
-            </div>
-            
-            {/* Header Section */}
-            <div className="bg-blue-300 p-3 rounded-md font-semibold text-lg flex gap-2">
-              <div className="font-bold">Year: {selectedData.year}</div>
-              <div className="font-bold">Sem: {selectedData.semester}</div>
-              <div className="font-bold">Grade: {grade} {section}</div>
-            </div>
+  {selectedData ? (
+    <div className="text-center">
+      {/* Official Header */}
+      <h1 className="text-2xl font-extrabold uppercase">Official Student Result Card</h1>
+      <p className="text-gray-600">Academic Performance Report</p>
 
-            {/* Results Table */}
-            <div className="border border-green-50 bg-green-50 p-3 rounded-md mt-2">
-              <table className="w-full border-collapse border border-gray-100">
-                <thead>
-                  <tr className="bg-green-100 text-black">
-                    <th className="border border-gray-300 p-2">No.</th>
-                    <th className="border border-gray-300 p-2">Subject Name</th>
-                    <th className="border border-gray-300 p-2">Result</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {Object.values(selectedData.subjects).map((subject: any, index) => (
-                    <tr key={subject.subject} className="text-center bg-white even:bg-gray-100 hover:bg-gray-200">
-                      <td className="border border-gray-300 p-2">{index + 1}</td>
-                      <td className="border border-gray-300 p-2">{subject.subject}</td>
-                      <td className="border border-gray-300 p-2 text-red-600 font-bold">{subject.totalMarks}</td>
-                     
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-
-              {/* Summary Section */}
-              <div className="mt-4 font-bold flex flex-col md:flex-row gap-4">
-                <p>Total: <span className="text-red-600">{selectedData.totalMarks}</span></p>
-                <p>Average: <span className="text-red-600">{(selectedData.totalMarks / Object.keys(selectedData.subjects).length).toFixed(2)}</span></p>
-                <p>Rank: <span className="text-red-600">{ranks[`${selectedData.year}-${selectedData.semester}`] ?? "N/A"}</span></p>
-              </div>
-            </div>
-          </div>
-        ) : (
-         ""
-        )}
+      {/* Centered Logo */}
+      <div className="flex justify-center items-center my-4">
+        <Image src="/android-chrome-512x512.png" alt="School Logo" width={120} height={120} />
       </div>
+
+      {/* Student Information */}
+      <div className="mt-3 text-lg font-semibold">
+        <p>Student Name: <span className="font-bold">{studentName} </span></p>
+        <p>Username: <span className="font-bold">{studentUserName}</span></p>
+      </div>
+
+      {/* Header Section */}
+      <div className="bg-blue-300 p-3 rounded-md font-semibold text-lg flex justify-center gap-5 mt-4">
+        <div className="font-bold">Year: {selectedData.year}</div>
+        <div className="font-bold">Semester: {selectedData.semester}</div>
+        <div className="font-bold">Grade: {grade} {section}</div>
+      </div>
+
+      {/* Results Table */}
+      <div className="border border-green-50 bg-green-50 p-3 rounded-md mt-2">
+        <table className="w-full border-collapse border border-gray-100">
+          <thead>
+            <tr className="bg-green-100 text-black">
+              <th className="border border-gray-300 p-2">No.</th>
+              <th className="border border-gray-300 p-2">Subject Name</th>
+              <th className="border border-gray-300 p-2">Result</th>
+            </tr>
+          </thead>
+          <tbody>
+            {Object.values(selectedData.subjects).map((subject: any, index) => (
+              <tr key={subject.subject} className="text-center bg-white even:bg-gray-100 hover:bg-gray-200">
+                <td className="border border-gray-300 p-2">{index + 1}</td>
+                <td className="border border-gray-300 p-2">{subject.subject}</td>
+                <td className="border border-gray-300 p-2 text-red-600 font-bold">{subject.totalMarks}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {/* Summary Section */}
+        <div className="mt-4 font-bold text-lg">
+          <p>Total: <span className="text-red-600">{selectedData.totalMarks}</span></p>
+          <p>Average: <span className="text-red-600">{(selectedData.totalMarks / Object.keys(selectedData.subjects).length).toFixed(2)}</span></p>
+          <p>Rank: <span className="text-red-600">{ranks[`${selectedData.year}-${selectedData.semester}`] ?? "N/A"}</span></p>
+        </div>
+
+        {/* Official Closing Note */}
+        <div className="mt-6 text-sm text-gray-600 italic border-t pt-3">
+          <p>This result is an official document of the institution and should be treated as such.</p>
+          <p>For any discrepancies, please contact the administration.</p>
+        </div>
+        {/* Footer - Copyright Notice */}
+          <div className="text-center text-gray-500 text-sm mt-6">
+            <p>© {currentYear} Meki Catholic School. All Rights Reserved.</p>
+          </div>
+      </div>
+    </div>
+  ) : (
+    ""
+  )}
+</div>
+
     </div>
       </div>
       <div className="p-5">

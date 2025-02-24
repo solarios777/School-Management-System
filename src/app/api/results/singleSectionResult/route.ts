@@ -17,9 +17,8 @@ export async function GET(req: NextRequest) {
     if (!year || !semester || !gradeId) {
       return NextResponse.json({ error: "Missing parameters" }, { status: 400 });
     }
-
     // Fetch students based on grade and optional class
-  const students = await prisma.student.findMany({
+    const students = await prisma.student.findMany({
       where: {
         enrollments: {
           some: {
@@ -31,10 +30,7 @@ export async function GET(req: NextRequest) {
         },
       },
       select: {
-        id: true,
-        name: true,
-        surname: true,
-        username: true,
+        
         result: {
           where: { year, semester },
           include: { subject: true },
@@ -45,8 +41,10 @@ export async function GET(req: NextRequest) {
     if (students.length === 0) {
       return NextResponse.json({ error: "No students found" }, { status: 404 });
     }
-
+    console.log("students",students);
     return NextResponse.json({ students }, { status: 200 });
+    
+    
 
   } catch (error) {
     console.error("Error fetching student results:", error);

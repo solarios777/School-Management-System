@@ -154,17 +154,29 @@ export const submitUploadedResults = async (results: any[]) => {
 export const fetchStudentResults = async (studentId: string) => {
   try {
     const response = await axiosInstance.get(`/results/singlestudentResult?studentId=${studentId}`);
-    return response.data;
+    
+    return {
+      results: response.data.results,
+      grade: response.data.grade,
+      section: response.data.section,
+      name: response.data.name, // Include student name
+      username: response.data.username, // Include student username
+      surname: response.data.surname
+    };
   } catch (error) {
     console.error("Error fetching student results:", error);
     throw error;
   }
 };
 
+
 export const fetchStudentRank = async (studentId: string, semester: number, year: string) => {
   try {
     const response = await axiosInstance.get(`/rank/fetchsingleRank?studentId=${studentId}&semester=${semester}&year=${year}`);
+
     return response.data;
+    
+    
   } catch (error) {
     console.error("Error fetching student rank:", error);
     throw error;
