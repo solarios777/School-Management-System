@@ -33,7 +33,6 @@ const ParentListPage = async ({
     { header: "Students", accessor: "students" },
     { header: "Phone", accessor: "phone" },
     { header: "Address", accessor: "address" },
-    ...(role === "admin" ? [{ header: "Actions", accessor: "action" }] : []),
   ];
 
   const { search } = searchParams;
@@ -63,10 +62,6 @@ const ParentListPage = async ({
     address: parent.address || "N/A",
     img: parent.img || "/noAvatar.png",
     students: parent.students.map((student) => student.name).join(", ") || "N/A",
-    action:
-      role === "admin" ? (
-        <FormModal table="parent" type="delete" id={parent.id} />
-      ) : undefined,
   }));
 
   return (

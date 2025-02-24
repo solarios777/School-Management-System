@@ -33,8 +33,7 @@ const StudentListPage = async ({
     { header: "Grade", accessor: "grade" },
     { header: "Class", accessor: "class" },
     { header: "Phone", accessor: "phone" },
-    { header: "Address", accessor: "address" },
-    ...(role === "admin" ? [{ header: "Actions", accessor: "action" }] : []),
+    { header: "Address", accessor: "address" }
   ];
 
   const { search } = searchParams;
@@ -65,8 +64,7 @@ const StudentListPage = async ({
   address: student.address,
   img: student.img || "/noAvatar.png",
   grade: student.enrollments[0]?.gradeClass?.grade?.level?.toString() || "N/A",
-  class: student.enrollments[0]?.gradeClass?.class?.name || "N/A",
-  action: role === "admin" ? <FormContainer table="student" type="delete" id={student.id} /> : null,
+  class: student.enrollments[0]?.gradeClass?.class?.name || "N/A"
 }));
 
 

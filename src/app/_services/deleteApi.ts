@@ -46,26 +46,26 @@ export const teachersDelete = async (teacherId: string) => {
     return { success: false, message: "Failed to delete teacher." };
   }
 };
-export const studentsDelete = async (teacherId: string) => {
+export const studentsDelete = async (studentId: string) => {
   try {
     const response = await axiosInstance.delete(`/Delete/studentDelete`, {
-      data: { teacherId },
+      data: { studentId },
     });
     return response.data;
   } catch (error) {
     console.error("Error deleting teacher:", error);
-    return { success: false, message: "Failed to delete teacher." };
+    return { success: false, message: "Failed to delete student." };
   }
 };
-export const parentsDelete  = async (teacherId: string) => {
+export const parentsDelete  = async (parentId: string) => {
   try {
     const response = await axiosInstance.delete(`/Delete/parentDelete`, {
-      data: { teacherId },
+      data: { parentId },
     });
     return response.data;
   } catch (error) {
     console.error("Error deleting teacher:", error);
-    return { success: false, message: "Failed to delete teacher." };
+    return { success: false, message: "Failed to delete parent." };
   }
 };
 

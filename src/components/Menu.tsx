@@ -139,9 +139,9 @@ const menuItems = [
       items: [
         {
           icon: "/profile.png",
-          label: "Profile",
-          href: "/profile",
-          visible: ["admin", "teacher", "student", "parent"],
+          label: "help",
+          href: "/list/AdminPasswordChange",
+          visible: ["admin"],
         },
         {
           icon: "/setting.png",
@@ -152,12 +152,9 @@ const menuItems = [
           dropdownItems: [
             {
               label: "Change Password",
-              href: "/settings/changePassword",
+              href: "/list/changePassword",
             },
-            {
-              label: "Account Details",
-              href: "/settings/account-details",
-            },
+            
             {
               label: "Preferences",
               href: "/settings/preferences",

@@ -19,10 +19,11 @@ const ClassListPage = async ({
 }: {
   searchParams: { [key: string]: string | undefined };
 }) => {
+  
+
   const user = await currentUser();
   const role = user?.role.toLowerCase();
-
-  
+  const userId = user?.id;
 
   const { page, teacherId, ...queryParams } = searchParams;
   

@@ -5,6 +5,7 @@ import { AdminSchema } from "../schema/index";
 import prisma from "@/lib/prisma";
 
 
+
 export const AdminRegister=async(values: z.infer<typeof AdminSchema>) => {
     const valdatedFields = AdminSchema.parse(values)
     if(!valdatedFields){

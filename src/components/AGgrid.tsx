@@ -79,12 +79,11 @@ const confirmDelete = () => {
     const res = await deleteFunction(pendingDelete);
 
     if (res.success) {
-      toast.success(res.message, { position: "top-right" });
-      setTimeout(() => {
-        window.location.reload();
-      }, 2000);
+      toast.success(res.message);
+      router.refresh();
+      
     } else {
-      toast.error(res.message, { position: "top-right" });
+      toast.error(res.message);
     }
 
     // Reset states
@@ -116,14 +115,14 @@ const confirmDelete = () => {
         cellClass: col.className,
       })),
       {
-        headerName: "Actions",
+        headerName: "Delete",
         field: "actions",
         cellRenderer: (params: any) => (
           <button
             onClick={(e) => handleDeleteClick(params.data.id, e)}
-            className="bg-red-500 text-white px-2 py-1 rounded"
+            className="bg-red-500 text-white  rounded rounded-full w-7 h-7 flex items-center justify-center"
           >
-            Delete
+            Del
           </button>
         ),
         width: 100,
@@ -149,7 +148,7 @@ const confirmDelete = () => {
 
   return (
     <div className="ag-theme-alpine" style={{ height: "700px", width: "100%" }}>
-      <ToastContainer /> {/* Toast notifications container */}
+       {/* Toast notifications container */}
 
       <AgGridReact
         rowData={sortedData} // Use sorted data with roll numbers
