@@ -105,33 +105,7 @@ model Teacher {
 }
 
 
-model Result {
-  id           String   @id @default(cuid())
-  studentId    String
-  subjectId    String
-  marks        Float?
-  examType     String
-  semester     String
-  year         String
-  gradeClassId String
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
 
-  createdByTeacherId String?
-  createdByAdminId   String?
-  updatedByTeacherId String?
-  updatedByAdminId   String?
-
-  student      Student  @relation(fields: [studentId], references: [id])
-  subject      Subject  @relation(fields: [subjectId], references: [id])
-
-  createdByTeacher  Teacher? @relation(name: "CreatedByTeacher", fields: [createdByTeacherId], references: [id])
-  createdByAdmin    Admin?   @relation(name: "CreatedByAdmin", fields: [createdByAdminId], references: [id])
-  updatedByTeacher  Teacher? @relation(name: "UpdatedByTeacher", fields: [updatedByTeacherId], references: [id])
-  updatedByAdmin    Admin?   @relation(name: "UpdatedByAdmin", fields: [updatedByAdminId], references: [id])
-
-  @@unique([studentId, subjectId, examType, year]) // Prevent duplicate results
-}
 
 
 
@@ -268,18 +242,45 @@ model Attendance {
   student   Student @relation(fields: [studentId], references: [id])
 }
 
+model Result {
+  id           String   @id @default(cuid())
+  studentId    String
+  subjectId    String
+  marks        Float?
+  examType     String
+  semester     String
+  year         String
+  gradeClassId String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  createdByTeacherId String?
+  createdByAdminId   String?
+  updatedByTeacherId String?
+  updatedByAdminId   String?
+
+  student      Student  @relation(fields: [studentId], references: [id])
+  subject      Subject  @relation(fields: [subjectId], references: [id])
+
+  createdByTeacher  Teacher? @relation(name: "CreatedByTeacher", fields: [createdByTeacherId], references: [id])
+  createdByAdmin    Admin?   @relation(name: "CreatedByAdmin", fields: [createdByAdminId], references: [id])
+  updatedByTeacher  Teacher? @relation(name: "UpdatedByTeacher", fields: [updatedByTeacherId], references: [id])
+  updatedByAdmin    Admin?   @relation(name: "UpdatedByAdmin", fields: [updatedByAdminId], references: [id])
+
+  @@unique([studentId, subjectId, examType, year]) // Prevent duplicate results
+}
 model Rank {
   id         String   @id @default(cuid())
   studentId  String
   totalMarks Float
   rank       Int
-  examType   String
+  semester   String
   year       String
   createdAt  DateTime @default(now())
 
   student    Student  @relation(fields: [studentId], references: [id])
 
-  @@unique([studentId, examType, year]) // Unique rank per exam type and year
+  @@unique([studentId,semester, year]) // Unique rank semster and year
 }
 
 model ResultRelease {

@@ -26,8 +26,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-import axios from "axios";
-import { set } from "date-fns";
+
 
 interface Grade {
   id: string;
@@ -378,6 +377,10 @@ alert(
       setIsuploadSelectionModalOpen(false);
     }
   };
+  const sortedGrades = [...grades].sort((a, b) => a.level - b.level);
+  const sortedClasses = [...classes].sort((a, b) =>
+    a.name.localeCompare(b.name)
+  );
 
   return (
     <>
@@ -415,7 +418,7 @@ alert(
                 <SelectValue placeholder="Grade" />
               </SelectTrigger>
               <SelectContent>
-                {grades.map((grade) => (
+                {sortedGrades.map((grade) => (
                   <SelectItem key={grade.id} value={grade.id}>
                     Grade {grade.level}
                   </SelectItem>
@@ -429,7 +432,7 @@ alert(
                 <SelectValue placeholder="Class" />
               </SelectTrigger>
               <SelectContent>
-                {classes.map((cls) => (
+                {sortedClasses.map((cls) => (
                   <SelectItem key={cls.id} value={cls.id}>
                     {cls.name}
                   </SelectItem>
@@ -625,7 +628,7 @@ alert(
                   <SelectValue placeholder="Grade" />
                 </SelectTrigger>
                 <SelectContent>
-                  {grades.map((grade) => (
+                  {sortedGrades.map((grade) => (
                     <SelectItem key={grade.id} value={grade.id}>
                       Grade {grade.level}
                     </SelectItem>
@@ -639,7 +642,7 @@ alert(
                   <SelectValue placeholder="Class" />
                 </SelectTrigger>
                 <SelectContent>
-                  {classes.map((cls) => (
+                  {sortedClasses.map((cls) => (
                     <SelectItem key={cls.id} value={cls.id}>
                       {cls.name}
                     </SelectItem>

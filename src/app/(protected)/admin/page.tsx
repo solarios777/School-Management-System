@@ -1,3 +1,4 @@
+import CalculateRank from "@/components/Admin/calculateRank";
 import ReleaseResults from "@/components/Admin/isReleased";
 import SetResultDeadline from "@/components/Admin/SetResultDeadline";
 import Announcements from "@/components/Announcements";
@@ -40,6 +41,7 @@ const AdminPage = ({
           <div className="w-full lg:w-1/3 h-[450px]">
             
             <ReleaseResults/>
+            <CalculateRank/>
           </div>
         </div>
         {/* BOTTOM CHART */}

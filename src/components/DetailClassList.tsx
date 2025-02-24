@@ -1,5 +1,5 @@
 "use client";
-import React, { useMemo } from "react";
+import React, { useMemo, useRef, useCallback } from "react";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
@@ -13,14 +13,33 @@ const AGgrid = ({
 }: {
   columns: { header: string; accessor: string; className?: string }[];
   data: any[];
-  list:string
-  role:any
+  list: string;
+  role: any;
 }) => {
   const router = useRouter();
+  const gridRef = useRef<any>(null);
 
-  // Convert columns to column definitions for AG Grid
-  const columnDefs = useMemo(() => {
-    return columns.map((col) => ({
+  // Function to dynamically calculate roll numbers based on the displayed rows
+  const updateRollNumbers = useCallback(() => {
+    if (!gridRef.current) return [];
+
+    return gridRef.current.api.getDisplayedRowCount(); // Returns visible row count
+  }, []);
+
+ const columnDefs = useMemo(() => {
+  return [
+    {
+      headerName: "Roll No.",
+      valueGetter: (params) => {
+        const rowIndex = params.node.rowIndex; // This is based on the displayed row
+        return rowIndex !== null ? rowIndex + 1 : "";
+      },
+      width: 90,
+      pinned: "left",
+      sortable: false,
+      filter: false,
+    },
+    ...columns.map((col) => ({
       headerName: col.header,
       field: col.accessor,
       cellClass: col.className,
@@ -30,8 +49,11 @@ const AGgrid = ({
               <span className="text-blue-500 hover:underline">{params.value}</span>
             )
           : undefined,
-    }));
-  }, [columns]);
+    })),
+  ];
+}, [columns]);
+
+
 
   const defaultColDef = useMemo(
     () => ({
@@ -43,20 +65,23 @@ const AGgrid = ({
   );
 
   const handleRowClick = (event: any) => {
-    const Id = event.data.id; // Access the ID of the clicked row
+    const Id = event.data.id;
     router.push(`/list/${list}/${Id}`);
   };
 
   return (
-    <div className="ag-theme-alpine " style={{ height: "700px", width: "100%"}}>
+    <div className="ag-theme-alpine" style={{ height: "700px", width: "100%" }}>
       <AgGridReact
+        ref={gridRef}
         rowData={data}
         columnDefs={columnDefs}
         pagination={true}
         paginationPageSize={10}
         paginationPageSizeSelector={[10, 20, 30, 50, 100]}
         defaultColDef={defaultColDef}
-        onRowClicked={handleRowClick} // Add event handler for row clicks
+        onRowClicked={handleRowClick}
+        onFilterChanged={updateRollNumbers} // Update roll numbers when filtering
+        onSortChanged={updateRollNumbers} // Update roll numbers when sorting
       />
     </div>
   );

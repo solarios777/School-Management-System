@@ -1,40 +1,25 @@
-
-import Announcements from "@/components/Announcements";
-import BigCalendarContainer from "@/components/BigCalendarContainer";
-import BigCalendar from "@/components/BigCalender";
-import EventCalendar from "@/components/EventCalendar";
+import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
-
 import { currentUser } from "@/lib/auth";
 
-
 const StudentPage = async () => {
-  const user=await currentUser()
-  const role = user?.role
-  const userId = user?.id
-  // const classItem = await prisma.class.findMany({
-  //   where: {
-  //     student: { some: { id: userId! } },
-  //   },
-  // });
+  const user = await currentUser();
+  const userId = user?.id;
 
-  
-  return (
-    <div className="p-4 flex gap-4 flex-col xl:flex-row">
-      {/* LEFT */}
-      <div className="w-full xl:w-2/3">
-        <div className="h-full bg-white p-4 rounded-md">
-          <h1 className="text-xl font-semibold">Schedule (4A)</h1>
-          {/* <BigCalendarContainer type="classId" id={7} /> */}
-        </div>
-      </div>
-      {/* RIGHT */}
-      <div className="w-full xl:w-1/3 flex flex-col gap-8">
-        <EventCalendar />
-        <Announcements />
-      </div>
-    </div>
-  );
+  if (!userId) {
+    return redirect("/login"); // Redirect to login if user is not authenticated
+  }
+
+  const student = await prisma.student.findUnique({
+    where: { id: userId },
+    include: { enrollments: true },
+  });
+
+  if (!student) {
+    return redirect("/not-found"); // Redirect to a not found page if student is not found
+  }
+
+  return redirect(`list/students/${userId}`); // Redirect to SingleStudentPage
 };
 
 export default StudentPage;

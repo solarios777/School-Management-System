@@ -1,12 +1,10 @@
 import AGgrid from "@/components/AGgrid";
-import FormModal from "@/components/FormModal";
 import TableSearch from "@/components/TableSearch";
 import { currentUser } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import { ITEMS_PER_PAGE } from "@/lib/settings";
 import Image from "next/image";
-import Link from "next/link";
 import { Prisma } from "@prisma/client";
+import FormContainer from "@/components/FormContainer";
 
 type StudentList = {
   id: string;
@@ -68,7 +66,7 @@ const StudentListPage = async ({
   img: student.img || "/noAvatar.png",
   grade: student.enrollments[0]?.gradeClass?.grade?.level?.toString() || "N/A",
   class: student.enrollments[0]?.gradeClass?.class?.name || "N/A",
-  action: role === "admin" ? <FormModal table="student" type="delete" id={student.id} /> : null,
+  action: role === "admin" ? <FormContainer table="student" type="delete" id={student.id} /> : null,
 }));
 
 
@@ -86,7 +84,7 @@ const StudentListPage = async ({
               <Image src="/sort.png" alt="" width={14} height={14} />
             </button>
             {role === "admin" && (
-              <FormModal table="student" type="create" />
+              <FormContainer table="student" type="create" />
             )}
           </div>
         </div>

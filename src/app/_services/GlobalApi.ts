@@ -161,6 +161,16 @@ export const fetchStudentResults = async (studentId: string) => {
   }
 };
 
+export const fetchStudentRank = async (studentId: string, semester: number, year: string) => {
+  try {
+    const response = await axiosInstance.get(`/rank/fetchsingleRank?studentId=${studentId}&semester=${semester}&year=${year}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching student rank:", error);
+    throw error;
+  }
+};
+
 export const deleteAssessment = async (
   year: string,
   semester: string,
@@ -242,9 +252,29 @@ export const checkReleaseStatus = async (year: string, semester: number) => {
   }
 };
 
-
-
-
+export const fetchAllResults = async (year: string, semester: string, gradeId: string, classId?: string) => {
+  try {
+    const response = await axiosInstance.get("/results/viewAllResults", {
+      params: { year, semester, gradeId, classId },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching results:", error);
+    throw error;
+  }
+};
+export const calculateRank = async (year: string, semester: number) => {
+  try {
+    const response = await axiosInstance.post("/rank/calculateRank", {
+      year,
+      semester,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error calculating rank:", error);
+    throw error;
+  }
+};
 
 
 export default axiosInstance;

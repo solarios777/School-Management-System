@@ -23,7 +23,7 @@ const UserCard = async ({
         <span className="text-[10px] bg-white px-2 py-1 rounded-full text-green-600">
           2024/25
         </span>
-        <Image src="/more.png" alt="" width={20} height={20} />
+        
       </div>
       <Link href={path}><h1 className="text-2xl font-semibold my-4">{data}</h1></Link>
       

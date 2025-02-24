@@ -54,7 +54,7 @@ const SingleClassPage = async ({ params }: { params: { id: string } }) => {
         </h1>
         <h1 className="text-lg font-semibold">{studentCount} Students</h1>
       </div>
-      <div className="mb-4">
+      <div className="mb-4 gap-2 bg-gray-100 flex">
         <Link
         className="px-4 py-2 bg-black text-white rounded-md "
           href={{
@@ -66,6 +66,18 @@ const SingleClassPage = async ({ params }: { params: { id: string } }) => {
           }}
         >
           Attendance
+        </Link>
+        <Link
+        className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md "
+          href={{
+            pathname: `/list/viewResults/${classId}`,
+            query: {
+              gradeId: grade.id,
+              classId: section.id,
+            },
+          }}
+        >
+          Results
         </Link>
       </div>
       <div></div>

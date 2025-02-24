@@ -1,66 +1,38 @@
-"use client";
-// View Results Page
-import React, { useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
-import dynamic from 'next/dynamic';
-import { useRouter } from 'next/router';
-import AGGridReact, { AgGridReact } from 'ag-grid-react';
+'use client';
 
-const ViewResultsComponent = () => {
-  const [grade, setGrade] = useState('');
-  const [classroom, setClassroom] = useState('');
-  const [examType, setExamType] = useState('');
+import { useEffect, useState } from 'react';
+import ResultDashboard from '@/components/resultComponents/resultDashboard';
+import { fetchUserSelections } from '@/app/_services/GlobalApi';
+import ViewResults from '@/components/resultComponents/viewResults';
 
-  const handleFetchResults = () => {
-    // Fetch results logic here
-  };
+const Page = () => {
+  const [grades, setGrades] = useState([]);
+  const [sections, setSections] = useState([]);
+  const [subjects, setSubjects] = useState([]);
+
+  useEffect(() => {
+    const fetchSelections = async () => {
+      try {
+        const data = await fetchUserSelections();
+        setGrades(data.grades);
+        setSections(data.sections);
+        setSubjects(data.subjects);
+      } catch (error) {
+        console.error('Error loading selections:', error);
+      }
+    };
+
+    fetchSelections();
+  }, []);
 
   return (
-    <div className="p-6 space-y-4">
-      <h1 className="text-2xl font-bold">View Results</h1>
-
-      <div className="flex space-x-4 mt-4">
-        <Select onValueChange={(value) => setGrade(value)}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Select Grade" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="1">Grade 1</SelectItem>
-            <SelectItem value="2">Grade 2</SelectItem>
-          </SelectContent>
-        </Select>
-
-        <Select onValueChange={(value) => setClassroom(value)}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Select Class" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="A">Class A</SelectItem>
-            <SelectItem value="B">Class B</SelectItem>
-          </SelectContent>
-        </Select>
-
-        <Select onValueChange={(value) => setExamType(value)}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Select Exam Type" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="midterm">Mid-Term</SelectItem>
-            <SelectItem value="final">Final Exam</SelectItem>
-          </SelectContent>
-        </Select>
-
-        <Button onClick={handleFetchResults}>Fetch Results</Button>
-      </div>
-
-      <div className="mt-4">
-        <AgGridReact rowData={[]} columnDefs={[]} />
+    <div className="">
+      <h2 className="text-2xl font-bold">Result Dashboard</h2>
+      <div>
+        <ViewResults grades={grades} classes={sections}  />
       </div>
     </div>
   );
 };
 
-const ViewResults = dynamic(() => Promise.resolve(ViewResultsComponent), { ssr: false });
-export default ViewResults;
+export default Page;
