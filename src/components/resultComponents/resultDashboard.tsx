@@ -10,11 +10,15 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import {
-  deleteAssessment,
+  
   fetchStudents,
   submitNormalResults,
   submitUploadedResults,
 } from "@/app/_services/GlobalApi";
+import {
+  deleteAssessment,
+  
+} from "@/app/_services/deleteApi";
 import ResultAGGrid from "@/components/resultComponents/resultAGgrid";
 import * as XLSX from "xlsx";
 import {

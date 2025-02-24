@@ -35,7 +35,6 @@ const TeacherListPage = async ({
     { header: "Subject", accessor: "subject" }, // New Subject Column
     { header: "Phone", accessor: "phone" },
     { header: "Address", accessor: "address" },
-    ...(role === "admin" ? [{ header: "Actions", accessor: "action" }] : []),
   ];
 
   // Extract search query
@@ -73,11 +72,9 @@ const TeacherListPage = async ({
     grade: teacher.assignments[0]?.gradeClass?.grade?.level?.toString() || "N/A",
     class: teacher.assignments[0]?.gradeClass?.class?.name || "N/A",
     subject: teacher.assignments[0]?.subject?.name || "N/A", // Extract subject name
-    action:
-      role === "admin" ? (
-        <FormModal table="teacher" type="delete" id={teacher.id} />
-      ) : null,
+   
   }));
+  
 
   return (
     <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">

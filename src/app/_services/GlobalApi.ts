@@ -73,22 +73,7 @@ export const fetchBarChartData = async (grade?: string, section?: string) => {
     return [];
   }
 };
-// export const fetchResults = async (grade: string, section: string, examType: string) => {
-//   try {
-//     const response = await axios.get('/results', {
-//       params: {
-//         grade,
-//         section,
-//         examType,
-//       },
-//     });
-//     return "true true";
-//   } catch (error) {
-//     console.error('Error fetching results:', error);
-//     throw error;
-//   }
-// };
-// Fetches grades, sections, and subjects for the current user
+
 export const fetchUserSelections = async () => {
   try {
     const response = await axiosInstance.get('/fetchTeacherData');
@@ -183,25 +168,7 @@ export const fetchStudentRank = async (studentId: string, semester: number, year
   }
 };
 
-export const deleteAssessment = async (
-  year: string,
-  semester: string,
-  gradeId: string,
-  classId: string,
-  subjectId: string,
-  examType: string,
-) => {
-  
-  try {
-    const response = await axiosInstance.delete("/Delete/deleteAssessment", {
-      data: { year, semester, gradeId, classId, subjectId, examType },
-    });
-    return response.data;
-  } catch (error) {
-    console.error("Error deleting assessment:", error);
-    return { success: false, message: "Failed to delete assessment." };
-  }
-};
+
 export const setResultDeadline = async (year: string, semester: number, deadline: string) => {
   try {
     const response = await axiosInstance.post("/admin/resultRelease", {
