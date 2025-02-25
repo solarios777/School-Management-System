@@ -1,72 +1,127 @@
 "use client";
-import React, { useMemo, useRef, useCallback } from "react";
+
+import React, { useState, useMemo, useRef, useCallback } from "react";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import { useRouter } from "next/navigation";
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { teachersDelete, studentsDelete, parentsDelete } from "@/app/_services/deleteApi";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const AGgrid = ({
   columns,
   data,
   list,
-  role
 }: {
   columns: { header: string; accessor: string; className?: string }[];
   data: any[];
   list: string;
-  role: any;
 }) => {
   const router = useRouter();
   const gridRef = useRef<any>(null);
 
-  // Function to dynamically calculate roll numbers based on the displayed rows
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [pendingDelete, setPendingDelete] = useState<string | null>(null);
+  const [countdown, setCountdown] = useState<number | null>(null);
+  const [deleteTimeout, setDeleteTimeout] = useState<NodeJS.Timeout | null>(null);
+
   const updateRollNumbers = useCallback(() => {
     if (!gridRef.current) return [];
-
-    return gridRef.current.api.getDisplayedRowCount(); // Returns visible row count
+    return gridRef.current.api.getDisplayedRowCount();
   }, []);
 
- const columnDefs = useMemo(() => {
-  return [
-    {
-      headerName: "Roll No.",
-      valueGetter: (params) => {
-        const rowIndex = params.node.rowIndex; // This is based on the displayed row
-        return rowIndex !== null ? rowIndex + 1 : "";
+  const deleteFunctions: { [key: string]: (id: string) => Promise<any> } = {
+    teachers: teachersDelete,
+    students: studentsDelete,
+    parents: parentsDelete,
+  };
+
+  const handleDeleteClick = (Id: string, event: React.MouseEvent) => {
+    event.stopPropagation();
+    setPendingDelete(Id);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (!pendingDelete) return;
+    setCountdown(5);
+
+    const interval = setInterval(() => {
+      setCountdown((prev) => (prev !== null ? prev - 1 : null));
+    }, 1000);
+
+    const timeout = setTimeout(async () => {
+      clearInterval(interval);
+      const deleteFunction = deleteFunctions[list];
+      if (!deleteFunction) {
+        toast.error("Invalid deletion type!");
+        return;
+      }
+      const res = await deleteFunction(pendingDelete);
+      if (res.success) {
+        toast.success(res.message);
+        router.refresh();
+      } else {
+        toast.error(res.message);
+      }
+      setPendingDelete(null);
+      setCountdown(null);
+      setIsDeleteDialogOpen(false);
+    }, 5000);
+
+    setDeleteTimeout(timeout);
+  };
+
+  const undoDelete = () => {
+    if (deleteTimeout) clearTimeout(deleteTimeout);
+    setPendingDelete(null);
+    setCountdown(null);
+    setIsDeleteDialogOpen(false);
+  };
+
+  const columnDefs = useMemo(() => {
+    return [
+      {
+        headerName: "Roll No.",
+        valueGetter: (params) => params.node.rowIndex + 1,
+        width: 90,
+        pinned: "left",
+        sortable: false,
+        filter: false,
       },
-      width: 90,
-      pinned: "left",
-      sortable: false,
-      filter: false,
-    },
-    ...columns.map((col) => ({
-      headerName: col.header,
-      field: col.accessor,
-      cellClass: col.className,
-      cellRenderer:
-        col.accessor === "link"
-          ? (params: any) => (
-              <span className="text-blue-500 hover:underline">{params.value}</span>
-            )
-          : undefined,
-    })),
-  ];
-}, [columns]);
+      ...columns.map((col) => ({
+        headerName: col.header,
+        field: col.accessor,
+        cellClass: col.className,
+      })),
+      {
+        headerName: "Delete",
+        field: "actions",
+        cellRenderer: (params: any) => (
+          <button
+            onClick={(e) => handleDeleteClick(params.data.id, e)}
+            className="bg-red-500 text-white rounded-full w-7 h-7 flex items-center justify-center"
+          >
+            Del
+          </button>
+        ),
+        width: 100,
+      },
+    ];
+  }, [columns]);
 
-
-
-  const defaultColDef = useMemo(
-    () => ({
-      sortable: true,
-      filter: true,
-      floatingFilter: true,
-    }),
-    []
-  );
+  const defaultColDef = useMemo(() => ({
+    sortable: true,
+    filter: true,
+    floatingFilter: true,
+  }), []);
 
   const handleRowClick = (event: any) => {
-    const Id = event.data.id;
-    router.push(`/list/${list}/${Id}`);
+    if (event.event.target.tagName === "BUTTON") return;
+    router.push(`/list/${list}/${event.data.id}`);
   };
 
   return (
@@ -80,9 +135,28 @@ const AGgrid = ({
         paginationPageSizeSelector={[10, 20, 30, 50, 100]}
         defaultColDef={defaultColDef}
         onRowClicked={handleRowClick}
-        onFilterChanged={updateRollNumbers} // Update roll numbers when filtering
-        onSortChanged={updateRollNumbers} // Update roll numbers when sorting
+        onFilterChanged={updateRollNumbers}
+        onSortChanged={updateRollNumbers}
       />
+
+      {isDeleteDialogOpen && (
+        <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+          <DialogContent>
+            <DialogHeader>Are you sure you want to delete this record?</DialogHeader>
+            <DialogFooter className="flex justify-between">
+              <Button onClick={undoDelete} variant="secondary">Cancel</Button>
+              <Button onClick={confirmDelete} variant="destructive">Confirm Delete</Button>
+            </DialogFooter>
+            {countdown !== null && (
+              <div className="text-center mt-2 flex">
+                <span className="text-red-500 font-bold">{countdown}s remaining...</span>
+                <Button onClick={undoDelete} className="mt-2">Undo</Button>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
+      )}
+      <ToastContainer />
     </div>
   );
 };

@@ -96,6 +96,7 @@ model Teacher {
   birthday  DateTime?
   role      UserRole @default(TEACHER)
   password  String?
+  schedule   Schedule[]  
 
   assignments      TeacherAssignment[]
   superviser      Superviser[]
@@ -131,6 +132,7 @@ model Subject {
   id       String    @id @default(cuid())
   name     String    @unique
   result   Result[]
+  schedule   Schedule[]
   assignments TeacherAssignment[]
   subjectClassGrades SubjectClassGrade[] // Relation to the junction table
 }
@@ -138,8 +140,7 @@ model Subject {
 model Grade {
   id    String      @id @default(cuid())
   level Int @unique
-  GradeClass GradeClass[]
-  subjectClassGrades SubjectClassGrade[] // Relation to the junction table
+  GradeClass GradeClass[] // Relation to the junction table
 }
 
 model Class {
@@ -148,7 +149,6 @@ model Class {
   events        Event[]
   announcements Announcement[]
   GradeClass GradeClass[]
-  subjectClassGrades SubjectClassGrade[] // Relation to the junction table
 }
 
 model GradeClass{
@@ -158,8 +158,18 @@ model GradeClass{
   enrollments Enrollment[]
   assignments TeacherAssignment[]
   superviser Superviser[]
+  schedule   Schedule[]
+  subjectClassGrades SubjectClassGrade[]
   grade     Grade   @relation(fields: [gradeId], references: [id])
   class     Class   @relation(fields: [classId], references: [id])
+}
+model SubjectClassGrade {
+  id        String      @id @default(cuid())
+  subjectId String
+  gradeClassId  String
+  gradeClass    GradeClass  @relation(fields: [gradeClassId], references: [id])
+  subject   Subject @relation(fields: [subjectId], references: [id])
+  @@unique([subjectId,gradeClassId]) 
 }
 model Enrollment {
   id            String      @id @default(cuid())
@@ -219,19 +229,7 @@ model Announcement {
   class   Class? @relation(fields: [classId], references: [id])
 }
 
-model SubjectClassGrade {
-  id        String      @id @default(cuid())
-  subjectId String
-  classId   String
-  gradeId   String
-  year      String
 
-  subject   Subject @relation(fields: [subjectId], references: [id])
-  class     Class   @relation(fields: [classId], references: [id])
-  grade     Grade   @relation(fields: [gradeId], references: [id])
-
-  @@unique([subjectId, classId, gradeId, year]) 
-}
 model Attendance {
   id       String   @id @default(cuid())
   studentId String
@@ -240,6 +238,23 @@ model Attendance {
   date      DateTime
 
   student   Student @relation(fields: [studentId], references: [id])
+}
+model Schedule {
+  id            String      @id @default(cuid())
+  teacherId     String
+  gradeClassId  String
+  subjectId     String
+  day           Day
+  startTime     String   // e.g., "08:00 AM"
+  endTime       String   // e.g., "09:00 AM"
+  year          String
+
+  teacher       Teacher     @relation(fields: [teacherId], references: [id])
+  gradeClass    GradeClass  @relation(fields: [gradeClassId], references: [id])
+  subject       Subject     @relation(fields: [subjectId], references: [id])
+
+  @@unique([teacherId, day, startTime, endTime]) // Prevents duplicate schedule conflicts
+  @@unique([gradeClassId, subjectId, day, startTime, endTime]) // Prevents overlapping classes
 }
 
 model Result {

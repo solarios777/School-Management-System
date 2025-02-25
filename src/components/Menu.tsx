@@ -54,6 +54,12 @@ const menuItems = [
         visible: ["admin", "teacher"],
       },
       {
+        icon: "/home.png",
+        label: "tasks",
+        href: `/list/subjectGradeClass`,
+        visible: ["admin", "teacher"],
+      },
+      {
         icon: "/teacher.png",
         label: "Teachers",
         href: "/list/teachers",
@@ -190,7 +196,7 @@ const menuItems = [
                 {!item.isDropdown ? (
                   <Link
                     href={item.href}
-                    className="flex items-center justify-center lg:justify-start gap-4 text-gray-500 py-2 md:px-2 rounded-md hover:bg-lamaSkyLight"
+                    className="flex items-center justify-center lg:justify-start gap-4 text-gray-500 py-2 md:px-2 rounded-md hover:bg-blue-200"
                   >
                     <Image src={item.icon} alt="" width={20} height={20} />
                     <span className="hidden lg:block">{item.label}</span>
