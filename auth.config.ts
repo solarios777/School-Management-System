@@ -2,7 +2,6 @@ import type { NextAuthConfig } from "next-auth"
 import Credentials  from "next-auth/providers/credentials"
 
 import { LoginSchema } from "./schema"
-import {  getUserByUsername } from "./data/getUser"
 import bcrypt from "bcryptjs"
 import { getUserByUsernameForRole } from "./data/user"
  
@@ -27,7 +26,7 @@ export default { providers: [
                 if(!isPasswordCorrect)
                     return null
                 return user
-            }
+            }   
 
             return null
             

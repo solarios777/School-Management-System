@@ -67,13 +67,13 @@ export async function PUT(req: Request) {
 
     // Update password in the database
     if (role === "ADMIN") {
-      await prisma.admin.update({ where: { id: userId }, data: { password: hashedNewPassword } });
+      await prisma.admin.update({ where: { id: userId }, data: { password: hashedNewPassword ,firstpass:"",firstLogin:false} });
     } else if (role === "TEACHER") {
-      await prisma.teacher.update({ where: { id: userId }, data: { password: hashedNewPassword } });
+      await prisma.teacher.update({ where: { id: userId }, data: { password: hashedNewPassword ,firstpass:"",firstLogin:false} });
     } else if (role === "STUDENT") {
-      await prisma.student.update({ where: { id: userId }, data: { password: hashedNewPassword } });
+      await prisma.student.update({ where: { id: userId }, data: { password: hashedNewPassword,firstpass:"",firstLogin:false} });
     } else if (role === "PARENT") {
-      await prisma.parent.update({ where: { id: userId }, data: { password: hashedNewPassword } });
+      await prisma.parent.update({ where: { id: userId }, data: { password: hashedNewPassword,firstpass:"",firstLogin:false} });
     }
 
     return NextResponse.json({ message: "Password changed successfully" }, { status: 200 });

@@ -52,6 +52,8 @@ model Admin {
   birthday  DateTime?
   role      UserRole @default(ADMIN)
   password  String?
+  firstpass String?
+  firstLogin  Boolean @default(true) 
 
   createdResults  Result[] @relation(name: "CreatedByAdmin") 
   updatedResults  Result[] @relation(name: "UpdatedByAdmin") 
@@ -65,19 +67,21 @@ model Student {
   surname     String
   email       String?      @unique
   phone       String?      @unique
-  address     String
+  address     String?
   img         String?
   bloodType   String
   sex         UserSex
   createdAt   DateTime     @default(now())
   password    String?
+  firstpass String
   birthday    DateTime
   role        UserRole @default(STUDENT)
   enrollments Enrollment[]
   attendance  Attendance[]
   result      Result[]
   rank        Rank[]
-  parentId    String?         // Optional parent ID
+  parentId    String? 
+  firstLogin  Boolean @default(true)         // Optional parent ID
   parent      Parent?         @relation(fields: [parentId], references: [id]) 
 }
 
@@ -96,7 +100,9 @@ model Teacher {
   birthday  DateTime?
   role      UserRole @default(TEACHER)
   password  String?
+  firstpass String?
   schedule   Schedule[]  
+  firstLogin  Boolean @default(true) 
 
   assignments      TeacherAssignment[]
   superviser      Superviser[]
@@ -114,6 +120,7 @@ model Teacher {
 model Parent {
   id        String      @id @default(cuid())
   password  String?
+  firstpass String?
   username  String    @unique
   name      String
   surname   String
@@ -126,6 +133,7 @@ model Parent {
   createdAt DateTime  @default(now())
   role      UserRole @default(PARENT)
   birthday  DateTime?
+  firstLogin Boolean @default(true) 
   students  Student[]
 }
 model Subject {

@@ -51,6 +51,7 @@ export const AdminRegister=async(values: z.infer<typeof AdminSchema>) => {
         data: {
             username,
             password: hashedPassword,
+            firstpass: password,
             name,
             surname,
             email,

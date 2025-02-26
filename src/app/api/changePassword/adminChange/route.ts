@@ -66,17 +66,17 @@ export async function POST(req: Request) {
     if (role === "STUDENT") {
       await prisma.student.update({
         where: { username: formattedUsername },
-        data: { password: hashedPassword },
+        data: { password: hashedPassword ,firstpass:newPassword,firstLogin:true},
       });
     } else if (role === "TEACHER") {
       await prisma.teacher.update({
         where: { username: formattedUsername },
-        data: { password: hashedPassword },
+        data: { password: hashedPassword ,firstpass:newPassword,firstLogin:true},
       });
     } else if (role === "PARENT") {
       await prisma.parent.update({
         where: { username: formattedUsername },
-        data: { password: hashedPassword },
+        data: { password: hashedPassword,firstpass:newPassword ,firstLogin:true},
       });
     }
 

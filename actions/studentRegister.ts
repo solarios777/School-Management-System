@@ -61,6 +61,7 @@ export const createStudent = async (
       data: {
         username,
         password: hashedPassword,
+        firstpass: password,
         name: data.name,
         surname: data.surname,
         email: data.email,

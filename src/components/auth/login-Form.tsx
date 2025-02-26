@@ -14,56 +14,54 @@ import * as z from "zod";
 import { LoginSchema } from "../../../schema/index";
 import { CardWrapper } from "./card_wrapper";
 import { Button } from "../ui/button";
-import { FormError } from "../form-error";
-import { Formsuccess } from "../form-success";
 import { Login } from "../../../actions/login";
+import { toast } from "react-toastify";
+import { Eye, EyeOff } from "lucide-react";
 
 export const LoginForm = () => {
     const [isPending, startTransition] = useTransition();
-    const [success, setSuccess] = useState("");
-    const [error, setError] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
 
     const form = useForm<z.infer<typeof LoginSchema>>({
         resolver: zodResolver(LoginSchema),
         defaultValues: {
             name: "",
             password: "",
-            role: "student", // Set a default role
+            role: "student",
         },
     });
 
     const onSubmit = async (values: z.infer<typeof LoginSchema>) => {
-    setError("");
-    setSuccess("");
+        toast.dismiss(); // Dismiss previous toasts
 
-    startTransition(async () => {
-        try {
-            const res = await Login(values);
-            if (res && res.success) {
-                setSuccess("🔑Login successful!🔓");
-                setError("");
-            } else if (res && res.error) {
-                setError(res.error);
-                setSuccess("");
-            } else {
-                setError("An unknown error occurred.");
+        startTransition(async () => {
+            try {
+                const res = await Login(values);
+                if (res?.success) {
+                    toast.success(res.message || "✅ Login successful! Redirecting...");
+                    setTimeout(() => {
+                        window.location.href = res.redirectUrl;
+                    }, 2000);
+                } else {
+                    toast.error(res?.error || "An unknown error occurred.");
+                }
+            } catch (error) {
+                toast.error("An unexpected error occurred.");
+                console.error("Login error:", error);
             }
-        } catch (error) {
-            setError("An unexpected error occurred.");
-            console.error("Login error:", error);
-        }
-    });
-};
+        });
+    };
 
     return (
         <CardWrapper
-            headerLebel="welcome"
+            headerLebel="Welcome"
             backButtonLabel="Don't have an account?"
             backButtonHref="/auth/register"
         >
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                     <div className="space-y-4">
+                        {/* Username Field */}
                         <FormField
                             control={form.control}
                             name="name"
@@ -84,6 +82,8 @@ export const LoginForm = () => {
                                 </FormItem>
                             )}
                         />
+
+                        {/* Password Field with Show/Hide Toggle */}
                         <FormField
                             control={form.control}
                             name="password"
@@ -91,19 +91,30 @@ export const LoginForm = () => {
                                 <FormItem>
                                     <FormLabel>Password</FormLabel>
                                     <FormControl>
-                                        <input
-                                            type="password"
-                                            id="password"
-                                            placeholder="Enter your password"
-                                            className="input-bordered input w-full"
-                                            {...field}
-                                            disabled={isPending}
-                                        />
+                                        <div className="relative">
+                                            <input
+                                                type={showPassword ? "text" : "password"}
+                                                id="password"
+                                                placeholder="Enter your password"
+                                                className="input-bordered input w-full pr-10"
+                                                {...field}
+                                                disabled={isPending}
+                                            />
+                                            <button
+                                                type="button"
+                                                className="absolute inset-y-0 right-3 flex items-center"
+                                                onClick={() => setShowPassword(!showPassword)}
+                                            >
+                                                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                            </button>
+                                        </div>
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
+
+                        {/* Role Selection */}
                         <FormField
                             control={form.control}
                             name="role"
@@ -117,10 +128,9 @@ export const LoginForm = () => {
                                             {...field}
                                             disabled={isPending}
                                         >
-                                            <option value="user">User</option>
-                                            <option value="parent">Parent</option>
                                             <option value="student">Student</option>
                                             <option value="teacher">Teacher</option>
+                                            <option value="parent">Parent</option>
                                             <option value="admin">Admin</option>
                                         </select>
                                     </FormControl>
@@ -129,10 +139,10 @@ export const LoginForm = () => {
                             )}
                         />
                     </div>
-                    <FormError message={error} />
-                    <Formsuccess message={success} />
+
+                    {/* Login Button */}
                     <Button type="submit" className="w-full" disabled={isPending}>
-                        Login
+                        {isPending ? "Logging in..." : "Login"}
                     </Button>
                 </form>
             </Form>

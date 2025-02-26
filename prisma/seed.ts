@@ -23,6 +23,7 @@ async function main() {
           phone: `12345678${i}`,
           address: `Address ${i + 1}`,
           password: 'securepassword',
+          firstpass : 'securepassword',
           birthday: new Date(1980 - i, 0, 1),
         },
       })
@@ -43,6 +44,7 @@ async function main() {
           bloodType: 'O+',
           sex: i % 2 === 0 ? 'MALE' : 'FEMALE',
           password: 'securepassword',
+          firstpass : 'securepassword',
           birthday: new Date(2010 - (i % 6), 0, 1),
           parentId: parents[i].id,
         },
@@ -67,6 +69,7 @@ async function main() {
           bloodType: 'A+',
           sex: i % 2 === 0 ? 'MALE' : 'FEMALE',
           password: 'securepassword',
+          firstpass : 'securepassword',
           birthday: new Date(1980 - i, 0, 1),
         },
       })

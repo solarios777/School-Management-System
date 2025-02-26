@@ -33,7 +33,10 @@ const StudentListPage = async ({
     { header: "Grade", accessor: "grade" },
     { header: "Class", accessor: "class" },
     { header: "Phone", accessor: "phone" },
-    { header: "Address", accessor: "address" }
+    { header: "Address", accessor: "address" },
+    { header: "First Pass", accessor: "firstpass" }
+
+
   ];
 
   const { search } = searchParams;
@@ -64,7 +67,8 @@ const StudentListPage = async ({
   address: student.address,
   img: student.img || "/noAvatar.png",
   grade: student.enrollments[0]?.gradeClass?.grade?.level?.toString() || "N/A",
-  class: student.enrollments[0]?.gradeClass?.class?.name || "N/A"
+  class: student.enrollments[0]?.gradeClass?.class?.name || "N/A",
+  firstpass: student.firstpass
 }));
 
 
