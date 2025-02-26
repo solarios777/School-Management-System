@@ -29,14 +29,12 @@ export const changePassword = async (currentPassword: string, newPassword: strin
 };
 export const AdminChangePassword = async (
   currentPassword: string,
-  newPassword: string,
   username: string,
   role: string
 ): Promise<any> => {
   try {
     const response = await axiosInstance.post("/changePassword/adminChange", {
       currentPassword,
-      newPassword,
       username,
       role,
     });

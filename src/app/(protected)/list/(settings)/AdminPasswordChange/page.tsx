@@ -20,7 +20,6 @@ const passwordSchema = z.object({
   role: z.enum(["STUDENT", "TEACHER", "PARENT", "ADMIN"], {
     errorMap: () => ({ message: "Role is required" }),
   }),
-  newPassword: z.string().min(4, "New password must be at least 4 characters long"),
 });
 
 type PasswordSchema = z.infer<typeof passwordSchema>;
@@ -43,10 +42,10 @@ const AdminChangePasswordForm = () => {
 
   // ✅ Fixed Submission to Correctly Call the API Function
   const onSubmit = async () => {
-    const { currentPassword, username, role, newPassword } = getValues();
+    const { currentPassword, username, role } = getValues();
 
     try {
-      await AdminChangePassword(currentPassword, newPassword, username, role);
+      await AdminChangePassword(currentPassword,  username, role);
       toast.success("Password changed successfully!");
       setOpenDialog(false);
     } catch (error: any) {
@@ -101,12 +100,7 @@ const AdminChangePasswordForm = () => {
           {errors.role && <p className="text-red-500 text-sm">{errors.role.message}</p>}
         </div>
 
-        {/* New Password */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700">🔐 New Password</label>
-          <Input {...register("newPassword")} type="text" placeholder="Enter a simple new password for the user" />
-          {errors.newPassword && <p className="text-red-500 text-sm">{errors.newPassword.message}</p>}
-        </div>
+        
 
         {/* Open Dialog */}
         <Dialog open={openDialog} onOpenChange={setOpenDialog}>

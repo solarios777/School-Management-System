@@ -5,7 +5,7 @@ import { currentUser } from "@/lib/auth"; // Assuming you have an auth helper to
 
 export async function POST(req: Request) {
   try {
-    const { currentPassword, username, role, newPassword } = await req.json();
+    const { currentPassword, username, role } = await req.json();
 
     // Get current authenticated user
     const user = await currentUser();
@@ -57,7 +57,16 @@ export async function POST(req: Request) {
     if (!targetUser) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
+    const generateRandomPassword = () => {
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        let password = '';
+        for (let i = 0; i < 6; i++) {
+            password += characters.charAt(Math.floor(Math.random() * characters.length));
+        }
+        return password;
+    };
 
+    const newPassword = generateRandomPassword();
     // Hash the new password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(newPassword, salt);
