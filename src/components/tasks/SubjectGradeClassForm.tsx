@@ -5,6 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "../ui/scroll-area";
+import { assignSubjects } from "@/app/_services/scheduleRelated";
+import { set } from "date-fns";
+
 
 type Subject = { id: string; name: string };
 type Grade = { id: string; level: number };
@@ -20,46 +23,22 @@ const SubjectGradeClassForm: React.FC<Props> = ({ subjects, grades, classes }) =
   const [selectedSubject, setSelectedSubject] = useState<string>("");
   const [selectedGrades, setSelectedGrades] = useState<string[]>([]);
   const [selectedSections, setSelectedSections] = useState<{ [key: string]: string[] }>({});
-  const [selectAllGrades, setSelectAllGrades] = useState(false);
   const [selectAllSections, setSelectAllSections] = useState<{ [key: string]: boolean }>({});
+  const [selectAllSectionsAllGrades, setSelectAllSectionsAllGrades] = useState(false);
+  const [showDialog, setShowDialog] = useState(false);
 
-  // Handle Grade Selection (Sort recent selections on top)
+  // Sorting data
+  const sortedGrades = [...grades].sort((a, b) => a.level - b.level);
+  const sortedClasses = [...classes].sort((a, b) => a.name.localeCompare(b.name));
+  const sortedSubjects = [...subjects].sort((a, b) => a.name.localeCompare(b.name));
+
   const handleGradeSelection = (gradeId: string) => {
     setSelectedGrades((prev) => {
       const updated = prev.includes(gradeId) ? prev.filter((id) => id !== gradeId) : [gradeId, ...prev];
       return updated;
     });
-
-    // Reset sections if grade is deselected
-    if (selectedGrades.includes(gradeId)) {
-      setSelectedSections((prev) => {
-        const updated = { ...prev };
-        delete updated[gradeId];
-        return updated;
-      });
-    }
   };
 
-  // Handle "Select All Grades"
-  const toggleSelectAllGrades = () => {
-    if (selectAllGrades) {
-      setSelectedGrades([]);
-      setSelectedSections({});
-    } else {
-      const allGradeIds = grades.map((grade) => grade.id);
-      setSelectedGrades(allGradeIds);
-
-      const allSections = allGradeIds.reduce((acc, gradeId) => {
-        acc[gradeId] = classes.map((cls) => cls.id);
-        return acc;
-      }, {} as { [key: string]: string[] });
-
-      setSelectedSections(allSections);
-    }
-    setSelectAllGrades(!selectAllGrades);
-  };
-
-  // Handle Section Selection
   const handleSectionSelection = (gradeId: string, sectionId: string) => {
     setSelectedSections((prev) => ({
       ...prev,
@@ -69,7 +48,6 @@ const SubjectGradeClassForm: React.FC<Props> = ({ subjects, grades, classes }) =
     }));
   };
 
-  // Handle "Select All Sections" for a grade
   const toggleSelectAllSections = (gradeId: string) => {
     setSelectAllSections((prev) => ({
       ...prev,
@@ -78,32 +56,57 @@ const SubjectGradeClassForm: React.FC<Props> = ({ subjects, grades, classes }) =
 
     setSelectedSections((prev) => ({
       ...prev,
-      [gradeId]: !selectAllSections[gradeId] ? classes.map((cls) => cls.id) : [],
+      [gradeId]: !selectAllSections[gradeId] ? sortedClasses.map((cls) => cls.id) : [],
     }));
   };
 
-  const handleSubmit = () => {
-    console.log("Selected Subject:", selectedSubject);
-    console.log("Selected Grades & Sections:", selectedSections);
+  const toggleSelectAllSectionsAllGrades = () => {
+    setSelectAllSectionsAllGrades((prev) => !prev);
+
+    const allSections = selectAllSectionsAllGrades
+      ? {}
+      : sortedGrades.reduce((acc, grade) => {
+          acc[grade.id] = sortedClasses.map((cls) => cls.id);
+          return acc;
+        }, {} as { [key: string]: string[] });
+
+    setSelectedSections(allSections);
   };
 
+ const handleSubmit = async () => {
+  if (!selectedSubject || Object.keys(selectedSections).length === 0) {
+    alert("Please select a subject, grades, and sections.");
+    return;
+  }
+
+  try {
+    await assignSubjects(selectedSubject, selectedSections);
+    alert("Subject assigned successfully!");
+    setShowDialog(false);
+  } catch (error) {
+    alert("Failed to assign subject. Please try again.");
+  }
+};
+
+  const handleOpen = () => {
+    setShowDialog(true);
+  }
+
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+    <>
+    <Button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700" onClick={handleOpen}>
           Assign Subject to Grades & Sections
         </Button>
-      </DialogTrigger>
+    <Dialog open={showDialog} onOpenChange={setShowDialog}>
       <DialogContent>
         <DialogHeader className="text-lg font-bold">Assign Subject</DialogHeader>
         <div className="space-y-4">
-          {/* Subject Selection */}
           <Select onValueChange={setSelectedSubject}>
             <SelectTrigger>
               <SelectValue placeholder="Select a Subject" />
             </SelectTrigger>
             <SelectContent>
-              {subjects.map((subject) => (
+              {sortedSubjects.map((subject) => (
                 <SelectItem key={subject.id} value={subject.id}>
                   {subject.name}
                 </SelectItem>
@@ -111,74 +114,61 @@ const SubjectGradeClassForm: React.FC<Props> = ({ subjects, grades, classes }) =
             </SelectContent>
           </Select>
 
-          {/* Grade Selection */}
           <Select onValueChange={handleGradeSelection}>
             <SelectTrigger>
               <SelectValue placeholder="Select Grades" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all" onClick={toggleSelectAllGrades}>
-                Select All Grades
-              </SelectItem>
-              {selectedGrades
-                .map((gradeId) => grades.find((g) => g.id === gradeId)) // Show selected first
-                .concat(grades.filter((g) => !selectedGrades.includes(g.id))) // Then others
-                .map((grade) =>
-                  grade ? (
-                    <SelectItem key={grade.id} value={grade.id}>
-                      Grade {grade.level}
-                    </SelectItem>
-                  ) : null
-                )}
+              {sortedGrades.map((grade) => (
+                <SelectItem key={grade.id} value={grade.id}>
+                  Grade {grade.level}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
 
-          {/* Grade & Section Selection */}
-        <ScrollArea className="h-72 overflow-y-auto border rounded-md p-4">
-  <div className="border p-5 rounded-lg bg-gray-50">
-    <p className="font-semibold mb-4">Select Sections</p>
-    {selectedGrades.map((gradeId) => {
-      const grade = grades.find((g) => g.id === gradeId);
-      return (
-        <div key={gradeId} className="mb-5">
-          {/* Grade Label */}
-          <div className="flex items-center space-x-3">
-            <label className="font-medium">Grade {grade?.level}</label>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => toggleSelectAllSections(gradeId)}
-            >
-              {selectAllSections[gradeId] ? "Deselect All Sections" : "Select All Sections"}
-            </Button>
-          </div>
+          <Button onClick={toggleSelectAllSectionsAllGrades} className="mb-2">
+            {selectAllSectionsAllGrades ? "Deselect All Sections for All Grades" : "Select All Sections for All Grades"}
+          </Button>
 
-          {/* Section Selection */}
-          <div className="ml-6 grid grid-cols-4 gap-4 mt-4">
-            {classes.map((cls) => (
-              <div key={cls.id} className="flex items-center space-x-2">
-                <Checkbox
-                  checked={selectedSections[gradeId]?.includes(cls.id)}
-                  onCheckedChange={() => handleSectionSelection(gradeId, cls.id)}
-                />
-                <label className="text-sm">{cls.name}</label>
-              </div>
-            ))}
-          </div>
-        </div>
-      );
-    })}
-  </div>
-</ScrollArea>
+          <ScrollArea className="h-72 overflow-y-auto border rounded-md p-4">
+            <div className="border p-5 rounded-lg bg-gray-50">
+              <p className="font-semibold mb-4">Select Sections</p>
+              {selectedGrades.map((gradeId) => {
+                const grade = sortedGrades.find((g) => g.id === gradeId);
+                return (
+                  <div key={gradeId} className="mb-5">
+                    <div className="flex items-center space-x-3">
+                      <label className="font-medium">Grade {grade?.level}</label>
+                      <Button size="sm" variant="outline" onClick={() => toggleSelectAllSections(gradeId)}>
+                        {selectAllSections[gradeId] ? "Deselect All Sections" : "Select All Sections"}
+                      </Button>
+                    </div>
 
+                    <div className="ml-6 grid grid-cols-4 gap-4 mt-4">
+                      {sortedClasses.map((cls) => (
+                        <div key={cls.id} className="flex items-center space-x-2">
+                          <Checkbox
+                            checked={selectedSections[gradeId]?.includes(cls.id)}
+                            onCheckedChange={() => handleSectionSelection(gradeId, cls.id)}
+                          />
+                          <label className="text-sm">{cls.name}</label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </ScrollArea>
 
-          {/* Submit Button */}
           <Button onClick={handleSubmit} className="w-full bg-green-600 hover:bg-green-700">
             Submit
           </Button>
         </div>
       </DialogContent>
     </Dialog>
+    </>
   );
 };
 

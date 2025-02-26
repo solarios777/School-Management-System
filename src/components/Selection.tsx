@@ -62,6 +62,7 @@ const SelectionClient: React.FC<SelectionClientProps> = ({ grades, classes }) =>
   const sortedClasses = [...classes].sort((a, b) =>
     a.name.localeCompare(b.name)
   );
+  
 
   return (
     <>

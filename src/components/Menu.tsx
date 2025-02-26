@@ -53,6 +53,12 @@ const menuItems = [
         href: `/list/singleStudentResult`,
         visible: ["admin", "teacher"],
       },
+       {
+        icon: "/home.png",
+        label: "Schedule",
+        href: `/list/schedule`,
+        visible: ["admin", "teacher"],
+      },
       {
         icon: "/home.png",
         label: "tasks",
