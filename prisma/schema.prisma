@@ -316,6 +316,22 @@ model ResultRelease {
   updatedAt  DateTime @updatedAt
 }
 
+model PeriodTimetable {
+  id         String   @id @default(cuid())
+  rollNo     Int      @unique // ✅ Make rollNo unique
+  startTime  String
+  endTime    String
+  type       PeriodType
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+}
+
+enum PeriodType {
+  CLASS
+  BREAK
+}
+
+
 
 enum AttendanceStatus {
   PRESENT 

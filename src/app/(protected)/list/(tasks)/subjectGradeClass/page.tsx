@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import SubjectGradeClassForm from "@/components/tasks/SubjectGradeClassForm";
 import TeachSubjectGradeClassForm from "@/components/tasks/TeachSubClassRelation";
 import { Card } from "@/components/ui/card";
+import PeriodTimeTable from "@/components/tasks/periodTime";
 
 const AttendancePage = async() => {
   const grades = await prisma.grade.findMany({
@@ -31,10 +32,7 @@ const AttendancePage = async() => {
              <TeachSubjectGradeClassForm subjects={Subjects} grades={grades} classes={classes} teachers={teachers}/>
           </Card>
           <Card className="rounded-2xl odd:bg-lamaPurple even:bg-lamaYellow p-4 flex-1 min-w-[130px]">
-              <SubjectGradeClassForm subjects={Subjects} grades={grades} classes={classes}/>
-          </Card>
-          <Card className="rounded-2xl odd:bg-lamaPurple even:bg-lamaYellow p-4 flex-1 min-w-[130px]">
-             <TeachSubjectGradeClassForm subjects={Subjects} grades={grades} classes={classes} teachers={teachers}/>
+             <PeriodTimeTable/>
           </Card>
         </div>
       </div>

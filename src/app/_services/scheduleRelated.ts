@@ -42,6 +42,28 @@ export const assignTeachforSubjects = async (subjectId: string, selectedSections
   }
 };
 
+export const savePeriodTimetable = async (timetable: any[]) => {
+  try {
+    const response = await axiosInstance.post("/tasksApi/setTimeTable", {
+      timetable,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error saving timetable:", error);
+    throw error;
+  }
+};
+
+
+export const fetchPeriodTimetable = async () => {
+  try {
+    const response = await axiosInstance.get("/tasksApi/fetchTimeTable");
+    return response.data.timetable; // Ensure the API returns an object with `timetable` array
+  } catch (error) {
+    console.error("Error fetching period timetable:", error);
+    throw error;
+  }
+};
 
 export const fetchSchedules = async () => {
   try {
