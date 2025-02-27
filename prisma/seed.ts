@@ -10,7 +10,7 @@ async function main() {
   const currentYear = new Date().getFullYear();
   // Create Parents
   const parents = await Promise.all(
-    Array.from({ length: 50 }, (_, i) =>
+    Array.from({ length: 160 }, (_, i) =>
       prisma.parent.create({
         data: {
           id: uuid(),
@@ -32,7 +32,7 @@ async function main() {
 
   // Create Students
   const students = await Promise.all(
-    Array.from({ length: 50 }, (_, i) =>
+    Array.from({ length: 160 }, (_, i) =>
       prisma.student.create({
         data: {
           username: `student_user_${i + 1}`,
@@ -80,20 +80,23 @@ async function main() {
   const subjects = await Promise.all(
     [
       'Mathematics',
-      'Science',
+      'Amharic',
       'History',
       'Chemistry',
       'Biology',
       'English',
       'Physics',
       'Geography',
-      'Literature',
+      'Afan oromoo',
+      'ICT',
+      'Civic Education',
+      'Sport',
     ].map((name) => prisma.subject.create({ data: { name } }))
   );
 
-  // Create Grades (1, 2, 3, 4)
+ 
   const grades = await Promise.all(
-    [1, 2, 3, 4].map((level) =>
+    [9, 10, 11, 12].map((level) =>
       prisma.grade.create({
         data: { level },
       })
@@ -102,7 +105,7 @@ async function main() {
 
   // Create Sections (A, B)
   const sections = await Promise.all(
-    ['A', 'B'].map((name) =>
+    ['A', 'B','C','D'].map((name) =>
       prisma.class.create({
         data: { name },
       })
@@ -130,8 +133,8 @@ async function main() {
       const enrollments = [];
 
       // Ensure at least 3 males and 3 females
-      for (let i = 0; i < 6; i++) {
-        const gender = i < 3 ? 'MALE' : 'FEMALE';
+      for (let i = 0; i < 10; i++) {
+        const gender = i < 5 ? 'MALE' : 'FEMALE';
         const student = studentList.find(
           (s) => s.sex === gender && !s.enrolled
         );
@@ -150,7 +153,7 @@ async function main() {
       }
 
       // Add 2 more students (any gender) to ensure at least 5 per class
-      while (enrollments.length < 5) {
+      while (enrollments.length < 10) {
         const student = studentList[studentIndex];
         enrollments.push(
           prisma.enrollment.create({
@@ -206,71 +209,7 @@ async function main() {
     );
   }
 
-  // 2. Populate Results for each student in each subject
   
-  // await Promise.all(
-  //   students.flatMap((student) =>
-  //     subjects.flatMap((subject) =>
-  //     {
-          
-
-  //         return prisma.result.create({
-  //           data: {
-  //             studentId: student.id,
-  //             subjectId: subject.id,
-              
-  //             createdBy: student.id,
-  //             examType:"MID_TERM",
-  //             year: "2024/25",
-  //           },
-  //         });
-  //     }
-  //     )
-  //   )
-  // );
-
-  // 3. Calculate and Populate Rank for each student based on total marks
-  // for (const examType:) {
-  //   const studentTotals: { studentId: string; totalMarks: number }[] = [];
-
-  //   // Calculate total marks per student
-  //   for (const student of students) {
-  //     const totalMarks = await prisma.result.aggregate({
-  //       _sum: {
-  //         marks: true,
-  //       },
-  //       where: {
-  //         studentId: student.id,
-  //         examType,
-  //         year: "2024/25",
-  //       },
-  //     });
-
-  //     studentTotals.push({
-  //       studentId: student.id,
-  //       totalMarks: totalMarks._sum.marks || 0,
-  //     });
-  //   }
-
-  //   // Sort students by total marks in descending order to calculate rank
-  //   studentTotals.sort((a, b) => b.totalMarks - a.totalMarks);
-
-  //   // Assign rank
-  //   await Promise.all(
-  //     studentTotals.map((studentTotal, index) =>
-  //       prisma.rank.create({
-  //         data: {
-  //           studentId: studentTotal.studentId,
-  //           totalMarks: studentTotal.totalMarks,
-  //           rank: index + 1,
-  //           examType,
-  //           year: "2024/25",
-  //         },
-  //       })
-  //     )
-  //   );
-  // }
-
 
 
 

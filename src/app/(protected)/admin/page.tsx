@@ -34,15 +34,7 @@ const AdminPage = ({
 
           </div>
           {/* ATTENDANCE CHART */}
-          <div className="w-full lg:w-1/3 h-[450px]">
-            <SetResultDeadline />
-            
-          </div>
-          <div className="w-full lg:w-1/3 h-[450px]">
-            
-            <ReleaseResults/>
-            <CalculateRank/>
-          </div>
+         
         </div>
         {/* BOTTOM CHART */}
         <div className="w-full h-[500px]">

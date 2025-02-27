@@ -141,6 +141,7 @@ model Subject {
   name     String    @unique
   result   Result[]
   schedule   Schedule[]
+  subjectQuota   SubjectQuota[]
   assignments TeacherAssignment[]
   subjectClassGrades SubjectClassGrade[] // Relation to the junction table
 }
@@ -166,6 +167,7 @@ model GradeClass{
   enrollments Enrollment[]
   assignments TeacherAssignment[]
   superviser Superviser[]
+  subjectQuota   SubjectQuota[]
   schedule   Schedule[]
   subjectClassGrades SubjectClassGrade[]
   grade     Grade   @relation(fields: [gradeId], references: [id])
@@ -325,6 +327,16 @@ model PeriodTimetable {
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
 }
+model SubjectQuota {
+  id         String   @id @default(uuid())
+  subjectId  String   
+  gradeClassId String
+  weeklyPeriods Int
+  subject  Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  gradeClass    GradeClass  @relation(fields: [gradeClassId], references: [id])
+  @@unique([subjectId,gradeClassId ]) // Ensures a subject has only one quota per grade and class
+}
+
 
 enum PeriodType {
   CLASS
