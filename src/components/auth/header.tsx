@@ -16,7 +16,7 @@ export const Header=({label}:HeaderProps)=>{
             <h1 className={cn("text-3xl font-semibold",font.className)}>
                 MCS
             </h1>
-            <p className="text-muted-foreground text-sm">
+            <p className=" text-bold text-sm">
                 {label}
             </p>
         </div>

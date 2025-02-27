@@ -12,10 +12,11 @@ type StudentList = {
   name: string;
   username: string;
   phone?: string;
-  address: string;
+  address: any;
   img?: string;
   grade?: string;
   class?: string;
+  firstpass?: any
 };
 
 const StudentListPage = async ({

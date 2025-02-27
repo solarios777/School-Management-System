@@ -42,13 +42,14 @@ export const createStudent = async (
 
     // Generate a random password
     const generateRandomPassword = () => {
-      const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-      let password = "";
-      for (let i = 0; i < 6; i++) {
-        password += characters.charAt(Math.floor(Math.random() * characters.length));
-      }
-      return password;
-    };
+  const numbers = "0123456789";
+  let password = "";
+  for (let i = 0; i < 6; i++) {
+    password += numbers.charAt(Math.floor(Math.random() * numbers.length));
+  }
+  return password;
+};
+
 
     const password = generateRandomPassword();
 

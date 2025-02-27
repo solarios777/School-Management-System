@@ -45,55 +45,52 @@ const AGgrid = ({
     setIsDeleteDialogOpen(true);
   };
 
-  
-  // Start deletion countdown
   // Define a mapping of list types to their delete functions
-const deleteFunctions: { [key: string]: (id: string) => Promise<any> } = {
-  teachers: teachersDelete,
-  students: studentsDelete,
-  parents: parentsDelete,
-};
+  const deleteFunctions: { [key: string]: (id: string) => Promise<any> } = {
+    teachers: teachersDelete,
+    students: studentsDelete,
+    parents: parentsDelete,
+  };
 
-const confirmDelete = () => {
-  if (!pendingDelete) return;
+  const confirmDelete = () => {
+    if (!pendingDelete) return;
 
-  setCountdown(5); // Start countdown from 5 seconds
+    setCountdown(5); // Start countdown from 5 seconds
 
-  const interval = setInterval(() => {
-    setCountdown((prev) => (prev !== null ? prev - 1 : null));
-  }, 1000);
+    const interval = setInterval(() => {
+      setCountdown((prev) => (prev !== null ? prev - 1 : null));
+    }, 1000);
 
-  const timeout = setTimeout(async () => {
-    clearInterval(interval);
+    const timeout = setTimeout(async () => {
+      clearInterval(interval);
 
-    // Get the delete function dynamically based on the list type
-    const deleteFunction = deleteFunctions[list];
+      // Get the delete function dynamically based on the list type
+      const deleteFunction = deleteFunctions[list];
 
-    if (!deleteFunction) {
-      toast.error("Invalid deletion type!", { position: "top-right" });
-      return;
-    }
+      if (!deleteFunction) {
+        toast.error("Invalid deletion type!", { position: "top-right" });
+        return;
+      }
 
-    console.log(`Deleting ${list} with ID: ${pendingDelete}`);
+      console.log(`Deleting ${list} with ID: ${pendingDelete}`);
 
-    const res = await deleteFunction(pendingDelete);
+      const res = await deleteFunction(pendingDelete);
 
-    if (res.success) {
-      toast.success(res.message);
-      router.refresh();
-      
-    } else {
-      toast.error(res.message);
-    }
+      if (res.success) {
+        toast.success(res.message);
+        router.refresh();
+      } else {
+        toast.error(res.message);
+      }
 
-    // Reset states
-    setPendingDelete(null);
-    setCountdown(null);
-    setIsDeleteDialogOpen(false);
-  }, 5000);
+      // Reset states
+      setPendingDelete(null);
+      setCountdown(null);
+      setIsDeleteDialogOpen(false);
+    }, 5000);
 
-  setDeleteTimeout(timeout);
-};
+    setDeleteTimeout(timeout);
+  };
 
   // Undo deletion
   const undoDelete = () => {
@@ -109,24 +106,47 @@ const confirmDelete = () => {
   const columnDefs = useMemo(() => {
     return [
       { headerName: "No.", field: "rollNumber", sortable: true, filter: true, width: 70 },
-      ...columns.map((col) => ({
-        headerName: col.header,
-        field: col.accessor,
-        cellClass: col.className,
-      })),
+      ...columns.map((col) => {
+        if (col.accessor === "firstpass") {
+          return {
+            headerName: col.header,
+            field: col.accessor,
+            cellRenderer: (params: any) => {
+              const [isVisible, setIsVisible] = useState(false);
+
+              return (
+                <span
+                  onClick={(e) => {
+                    e.stopPropagation(); // Prevent row click navigation
+                    setIsVisible(true);
+                  }}
+                  className="cursor-pointer px-2 py-1 rounded bg-gray-200 text-black no-navigation"
+                >
+                  {isVisible ? params.value : "••••••"}
+                </span>
+              );
+            },
+          };
+        }
+        return {
+          headerName: col.header,
+          field: col.accessor,
+          cellClass: col.className,
+        };
+      }),
       {
         headerName: "Delete",
         field: "actions",
         cellRenderer: (params: any) => (
           <button
             onClick={(e) => handleDeleteClick(params.data.id, e)}
-            className="bg-red-500 text-white  rounded rounded-full w-7 h-7 flex items-center justify-center"
+            className="bg-red-500 text-white rounded-full w-7 h-7 flex items-center justify-center"
           >
             Del
           </button>
         ),
         width: 100,
-        suppressNavigable: true, // Prevents AG Grid from making it part of the row navigation
+        suppressNavigable: true,
       },
     ];
   }, [columns]);
@@ -141,6 +161,8 @@ const confirmDelete = () => {
   );
 
   const handleRowClick = (event: any) => {
+    // Prevent row navigation when clicking the password field
+    if (event.event.target.closest(".no-navigation")) return;
     if (event.event.target.tagName === "BUTTON") return; // Ignore button clicks
     const Id = event.data.id;
     router.push(`/list/${list}/${Id}`);
@@ -148,7 +170,8 @@ const confirmDelete = () => {
 
   return (
     <div className="ag-theme-alpine" style={{ height: "700px", width: "100%" }}>
-       {/* Toast notifications container */}
+      {/* Toast notifications container */}
+      
 
       <AgGridReact
         rowData={sortedData} // Use sorted data with roll numbers
@@ -164,7 +187,7 @@ const confirmDelete = () => {
       {isDeleteDialogOpen && (
         <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
           <DialogContent>
-            <DialogHeader>Are you sure you want to delete this teacher?</DialogHeader>
+            <DialogHeader>Are you sure you want to delete?</DialogHeader>
             <DialogFooter className="flex justify-between">
               <Button onClick={undoDelete} variant="secondary">
                 Cancel

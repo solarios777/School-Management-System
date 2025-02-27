@@ -10,7 +10,8 @@ export async function PUT(req: Request) {
     // Get user information from the current session
     const user = await currentUser();
     const userId = user?.id;
-    const role = user?.role;
+    const role = user?.role.toUpperCase();
+  
 
     if (!userId || !role) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

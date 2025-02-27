@@ -6,7 +6,7 @@ import ChangePassword from "@/components/password/normalPasswordChange";
 const UserPage = async () => {
   const user = await currentUser();
   const userId = user?.id;
-  const role = user?.role;
+  const role = user?.role.toUpperCase();
 
   if (!userId) {
     return redirect("/login"); // Redirect to login if not authenticated
@@ -44,11 +44,11 @@ const UserPage = async () => {
       break;
 
     default:
-      return redirect("/not-found"); // If role is unknown, redirect
+      return redirect("/auth/login"); // If role is unknown, redirect
   }
 
   if (!userData) {
-    return redirect("/not-found"); // If user data is not found, redirect
+    return redirect("/auth/login"); // If user data is not found, redirect
   }
 
   return (

@@ -16,6 +16,7 @@ type TeacherList = {
   img?: string;
   grade?: string;
   class?: string;
+  firstpass?: any
 };
 
 const TeacherListPage = async ({
@@ -35,6 +36,8 @@ const TeacherListPage = async ({
     { header: "Subject", accessor: "subject" }, // New Subject Column
     { header: "Phone", accessor: "phone" },
     { header: "Address", accessor: "address" },
+    { header: "First Pass", accessor: "firstpass" }
+
   ];
 
   // Extract search query
@@ -71,7 +74,9 @@ const TeacherListPage = async ({
     img: teacher.img || "/noAvatar.png",
     grade: teacher.assignments[0]?.gradeClass?.grade?.level?.toString() || "N/A",
     class: teacher.assignments[0]?.gradeClass?.class?.name || "N/A",
-    subject: teacher.assignments[0]?.subject?.name || "N/A", // Extract subject name
+    subject: teacher.assignments[0]?.subject?.name || "N/A", 
+    firstpass: teacher.firstpass
+    
    
   }));
   

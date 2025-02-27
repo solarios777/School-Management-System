@@ -60,6 +60,7 @@
     "recharts": "^2.12.7",
     "shadcn": "^2.3.0",
     "shadcn-ui": "^0.9.2",
+    "swiper": "^11.2.4",
     "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "^1.0.7",
     "ts-node": "^10.9.2",

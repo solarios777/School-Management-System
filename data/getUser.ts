@@ -61,7 +61,7 @@ export const getUserById = async (id: string) => {
    export const getUserByAdminname= async (name: string) => {
     try {
       const user = await prisma.admin.findUnique({
-          where: {username:name },
+          where: {username:name }
       });
       return user
     } catch  {

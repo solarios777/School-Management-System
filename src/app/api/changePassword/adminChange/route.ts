@@ -57,14 +57,15 @@ export async function POST(req: Request) {
     if (!targetUser) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
-    const generateRandomPassword = () => {
-        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-        let password = '';
-        for (let i = 0; i < 6; i++) {
-            password += characters.charAt(Math.floor(Math.random() * characters.length));
-        }
-        return password;
-    };
+  const generateRandomPassword = () => {
+  const numbers = "0123456789";
+  let password = "";
+  for (let i = 0; i < 6; i++) {
+    password += numbers.charAt(Math.floor(Math.random() * numbers.length));
+  }
+  return password;
+};
+
 
     const newPassword = generateRandomPassword();
     // Hash the new password

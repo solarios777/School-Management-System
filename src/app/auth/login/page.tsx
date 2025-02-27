@@ -2,7 +2,8 @@ import { LoginForm } from "@/components/auth/login-Form";
 
 const Login = () => {
   return (
-    <div>
+    <div className="h-screen flex items-center justify-center bg-cover bg-center" 
+             style={{ backgroundImage: "url('/signin.webp')" }}>
       <LoginForm /> 
     </div>
   );

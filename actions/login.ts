@@ -2,8 +2,8 @@
 import * as z from "zod";
 import { LoginSchema } from "../schema";
 import { signIn } from "../auth";
-import prisma from "@/lib/prisma"; // Import Prisma
 import { AuthError } from "next-auth";
+import { getUserByUsernameForRole } from "../data/user";
 
 type LoginResponse =
   | { success: true; redirectUrl: string; message: string }
@@ -16,17 +16,18 @@ export const Login = async (values: z.infer<typeof LoginSchema>): Promise<LoginR
   }
 
   const { name, password, role } = validatedFields;
+  
 
   try {
-    // Find the user in the database
-    const user = await prisma.student.findUnique({
-      where: { username: name },
-    });
+    const user=await getUserByUsernameForRole(name,role)
+   
+   
 
     if (!user) {
       return { success: false, error: "User not found!" };
     }
-
+ console.log(user);
+ 
     // Authenticate user
     const result = await signIn("credentials", {
       name,
@@ -55,7 +56,7 @@ export const Login = async (values: z.infer<typeof LoginSchema>): Promise<LoginR
       TEACHER: "/teacher",
       PARENT: "/parent",
     };
-
+   
     const redirectUrl = roleRedirectMap[user.role] || "/dashboard";
 
     return { 
