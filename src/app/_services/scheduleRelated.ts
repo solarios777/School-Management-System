@@ -15,10 +15,10 @@ axiosInstance.interceptors.response.use(
   }
 );
 
-export const assignSubjects = async (subjectId: string, selectedSections: Record<string, string[]>) => {
+export const assignSubjects = async (selectedSubjects: string[], selectedSections: Record<string, string[]>) => {
   try {
     const response = await axiosInstance.post("/tasksApi/subSecGradeRelation", {
-      subjectId,
+      selectedSubjects, // Send array instead of single subjectId
       selectedSections,
     });
     return response.data;
@@ -61,6 +61,21 @@ export const fetchPeriodTimetable = async () => {
     return response.data.timetable; // Ensure the API returns an object with `timetable` array
   } catch (error) {
     console.error("Error fetching period timetable:", error);
+    throw error;
+  }
+};
+
+
+export const assignSubjectQuota = async (selectedSubjects: string[], selectedSections: Record<string, string[]>, weeklyQuota: number) => {
+  try {
+    const response = await axiosInstance.post("/tasksApi/subjectQouta", {
+      selectedSubjects,
+      selectedSections,
+      weeklyQuota,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error assigning subject quota:", error);
     throw error;
   }
 };

@@ -20,7 +20,7 @@ interface Props {
 }
 
 const SubjectGradeClassForm: React.FC<Props> = ({ subjects, grades, classes }) => {
-  const [selectedSubject, setSelectedSubject] = useState<string>("");
+  const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
   const [selectedGrades, setSelectedGrades] = useState<string[]>([]);
   const [selectedSections, setSelectedSections] = useState<{ [key: string]: string[] }>({});
   const [selectAllSections, setSelectAllSections] = useState<{ [key: string]: boolean }>({});
@@ -32,12 +32,19 @@ const SubjectGradeClassForm: React.FC<Props> = ({ subjects, grades, classes }) =
   const sortedClasses = [...classes].sort((a, b) => a.name.localeCompare(b.name));
   const sortedSubjects = [...subjects].sort((a, b) => a.name.localeCompare(b.name));
 
+  const handleSubjectSelection = (subjectId: string) => {
+    setSelectedSubjects((prev) =>
+      prev.includes(subjectId) ? prev.filter((id) => id !== subjectId) : [...prev, subjectId]
+    );
+  };
+
   const handleGradeSelection = (gradeId: string) => {
     setSelectedGrades((prev) => {
       const updated = prev.includes(gradeId) ? prev.filter((id) => id !== gradeId) : [gradeId, ...prev];
       return updated;
     });
   };
+
 
   const handleSectionSelection = (gradeId: string, sectionId: string) => {
     setSelectedSections((prev) => ({
@@ -72,21 +79,20 @@ const SubjectGradeClassForm: React.FC<Props> = ({ subjects, grades, classes }) =
 
     setSelectedSections(allSections);
   };
+  const handleSubmit = async () => {
+    if (selectedSubjects.length === 0 || Object.keys(selectedSections).length === 0) {
+      alert("Please select subjects, grades, and sections.");
+      return;
+    }
 
- const handleSubmit = async () => {
-  if (!selectedSubject || Object.keys(selectedSections).length === 0) {
-    alert("Please select a subject, grades, and sections.");
-    return;
-  }
-
-  try {
-    await assignSubjects(selectedSubject, selectedSections);
-    alert("Subject assigned successfully!");
-    setShowDialog(false);
-  } catch (error) {
-    alert("Failed to assign subject. Please try again.");
-  }
-};
+    try {
+      await assignSubjects(selectedSubjects, selectedSections);
+      alert("Subjects assigned successfully!");
+      setShowDialog(false);
+    } catch (error) {
+      alert("Failed to assign subjects. Please try again.");
+    }
+  };
 
   const handleOpen = () => {
     setShowDialog(true);
@@ -101,18 +107,30 @@ const SubjectGradeClassForm: React.FC<Props> = ({ subjects, grades, classes }) =
       <DialogContent>
         <DialogHeader className="text-lg font-bold">Assign Subject</DialogHeader>
         <div className="space-y-4">
-          <Select onValueChange={setSelectedSubject}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select a Subject" />
-            </SelectTrigger>
-            <SelectContent>
-              {sortedSubjects.map((subject) => (
-                <SelectItem key={subject.id} value={subject.id}>
-                  {subject.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+         <p className="text-sm font-medium">Select Subjects:</p>
+            <Select>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select Subjects" />
+              </SelectTrigger>
+              <SelectContent>
+                <ScrollArea className="h-48 overflow-y-auto border rounded-md p-2">
+                  {sortedSubjects.map((subject) => (
+                    <div
+                      key={subject.id}
+                      className="flex items-center space-x-2 p-2 cursor-pointer"
+                      onClick={() => handleSubjectSelection(subject.id)}
+                    >
+                      <Checkbox checked={selectedSubjects.includes(subject.id)} />
+                      <span>{subject.name}</span>
+                    </div>
+                  ))}
+                </ScrollArea>
+              </SelectContent>
+            </Select>
+
+            <div className="mt-2 text-sm">
+              Selected Subjects: <strong>{selectedSubjects.map((id) => subjects.find((s) => s.id === id)?.name).join(", ") || "None"}</strong>
+            </div>
 
           <Select onValueChange={handleGradeSelection}>
             <SelectTrigger>

@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "../ui/scroll-area";
+import { assignSubjectQuota } from "@/app/_services/scheduleRelated";
+import { set } from "date-fns";
 
 // Types
 type Subject = { id: string; name: string };
@@ -22,7 +24,6 @@ const SubjectQuotaConfig: React.FC<Props> = ({ subjects, grades, classes }) => {
   const [selectedGrades, setSelectedGrades] = useState<string[]>([]);
   const [selectedSections, setSelectedSections] = useState<{ [key: string]: string[] }>({});
   const [selectAllSections, setSelectAllSections] = useState<{ [key: string]: boolean }>({});
-  const [selectAllSectionsAllGrades, setSelectAllSectionsAllGrades] = useState(false);
   const [weeklyQuota, setWeeklyQuota] = useState(1);
   const [showDialog, setShowDialog] = useState(false);
 
@@ -68,15 +69,18 @@ const SubjectQuotaConfig: React.FC<Props> = ({ subjects, grades, classes }) => {
 
   
 
-  const handleSubmit = () => {
-    console.log({
-      selectedSubjects,
-      selectedGrades,
-      selectedSections,
-      weeklyQuota,
-    });
-  };
-
+const handleSubmit = async () => {
+  try {
+    await assignSubjectQuota(selectedSubjects, selectedSections, weeklyQuota);
+    alert("Subject quota assigned successfully!");
+    setShowDialog(false); 
+    setSelectedSubjects([]);
+    setSelectedSections({});
+    setSelectedGrades([]);
+  } catch (error) {
+    alert("Failed to assign subject quota. Please try again.");
+  }
+};
   return (
     <>
       <Button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
