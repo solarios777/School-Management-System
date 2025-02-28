@@ -80,6 +80,18 @@ export const assignSubjectQuota = async (selectedSubjects: string[], selectedSec
   }
 };
 
+
+export const generateSchedule = async (year: string, maxWorkload: number) => {
+  try {
+    const response = await axiosInstance.post("/tasksApi/generateSchedule", { year, maxWorkload });
+    return response.data;
+  } catch (error) {
+    console.error("Error generating schedule:", error);
+    throw error;
+  }
+};
+
+
 export const fetchSchedules = async () => {
   try {
     const response = await axiosInstance.get("/tasksApi/fetchSchedule");
@@ -89,6 +101,7 @@ export const fetchSchedules = async () => {
     throw error;
   }
 };
+
 
 export const updateSchedule = async (id: string, updatedData: any) => {
   try {

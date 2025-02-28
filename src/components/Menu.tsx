@@ -62,7 +62,7 @@ const menuItems = [
       {
         icon: "/home.png",
         label: "tasks",
-        href: `/list/subjectGradeClass`,
+        href: `/list/tasks`,
         visible: ["admin", "teacher"],
       },
       {

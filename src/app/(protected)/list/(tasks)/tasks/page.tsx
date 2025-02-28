@@ -8,6 +8,7 @@ import SetResultDeadline from "@/components/Admin/SetResultDeadline";
 import ReleaseResults from "@/components/Admin/isReleased";
 import CalculateRank from "@/components/Admin/calculateRank";
 import SubjectQuotaForm from "@/components/tasks/subjectQouta";
+import ScheduleTable from "@/components/tasks/generateSchedule";
 
 const AttendancePage = async () => {
   const grades = await prisma.grade.findMany({
@@ -24,7 +25,7 @@ const AttendancePage = async () => {
     select: { id: true, name: true, surname: true },
   });
   return (
-    <div className="px-10 py-5">
+    <div className="px-10 py-5 mt-8">
       <div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <Card className="rounded-2xl odd:bg-lamaPurple even:bg-lamaYellow p-4 flex-1 min-w-[130px] justify-center">
@@ -47,25 +48,32 @@ const AttendancePage = async () => {
               subjects={Subjects}
               grades={grades}
               classes={classes}
-              
             />
           </Card>
           <Card className="rounded-2xl odd:bg-lamaPurple even:bg-lamaYellow p-4 flex-1 min-w-[130px]">
             <PeriodTimeTable />
           </Card>
         </div>
-        <div className="flex flex-col md:flex-row mt-4 gap-4 justify-around">
+        </div>
+        <div className="flex flex-col md:flex-row mt-16 gap-4 justify-around">
           <div>
             <SetResultDeadline />
           </div>
-          <div>
-            <ReleaseResults />
-          </div>
-          <div>
-            <CalculateRank />
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col md:flex-row gap-4">
+              <div>
+                <ReleaseResults />
+              </div>
+              <div>
+                <CalculateRank />
+              </div>
+            </div>
+            <div>
+              <ScheduleTable />
+            </div>
           </div>
         </div>
-      </div>
+      
     </div>
   );
 };
