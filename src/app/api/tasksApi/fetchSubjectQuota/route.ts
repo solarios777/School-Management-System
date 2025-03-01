@@ -30,6 +30,7 @@ export async function GET() {
         subjectName: item.subject.name,
         grade: item.gradeClass.grade.level,
         className: item.gradeClass.class.name,
+        gradeClassId: item.gradeClassId, // Add gradeClassId here
         weeklyQuota: quota ? quota.weeklyPeriods : null, // Assign quota if found
       };
     });

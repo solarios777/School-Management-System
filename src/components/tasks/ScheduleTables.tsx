@@ -8,19 +8,32 @@ import { Table } from "@/components/ui/table";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { fetchGradeClasses, fetchPeriodTimetable, fetchSubjectsandQuota } from "@/app/_services/scheduleRelated";
+import {
+  fetchGradeClasses,
+  fetchPeriodTimetable,
+  fetchSubjectsandQuota,
+} from "@/app/_services/scheduleRelated";
 import { SubjectItem } from "./SubjectItem";
 import { TimetableCell } from "./TimetableCell";
-import { GradeClass, PeriodRow, SubjectQuota, TimetableCell as TimetableCellType } from "../../app/scheduleUtils/types";
+import {
+  GradeClass,
+  PeriodRow,
+  SubjectQuota,
+  TimetableCell as TimetableCellType,
+} from "../../app/scheduleUtils/types";
 import { sortGradeClasses } from "../../app/scheduleUtils/utils";
 
 const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 
 export default function ScheduleTables() {
   const [gradeClasses, setGradeClasses] = useState<GradeClass[]>([]);
-  const [filteredGradeClasses, setFilteredGradeClasses] = useState<GradeClass[]>([]);
+  const [filteredGradeClasses, setFilteredGradeClasses] = useState<
+    GradeClass[]
+  >([]);
   const [rows, setRows] = useState<{ [key: string]: PeriodRow[] }>({});
-  const [subjectsAndQuotas, setSubjectsAndQuotas] = useState<SubjectQuota[]>([]);
+  const [subjectsAndQuotas, setSubjectsAndQuotas] = useState<SubjectQuota[]>(
+    []
+  );
   const [timetable, setTimetable] = useState<TimetableCellType[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -56,7 +69,12 @@ export default function ScheduleTables() {
 
         // Fetch subjects and quotas
         const subjectsData = await fetchSubjectsandQuota();
-        setSubjectsAndQuotas(subjectsData);
+        // Ensure each subject quota includes gradeClassId
+        const formattedSubjectsData = subjectsData.map((sub: any) => ({
+          ...sub,
+          gradeClassId: sub.gradeClassId, // Add this field if not already present
+        }));
+        setSubjectsAndQuotas(formattedSubjectsData);
 
         // Initialize timetable cells
         const initialTimetable: TimetableCellType[] = [];
@@ -93,24 +111,35 @@ export default function ScheduleTables() {
     }
   }, [search, gradeClasses]);
 
-  const handleDrop = (subjectName: string, day: string, periodId: string, gradeClassId: string) => {
+  const handleDrop = (
+    subjectName: string,
+    day: string,
+    periodId: string,
+    gradeClassId: string
+  ) => {
     setTimetable((prev) =>
       prev.map((cell) => {
-        if (cell.day === day && cell.periodId === periodId && cell.gradeClassId === gradeClassId) {
-          // If replacing a subject, increment its quota
+        if (
+          cell.day === day &&
+          cell.periodId === periodId &&
+          cell.gradeClassId === gradeClassId
+        ) {
+          // If replacing a subject, increment its quota for the specific section
           if (cell.subjectName) {
             setSubjectsAndQuotas((prevQuotas) =>
               prevQuotas.map((sub) =>
-                sub.subjectName === cell.subjectName
+                sub.subjectName === cell.subjectName &&
+                sub.gradeClassId === gradeClassId
                   ? { ...sub, weeklyQuota: sub.weeklyQuota + 1 }
                   : sub
               )
             );
           }
-          // Decrease the quota for the new subject
+          // Decrease the quota for the new subject for the specific section
           setSubjectsAndQuotas((prevQuotas) =>
             prevQuotas.map((sub) =>
-              sub.subjectName === subjectName
+              sub.subjectName === subjectName &&
+              sub.gradeClassId === gradeClassId
                 ? { ...sub, weeklyQuota: sub.weeklyQuota - 1 }
                 : sub
             )
@@ -144,9 +173,7 @@ export default function ScheduleTables() {
               <div className="flex flex-wrap gap-2">
                 {subjectsAndQuotas
                   .filter(
-                    (sub) =>
-                      sub.grade === parseInt(gc.grade.toString()) &&
-                      sub.className === gc.className
+                    (sub) => sub.gradeClassId === gc.id // Filter by gradeClassId
                   )
                   .map((sub) => (
                     <SubjectItem
@@ -183,7 +210,9 @@ export default function ScheduleTables() {
                       <tr
                         key={row.id}
                         className={`border-b ${
-                          row.type === "BREAK" ? "bg-yellow-200 font-semibold" : ""
+                          row.type === "BREAK"
+                            ? "bg-yellow-200 font-semibold"
+                            : ""
                         }`}
                       >
                         <td className="p-2 border text-center">
