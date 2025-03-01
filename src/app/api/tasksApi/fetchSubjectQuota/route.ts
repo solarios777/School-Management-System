@@ -1,4 +1,3 @@
-// app/api/fetchSubjectsAndQuotas/route.ts
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
@@ -16,13 +15,24 @@ export async function GET() {
       },
     });
 
-    const formattedData = subjectsAndQuotas.map((item) => ({
-      id: item.id,
-      subjectName: item.subject.name,
-      grade: item.gradeClass.grade.level,
-      className: item.gradeClass.class.name,
-      weeklyQuota: item.subject.subjectQuota?.weeklyPeriods || 0,
-    }));
+    // Fetching subject quotas separately
+    const subjectQuotas = await prisma.subjectQuota.findMany();
+
+    // Mapping subjects and quotas
+    const formattedData = subjectsAndQuotas.map((item) => {
+      const quota = subjectQuotas.find(
+        (sq) =>
+          sq.subjectId === item.subjectId && sq.gradeClassId === item.gradeClassId
+      );
+
+      return {
+        id: item.id,
+        subjectName: item.subject.name,
+        grade: item.gradeClass.grade.level,
+        className: item.gradeClass.class.name,
+        weeklyQuota: quota ? quota.weeklyPeriods : null, // Assign quota if found
+      };
+    });
 
     return NextResponse.json(formattedData);
   } catch (error) {

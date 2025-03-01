@@ -79,9 +79,14 @@ export const fetchGradeClasses = async () => {
   }
 };
 
-export const fetchSubjects = async () => {
-  const response = await axios.get("/api/schedule");
-  return response.data;
+export const fetchSubjectsandQuota = async () => {
+   try {
+    const response = await axiosInstance.get('/tasksApi/fetchSubjectQuota');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching grade classes:', error);
+    throw error;
+  }
 };
 
 export const saveSchedule = async (scheduleData: any) => {
