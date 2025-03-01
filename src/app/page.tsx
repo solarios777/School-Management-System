@@ -17,7 +17,7 @@ const font = Poppins({
 
 const images = [
   { 
-    src: '/school.webp', 
+    src: '/signin.webp', 
     text: 'Welcome to MCS!', 
     description: '📚 1,200 Students | 👩‍🏫 80 Teachers' 
   },

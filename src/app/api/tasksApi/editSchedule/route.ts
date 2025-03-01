@@ -1,25 +1,54 @@
-import { NextRequest, NextResponse } from "next/server";
+// app/api/tasksApi/editSchedule/route.ts
+import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: Request) {
   try {
-    const { startTime, endTime } = await req.json();
-    const updatedSchedule = await prisma.schedule.update({
-      where: { id: params.id },
-      data: { startTime, endTime },
+    const body = await req.json();
+    const { day, startTime, endTime, subjectId, gradeClassId, teacherId, year } = body;
+
+    // Check if a schedule already exists for the given day, time, and grade class
+    const existingSchedule = await prisma.schedule.findFirst({
+      where: {
+        gradeClassId,
+        day,
+        startTime,
+        endTime,
+        year,
+      },
     });
 
-    return NextResponse.json(updatedSchedule, { status: 200 });
-  } catch (error) {
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
-  }
-}
+    let schedule;
+    if (existingSchedule) {
+      // Update the existing schedule
+      schedule = await prisma.schedule.update({
+        where: { id: existingSchedule.id },
+        data: {
+          subjectId,
+          teacherId,
+        },
+      });
+    } else {
+      // Create a new schedule
+      schedule = await prisma.schedule.create({
+        data: {
+          day,
+          startTime,
+          endTime,
+          subjectId,
+          gradeClassId,
+          teacherId,
+          year,
+        },
+      });
+    }
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
-  try {
-    await prisma.schedule.delete({ where: { id: params.id } });
-    return NextResponse.json({ message: "Schedule deleted" }, { status: 200 });
+    return NextResponse.json(schedule, { status: 200 });
   } catch (error) {
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    console.error("Error handling schedule:", error);
+    return NextResponse.json(
+      { error: "Failed to handle schedule" },
+      { status: 500 }
+    );
   }
 }

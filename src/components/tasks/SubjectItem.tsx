@@ -1,18 +1,22 @@
-
+// components/ScheduleTables/SubjectItem.tsx
 import { useDrag } from "react-dnd";
 
-// components/ScheduleTables/SubjectItem.tsx
 interface SubjectItemProps {
   subjectName: string;
   weeklyQuota: number;
   disabled: boolean;
+  teacherName?: string; // Add teacherName prop
 }
 
-export const SubjectItem = ({ subjectName, weeklyQuota, disabled }: SubjectItemProps) => {
+export const SubjectItem: React.FC<SubjectItemProps> = ({
+  subjectName,
+  weeklyQuota,
+  disabled,
+  teacherName,
+}) => {
   const [{ isDragging }, drag] = useDrag(() => ({
     type: "SUBJECT",
-    item: { subjectName },
-    canDrag: !disabled,
+    item: { subjectName, teacherName }, // Include teacherName in the drag item
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging(),
     }),
@@ -21,11 +25,14 @@ export const SubjectItem = ({ subjectName, weeklyQuota, disabled }: SubjectItemP
   return (
     <div
       ref={drag}
-      className={`p-2 mb-2 rounded cursor-move ${
-        isDragging ? "opacity-50" : "opacity-100"
+      className={`p-2 rounded ${
+        weeklyQuota < 0
+          ? "bg-red-500 text-white"
+          : "bg-blue-500 text-white"
       } ${disabled ? "bg-gray-300 cursor-not-allowed" : "bg-blue-200"}`}
+      style={{ opacity: isDragging ? 0.5 : 1 }}
     >
-      {subjectName} (Quota: {weeklyQuota})
+      {subjectName} ({weeklyQuota})
     </div>
   );
 };

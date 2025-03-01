@@ -22,6 +22,7 @@ import {
   TimetableCell as TimetableCellType,
 } from "../../app/scheduleUtils/types";
 import { sortGradeClasses } from "../../app/scheduleUtils/utils";
+import { subjectColors } from "../../app/scheduleUtils/colors";
 
 const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 
@@ -37,6 +38,41 @@ export default function ScheduleTables() {
   const [timetable, setTimetable] = useState<TimetableCellType[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+
+
+  const [academicYear, setAcademicYear] = useState("");
+
+useEffect(() => {
+  const generateAcademicYear = () => {
+    const currentYear = new Date().getFullYear();
+    const startYear = new Date().getMonth() + 1 < 9 ? currentYear - 1 : currentYear;
+    return `${startYear}/${(startYear + 1) % 100}`; // e.g., "2024/25"
+  };
+
+  setAcademicYear(generateAcademicYear());
+}, []);
+
+const handleSubmit = (gradeClassId: string) => {
+  // Filter timetable cells for the specific grade section
+  const gradeClassTimetable = timetable.filter(
+    (cell) => cell.gradeClassId === gradeClassId
+  );
+
+  // Map the timetable cells to the required format for submission
+  const scheduleData = gradeClassTimetable
+    .filter((cell) => cell.subjectName) // Only include cells with a subject
+    .map((cell) => ({
+      day: cell.day.toUpperCase(), // Ensure consistent day format
+      startTime: rows[gradeClassId]?.find((row) => row.id === cell.periodId)?.startTime,
+      endTime: rows[gradeClassId]?.find((row) => row.id === cell.periodId)?.endTime,
+      subjectName: cell.subjectName,
+      teacherName: cell.teacherName,
+      gradeClassId: cell.gradeClassId,
+    }));
+
+  // Log the data to the console
+  console.log(`Schedule Data for Grade Class ${gradeClassId}:`, scheduleData);
+};
 
   useEffect(() => {
     const loadData = async () => {
@@ -67,15 +103,32 @@ export default function ScheduleTables() {
         });
         setRows(tableData);
 
+        
         // Fetch subjects and quotas
         const subjectsData = await fetchSubjectsandQuota();
         // Ensure each subject quota includes gradeClassId
+        const assignSubjectColors = (subjects: SubjectQuota[]) => {
+          // Sort subjects alphabetically by subjectName
+          const sortedSubjects = [...subjects].sort((a, b) =>
+            a.subjectName.localeCompare(b.subjectName)
+          );
+
+          // Assign colors based on their order
+          return sortedSubjects.map((subject, index) => ({
+            ...subject,
+            color: subjectColors[index % subjectColors.length], // Loop back to the first color if there are more than 20 subjects
+          }));
+        };
+
+        // After fetching subjects and quotas
         const formattedSubjectsData = subjectsData.map((sub: any) => ({
           ...sub,
-          gradeClassId: sub.gradeClassId, // Add this field if not already present
+          gradeClassId: sub.gradeClassId,
         }));
-        setSubjectsAndQuotas(formattedSubjectsData);
 
+        // Assign colors to subjects
+        const subjectsWithColors = assignSubjectColors(formattedSubjectsData);
+        setSubjectsAndQuotas(subjectsWithColors);
         // Initialize timetable cells
         const initialTimetable: TimetableCellType[] = [];
         sortedGradeClasses.forEach((gc: GradeClass) => {
@@ -86,6 +139,7 @@ export default function ScheduleTables() {
                 periodId: period.id,
                 subjectName: null,
                 gradeClassId: gc.id,
+                teacherName: "",
               });
             });
           });
@@ -115,7 +169,8 @@ export default function ScheduleTables() {
     subjectName: string,
     day: string,
     periodId: string,
-    gradeClassId: string
+    gradeClassId: string,
+    teacherName: string // Add teacherName parameter
   ) => {
     setTimetable((prev) =>
       prev.map((cell) => {
@@ -144,7 +199,7 @@ export default function ScheduleTables() {
                 : sub
             )
           );
-          return { ...cell, subjectName };
+          return { ...cell, subjectName, teacherName }; // Update cell with teacherName
         }
         return cell;
       })
@@ -160,7 +215,7 @@ export default function ScheduleTables() {
             placeholder="Filter by grade (e.g., 9, 10, 11)"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full p-2 border rounded"
+            className="w-full p-2 border rounded "
           />
         </div>
         {filteredGradeClasses.map((gc) => (
@@ -172,15 +227,14 @@ export default function ScheduleTables() {
               <h3 className="text-lg font-semibold mb-2">Subjects</h3>
               <div className="flex flex-wrap gap-2">
                 {subjectsAndQuotas
-                  .filter(
-                    (sub) => sub.gradeClassId === gc.id // Filter by gradeClassId
-                  )
+                  .filter((sub) => sub.gradeClassId === gc.id)
                   .map((sub) => (
                     <SubjectItem
                       key={sub.id}
                       subjectName={sub.subjectName}
                       weeklyQuota={sub.weeklyQuota}
                       disabled={sub.weeklyQuota === 0}
+                      teacherName={sub.teacherName} // Pass teacherName to SubjectItem
                     />
                   ))}
               </div>
@@ -228,15 +282,22 @@ export default function ScheduleTables() {
                               cell.periodId === row.id &&
                               cell.gradeClassId === gc.id
                           );
+                          const subject = subjectsAndQuotas.find(
+                            (sub) =>
+                              sub.subjectName === cell?.subjectName &&
+                              sub.gradeClassId === gc.id
+                          );
                           return (
                             <TimetableCell
                               key={`${day}-${row.id}`}
                               day={day}
                               periodId={row.id}
                               subjectName={cell?.subjectName || null}
+                              teacherName={cell?.teacherName || null}
                               gradeClassId={gc.id}
                               onDrop={handleDrop}
-                              isBreak={row.type === "BREAK"}
+                              subjectColor={subject?.color} // Pass the subject's color
+                              isBreak={row.type === "BREAK"} // Pass isBreak prop
                             />
                           );
                         })}
@@ -246,6 +307,13 @@ export default function ScheduleTables() {
                 </tbody>
               </Table>
             </div>
+             {/* Add a Submit Button for Each Grade Section */}
+    <Button
+      onClick={() => handleSubmit(gc.id)}
+      className="mt-4 bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded"
+    >
+      Submit Schedule for {gc.grade} {gc.className}
+    </Button>
           </Card>
         ))}
         <Button onClick={() => window.location.reload()} className="mt-4">

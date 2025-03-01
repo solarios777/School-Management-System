@@ -7,6 +7,8 @@ const nextConfig = {
   },
   // next.config.js
 
+  reactStrictMode: false, // Disable Strict Mode
+
 };
 
 export default nextConfig;

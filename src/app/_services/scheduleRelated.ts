@@ -89,12 +89,6 @@ export const fetchSubjectsandQuota = async () => {
   }
 };
 
-export const saveSchedule = async (scheduleData: any) => {
-  await axios.post("/api/schedule", scheduleData);
-};
-
-
-
 
 
 export const assignSubjectQuota = async (selectedSubjects: string[], selectedSections: Record<string, string[]>, weeklyQuota: number) => {
@@ -134,12 +128,47 @@ export const fetchSchedules = async () => {
 };
 
 
-export const updateSchedule = async (id: string, updatedData: any) => {
+export const fetchTeachers = async () => {
   try {
-    const response = await axiosInstance.put(`/tasksApi/editSchedule/${id}`, updatedData);
+    const response = await axiosInstance.get("/tasksApi/teacherforSchedule");
     return response.data;
   } catch (error) {
-    console.error("Error updating schedule:", error);
+    console.error("Error fetching teachers:", error);
+    throw error;
+  }
+};
+
+
+// utils/scheduleUtils.ts
+
+
+export const upsertSchedule = async (
+  day: string,
+  startTime: string,
+  endTime: string,
+  subjectId: string,
+  gradeClassId: string,
+  teacherId: string,
+  year: string
+) => {
+  try {
+    const response = await axiosInstance.post("/tasksApi/editSchedule", {
+      day,
+      startTime,
+      endTime,
+      subjectId,
+      gradeClassId,
+      teacherId,
+      year,
+    });
+
+    if (!response.data) {
+      throw new Error("Failed to handle schedule");
+    }
+
+    return response.data;
+  } catch (error) {
+    console.error("Error handling schedule:", error);
     throw error;
   }
 };
