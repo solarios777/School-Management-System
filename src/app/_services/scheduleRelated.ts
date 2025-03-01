@@ -66,6 +66,32 @@ export const fetchPeriodTimetable = async () => {
 };
 
 
+
+
+
+export const fetchGradeClasses = async () => {
+  try {
+    const response = await axiosInstance.get('/tasksApi/FetchGradeforS');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching grade classes:', error);
+    throw error;
+  }
+};
+
+export const fetchSubjects = async () => {
+  const response = await axios.get("/api/schedule");
+  return response.data;
+};
+
+export const saveSchedule = async (scheduleData: any) => {
+  await axios.post("/api/schedule", scheduleData);
+};
+
+
+
+
+
 export const assignSubjectQuota = async (selectedSubjects: string[], selectedSections: Record<string, string[]>, weeklyQuota: number) => {
   try {
     const response = await axiosInstance.post("/tasksApi/subjectQouta", {

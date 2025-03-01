@@ -24,7 +24,7 @@ const SubjectQuotaConfig: React.FC<Props> = ({ subjects, grades, classes }) => {
   const [selectedGrades, setSelectedGrades] = useState<string[]>([]);
   const [selectedSections, setSelectedSections] = useState<{ [key: string]: string[] }>({});
   const [selectAllSections, setSelectAllSections] = useState<{ [key: string]: boolean }>({});
-  const [weeklyQuota, setWeeklyQuota] = useState(1);
+  const [weeklyQuota, setWeeklyQuota] = useState(null);
   const [showDialog, setShowDialog] = useState(false);
 
   // Sorting
@@ -77,6 +77,8 @@ const handleSubmit = async () => {
     setSelectedSubjects([]);
     setSelectedSections({});
     setSelectedGrades([]);
+    setSelectAllSections({})
+    setWeeklyQuota(null)
   } catch (error) {
     alert("Failed to assign subject quota. Please try again.");
   }

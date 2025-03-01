@@ -57,7 +57,7 @@ async function main() {
 
   // Create Teachers
   const teachers = await Promise.all(
-    Array.from({ length: 10 }, (_, i) =>
+    Array.from({ length: 25 }, (_, i) =>
       prisma.teacher.create({
         data: {
           username: `teacher_user_${i + 1}`,
@@ -173,21 +173,21 @@ async function main() {
   );
 
   // Assign Teachers to each Grade-Class-Subject Combination
-  await Promise.all(
-    gradeClasses.flatMap((gradeClass) => {
-      return subjects.map((subject, index) => {
-        const teacher = teachers[index % teachers.length];
-        return prisma.teacherAssignment.create({
-          data: {
-            teacherId: teacher.id,
-            gradeClassId: gradeClass.id,
-            subjectId: subject.id,
-            year: "2024/25",
-          },
-        });
-      });
-    })
-  );
+  // await Promise.all(
+  //   gradeClasses.flatMap((gradeClass) => {
+  //     return subjects.map((subject, index) => {
+  //       const teacher = teachers[index % teachers.length];
+  //       return prisma.teacherAssignment.create({
+  //         data: {
+  //           teacherId: teacher.id,
+  //           gradeClassId: gradeClass.id,
+  //           subjectId: subject.id,
+  //           year: "2024/25",
+  //         },
+  //       });
+  //     });
+  //   })
+  // );
   for (let i = 0; i < 5; i++) {
     const date = subDays(new Date(), i);
     await Promise.all(

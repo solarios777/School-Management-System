@@ -1,80 +1,103 @@
-import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import { PrismaClient, PeriodType, Day } from '@prisma/client';
+const prisma = new PrismaClient();
 
-export async function POST(req: NextRequest) {
+// Define the maximum number of classes a teacher can handle per week
+const TEACHER_WORKLOAD_LIMIT = 30;
+
+async function generateSchedule() {
   try {
-    const body = await req.json();
-    const { year, maxWorkload } = body;
-
-    if (!year || !maxWorkload) {
-      return NextResponse.json({ message: "Missing parameters" }, { status: 400 });
-    }
-
-    // 1. Fetch all necessary data
-    const teacherAssignments = await prisma.teacherAssignment.findMany();
-    const subjectQuotas = await prisma.subjectQuota.findMany();
-    const periodTimetable = await prisma.periodTimetable.findMany({
-      where: { type: "CLASS" },
-      orderBy: { rollNo: "asc" },
+    // Step 1: Gather Necessary Data
+    const teacherAssignments = await prisma.teacherAssignment.findMany({
+      include: {
+        teacher: true,
+        gradeClass: true,
+        subject: true,
+      },
     });
 
-    // 2. Create a schedule map
-    let schedule = [];
-    let teacherWorkload: Record<string, number> = {};
+    const subjectQuotas = await prisma.subjectQuota.findMany();
+    const periodTimetable = await prisma.periodTimetable.findMany({
+      where: {
+        type: PeriodType.CLASS, // Only consider class periods, not breaks
+      },
+      orderBy: {
+        rollNo: 'asc', // Ensure periods are ordered by roll number
+      },
+    });
 
-    const daysOfWeek = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"];
+    const daysOfWeek: Day[] = [Day.MONDAY, Day.TUESDAY, Day.WEDNESDAY, Day.THURSDAY, Day.FRIDAY];
 
+    // Step 2: Create a map to track teacher and class schedules
+    const teacherScheduleMap: Record<string, Set<string>> = {};
+    const classScheduleMap: Record<string, Set<string>> = {};
+
+    // Step 3: Assign subjects to classes and teachers
     for (const assignment of teacherAssignments) {
-      const { teacherId, gradeClassId, subjectId } = assignment;
+      const { teacher, gradeClass, subject } = assignment;
+      const quota = subjectQuotas.find(
+        (sq) => sq.subjectId === subject.id && sq.gradeClassId === gradeClass.id
+      );
 
-      const subjectQuota = subjectQuotas.find((q) => q.subjectId === subjectId && q.gradeClassId === gradeClassId);
-      if (!subjectQuota) continue;
+      if (!quota) {
+        console.warn(`No quota found for subject ${subject.name} in class ${gradeClass.id}`);
+        continue;
+      }
 
-      const weeklyPeriods = subjectQuota.weeklyPeriods;
-      teacherWorkload[teacherId] = (teacherWorkload[teacherId] || 0) + weeklyPeriods;
+      const weeklyPeriods = quota.weeklyPeriods;
+      const periodsPerDay = Math.ceil(weeklyPeriods / daysOfWeek.length);
 
-      if (teacherWorkload[teacherId] > maxWorkload) continue;
+      for (const day of daysOfWeek) {
+        for (let i = 0; i < periodsPerDay; i++) {
+          const period = periodTimetable[i % periodTimetable.length];
 
-      let assignedPeriods = 0;
-      for (const period of periodTimetable) {
-        if (assignedPeriods >= weeklyPeriods) break;
-
-        const day = daysOfWeek[period.rollNo % 5];
-
-        // 🔥 **Check if teacher is already assigned for the same period**
-        const existingSchedule = await prisma.schedule.findFirst({
-          where: {
-            teacherId,
-            day:day as any,
-            startTime: period.startTime,
-            endTime: period.endTime,
-            year,
-          },
-        });
-
-        if (!existingSchedule) {
-          schedule.push({
-            teacherId,
-            gradeClassId,
-            subjectId,
-            day:day as any ,
-            startTime: period.startTime,
-            endTime: period.endTime,
-            year,
+          // Step 4: Check teacher workload
+          const teacherWorkload = await prisma.schedule.count({
+            where: {
+              teacherId: teacher.id,
+              day,
+            },
           });
-          assignedPeriods++;
+
+          if (teacherWorkload >= TEACHER_WORKLOAD_LIMIT) {
+            console.warn(`Teacher ${teacher.name} has reached the workload limit on ${day}`);
+            continue;
+          }
+
+          // Step 5: Check for conflicts
+          const teacherKey = `${teacher.id}-${day}-${period.startTime}-${period.endTime}`;
+          const classKey = `${gradeClass.id}-${day}-${period.startTime}-${period.endTime}`;
+
+          if (teacherScheduleMap[teacherKey] || classScheduleMap[classKey]) {
+            console.warn(`Conflict detected for teacher ${teacher.name} or class ${gradeClass.id} on ${day}`);
+            continue;
+          }
+
+          // Step 6: Assign the schedule
+          await prisma.schedule.create({
+            data: {
+              teacherId: teacher.id,
+              gradeClassId: gradeClass.id,
+              subjectId: subject.id,
+              day,
+              startTime: period.startTime,
+              endTime: period.endTime,
+              year: "2024/25",
+            },
+          });
+
+          // Update the maps to track assigned schedules
+          teacherScheduleMap[teacherKey] = new Set([subject.id]);
+          classScheduleMap[classKey] = new Set([subject.id]);
+
+          console.log(`Scheduled ${subject.name} for ${gradeClass.id} on ${day} at ${period.startTime}`);
         }
       }
     }
-
-    // 3. Insert into Schedule Table
-    if (schedule.length > 0) {
-      await prisma.schedule.createMany({ data: schedule });
-    }
-
-    return NextResponse.json({ message: "Schedule generated successfully!" }, { status: 200 });
   } catch (error) {
-    console.error("Error generating schedule:", error);
-    return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
+    console.error('Error generating schedule:', error);
+  } finally {
+    await prisma.$disconnect();
   }
 }
+
+generateSchedule();

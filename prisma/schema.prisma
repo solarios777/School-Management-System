@@ -173,14 +173,7 @@ model GradeClass{
   grade     Grade   @relation(fields: [gradeId], references: [id])
   class     Class   @relation(fields: [classId], references: [id])
 }
-model SubjectClassGrade {
-  id        String      @id @default(cuid())
-  subjectId String
-  gradeClassId  String
-  gradeClass    GradeClass  @relation(fields: [gradeClassId], references: [id])
-  subject   Subject @relation(fields: [subjectId], references: [id])
-  @@unique([subjectId,gradeClassId]) 
-}
+
 model Enrollment {
   id            String      @id @default(cuid())
   studentId     String
@@ -190,16 +183,6 @@ model Enrollment {
   gradeClass    GradeClass  @relation(fields: [gradeClassId], references: [id])
 }
 
-model TeacherAssignment {
-  id            String      @id @default(cuid())
-  teacherId     String
-  gradeClassId  String
-  subjectId     String
-  year          String
-  teacher       Teacher     @relation(fields: [teacherId], references: [id])
-  gradeClass    GradeClass  @relation(fields: [gradeClassId], references: [id])
-  subject       Subject     @relation(fields: [subjectId], references: [id])
-}
 
 model Superviser {
   id            String      @id @default(cuid())
@@ -249,6 +232,44 @@ model Attendance {
 
   student   Student @relation(fields: [studentId], references: [id])
 }
+model TeacherAssignment {
+  id            String      @id @default(cuid())
+  teacherId     String
+  gradeClassId  String
+  subjectId     String
+  year          String
+  teacher       Teacher     @relation(fields: [teacherId], references: [id])
+  gradeClass    GradeClass  @relation(fields: [gradeClassId], references: [id])
+  subject       Subject     @relation(fields: [subjectId], references: [id])
+}
+model SubjectClassGrade {
+  id        String      @id @default(cuid())
+  subjectId String
+  gradeClassId  String
+  gradeClass    GradeClass  @relation(fields: [gradeClassId], references: [id])
+  subject   Subject @relation(fields: [subjectId], references: [id])
+  @@unique([subjectId,gradeClassId]) 
+}
+model PeriodTimetable {
+  id         String   @id @default(cuid())
+  rollNo     Int      @unique // ✅ Make rollNo unique
+  startTime  String
+  endTime    String
+  type       PeriodType
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+}
+model SubjectQuota {
+  id         String   @id @default(uuid())
+  subjectId  String   
+  gradeClassId String
+  weeklyPeriods Int
+  subject  Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  gradeClass    GradeClass  @relation(fields: [gradeClassId], references: [id])
+  @@unique([subjectId,gradeClassId ]) // Ensures a subject has only one quota per grade and class
+}
+
+
 model Schedule {
   id            String      @id @default(cuid())
   teacherId     String
@@ -316,25 +337,6 @@ model ResultRelease {
   isReleased Boolean  @default(false) // Determines if students can view results
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
-}
-
-model PeriodTimetable {
-  id         String   @id @default(cuid())
-  rollNo     Int      @unique // ✅ Make rollNo unique
-  startTime  String
-  endTime    String
-  type       PeriodType
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
-}
-model SubjectQuota {
-  id         String   @id @default(uuid())
-  subjectId  String   
-  gradeClassId String
-  weeklyPeriods Int
-  subject  Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
-  gradeClass    GradeClass  @relation(fields: [gradeClassId], references: [id])
-  @@unique([subjectId,gradeClassId ]) // Ensures a subject has only one quota per grade and class
 }
 
 
