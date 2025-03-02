@@ -6,6 +6,7 @@ interface SubjectItemProps {
   weeklyQuota: number;
   disabled: boolean;
   teacherName?: string; // Add teacherName prop
+  teacherId?: string;
 }
 
 export const SubjectItem: React.FC<SubjectItemProps> = ({
@@ -13,10 +14,11 @@ export const SubjectItem: React.FC<SubjectItemProps> = ({
   weeklyQuota,
   disabled,
   teacherName,
+  teacherId
 }) => {
   const [{ isDragging }, drag] = useDrag(() => ({
     type: "SUBJECT",
-    item: { subjectName, teacherName }, // Include teacherName in the drag item
+    item: { subjectName, teacherName,teacherId }, // Include teacherName in the drag item
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging(),
     }),

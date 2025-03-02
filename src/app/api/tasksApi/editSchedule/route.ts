@@ -1,4 +1,3 @@
-// app/api/tasksApi/editSchedule/route.ts
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
@@ -7,7 +6,25 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { day, startTime, endTime, subjectId, gradeClassId, teacherId, year } = body;
 
-    // Check if a schedule already exists for the given day, time, and grade class
+    console.log(day,startTime,endTime,subjectId,gradeClassId,teacherId,year);
+    
+
+    // Step 1: Find the actual subjectId from the SubjectClassGrade table
+    const subjectClassGrade = await prisma.subjectClassGrade.findUnique({
+      where: { id: subjectId }, // Use the provided subjectId (which is the id from SubjectClassGrade)
+      select: { subjectId: true }, // Select only the subjectId
+    });
+
+    if (!subjectClassGrade) {
+      return NextResponse.json(
+        { error: `SubjectClassGrade with ID ${subjectId} not found` },
+        { status: 404 }
+      );
+    }
+
+    const actualSubjectId = subjectClassGrade.subjectId;
+
+    // Step 2: Check if a schedule already exists for the given day, time, and grade class
     const existingSchedule = await prisma.schedule.findFirst({
       where: {
         gradeClassId,
@@ -24,7 +41,7 @@ export async function POST(req: Request) {
       schedule = await prisma.schedule.update({
         where: { id: existingSchedule.id },
         data: {
-          subjectId,
+          subjectId: actualSubjectId, // Use the actual subjectId
           teacherId,
         },
       });
@@ -35,7 +52,7 @@ export async function POST(req: Request) {
           day,
           startTime,
           endTime,
-          subjectId,
+          subjectId: actualSubjectId, // Use the actual subjectId
           gradeClassId,
           teacherId,
           year,

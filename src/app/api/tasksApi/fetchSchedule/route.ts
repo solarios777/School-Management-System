@@ -14,6 +14,7 @@ export async function GET(req: NextRequest) {
     const formattedSchedules = schedules.map((s) => ({
       id: s.id,
       teacherName: s.teacher.name,
+      teacherId:s.teacher.id,
       grade: s.gradeClass.grade.level,
       className: s.gradeClass.class.name,
       subject: s.subject.name,

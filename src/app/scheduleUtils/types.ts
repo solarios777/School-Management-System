@@ -21,6 +21,7 @@ export interface SubjectQuota {
   weeklyQuota: number;
   gradeClassId: string; // Add this property
   teacherName: string;
+  teacherId: string;
   color: string;
 }
 
@@ -30,5 +31,6 @@ export interface TimetableCell {
   subjectName: string | null;
   gradeClassId: string;
   teacherName: string;
+  teacherId: string;
   
 }

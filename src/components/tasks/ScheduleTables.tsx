@@ -11,7 +11,9 @@ import { Button } from "@/components/ui/button";
 import {
   fetchGradeClasses,
   fetchPeriodTimetable,
+  fetchSchedules,
   fetchSubjectsandQuota,
+  upsertSchedule,
 } from "@/app/_services/scheduleRelated";
 import { SubjectItem } from "./SubjectItem";
 import { TimetableCell } from "./TimetableCell";
@@ -23,6 +25,7 @@ import {
 } from "../../app/scheduleUtils/types";
 import { sortGradeClasses } from "../../app/scheduleUtils/utils";
 import { subjectColors } from "../../app/scheduleUtils/colors";
+import { toast } from "react-toastify";
 
 const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 
@@ -52,108 +55,153 @@ useEffect(() => {
   setAcademicYear(generateAcademicYear());
 }, []);
 
-const handleSubmit = (gradeClassId: string) => {
-  // Filter timetable cells for the specific grade section
-  const gradeClassTimetable = timetable.filter(
-    (cell) => cell.gradeClassId === gradeClassId
-  );
+const handleSubmit = async (gradeClassId: string) => {
+  try {
+    const gradeClassTimetable = timetable.filter(
+      (cell) => cell.gradeClassId === gradeClassId
+    );
 
-  // Map the timetable cells to the required format for submission
-  const scheduleData = gradeClassTimetable
-    .filter((cell) => cell.subjectName) // Only include cells with a subject
-    .map((cell) => ({
-      day: cell.day.toUpperCase(), // Ensure consistent day format
-      startTime: rows[gradeClassId]?.find((row) => row.id === cell.periodId)?.startTime,
-      endTime: rows[gradeClassId]?.find((row) => row.id === cell.periodId)?.endTime,
-      subjectName: cell.subjectName,
-      teacherName: cell.teacherName,
-      gradeClassId: cell.gradeClassId,
-    }));
+    const scheduleData = gradeClassTimetable
+      .filter((cell) => cell.subjectName)
+      .map((cell) => {
+        const subject = subjectsAndQuotas.find(
+          (sub) =>
+            sub.subjectName === cell.subjectName &&
+            sub.gradeClassId === gradeClassId
+        );
 
-  // Log the data to the console
-  console.log(`Schedule Data for Grade Class ${gradeClassId}:`, scheduleData);
+        if (!subject) {
+          throw new Error(
+            `Subject not found for ${cell.subjectName} in grade class ${gradeClassId}`
+          );
+        }
+
+        return {
+          day: cell.day.toUpperCase(),
+          startTime: rows[gradeClassId]?.find((row) => row.id === cell.periodId)?.startTime,
+          endTime: rows[gradeClassId]?.find((row) => row.id === cell.periodId)?.endTime,
+          subjectName: cell.subjectName,
+          subjectId: subject.id, // Ensure subjectId is valid
+          teacherId: cell.teacherId,
+          gradeClassId: cell.gradeClassId,
+          year: academicYear,
+        };
+      });
+
+    for (const entry of scheduleData) {
+      if (!entry.subjectId) {
+        throw new Error(`Invalid subjectId for ${entry.subjectName}`);
+      }
+      if(!entry.startTime || !entry.endTime){
+        throw new Error(`invalid start time or endtim`)
+      }
+
+      await upsertSchedule(
+        entry.day,
+        entry.startTime,
+        entry.endTime,
+        entry.subjectId,
+        entry.gradeClassId,
+        entry.teacherId,
+        entry.year
+      );
+    }
+
+    toast.success("Schedule updated successfully!");
+  } catch (error) {
+    toast.error("Failed to submit schedule:");
+  }
 };
 
   useEffect(() => {
-    const loadData = async () => {
-      try {
-        // Fetch grade classes
-        const gradeClassData = await fetchGradeClasses();
-        const sortedGradeClasses = sortGradeClasses(gradeClassData);
-        setGradeClasses(sortedGradeClasses);
-        setFilteredGradeClasses(sortedGradeClasses);
+  const loadData = async () => {
+    try {
+      // Fetch grade classes
+      const gradeClassData = await fetchGradeClasses();
+      const sortedGradeClasses = sortGradeClasses(gradeClassData);
+      setGradeClasses(sortedGradeClasses);
+      setFilteredGradeClasses(sortedGradeClasses);
 
-        // Fetch timetable periods
-        const timetableData = await fetchPeriodTimetable();
-        let rollNoCounter = 1;
-        const formattedData = timetableData.map((row: any) => {
-          const isBreak = row.type === "BREAK";
-          return {
-            id: row.id,
-            rollNo: isBreak ? null : rollNoCounter++,
-            startTime: isBreak ? null : row.startTime,
-            endTime: isBreak ? null : row.endTime,
-            type: row.type,
-          };
-        });
+      // Fetch existing schedules
+      const existingSchedules = await fetchSchedules();
 
-        const tableData: { [key: string]: PeriodRow[] } = {};
-        sortedGradeClasses.forEach((gc: GradeClass) => {
-          tableData[gc.id] = formattedData;
-        });
-        setRows(tableData);
-
-        
-        // Fetch subjects and quotas
-        const subjectsData = await fetchSubjectsandQuota();
-        // Ensure each subject quota includes gradeClassId
-        const assignSubjectColors = (subjects: SubjectQuota[]) => {
-          // Sort subjects alphabetically by subjectName
-          const sortedSubjects = [...subjects].sort((a, b) =>
-            a.subjectName.localeCompare(b.subjectName)
-          );
-
-          // Assign colors based on their order
-          return sortedSubjects.map((subject, index) => ({
-            ...subject,
-            color: subjectColors[index % subjectColors.length], // Loop back to the first color if there are more than 20 subjects
-          }));
+      // Fetch timetable periods
+      const timetableData = await fetchPeriodTimetable();
+      let rollNoCounter = 1;
+      const formattedData = timetableData.map((row: any) => {
+        const isBreak = row.type === "BREAK";
+        return {
+          id: row.id,
+          rollNo: isBreak ? null : rollNoCounter++,
+          startTime: isBreak ? null : row.startTime,
+          endTime: isBreak ? null : row.endTime,
+          type: row.type,
         };
+      });
 
-        // After fetching subjects and quotas
-        const formattedSubjectsData = subjectsData.map((sub: any) => ({
-          ...sub,
-          gradeClassId: sub.gradeClassId,
+      const tableData: { [key: string]: PeriodRow[] } = {};
+      sortedGradeClasses.forEach((gc: GradeClass) => {
+        tableData[gc.id] = formattedData;
+      });
+      setRows(tableData);
+
+      // Fetch subjects and quotas
+      const subjectsData = await fetchSubjectsandQuota();
+      const assignSubjectColors = (subjects: SubjectQuota[]) => {
+        const sortedSubjects = [...subjects].sort((a, b) =>
+          a.subjectName.localeCompare(b.subjectName)
+        );
+        return sortedSubjects.map((subject, index) => ({
+          ...subject,
+          color: subjectColors[index % subjectColors.length],
         }));
+      };
 
-        // Assign colors to subjects
-        const subjectsWithColors = assignSubjectColors(formattedSubjectsData);
-        setSubjectsAndQuotas(subjectsWithColors);
-        // Initialize timetable cells
-        const initialTimetable: TimetableCellType[] = [];
-        sortedGradeClasses.forEach((gc: GradeClass) => {
-          days.forEach((day) => {
-            formattedData.forEach((period: PeriodRow) => {
-              initialTimetable.push({
-                day,
-                periodId: period.id,
-                subjectName: null,
-                gradeClassId: gc.id,
-                teacherName: "",
-              });
+      const formattedSubjectsData = subjectsData.map((sub: any) => ({
+        ...sub,
+        gradeClassId: sub.gradeClassId,
+      }));
+
+      const subjectsWithColors = assignSubjectColors(formattedSubjectsData);
+      setSubjectsAndQuotas(subjectsWithColors);
+
+      // Initialize timetable cells
+      const initialTimetable: TimetableCellType[] = [];
+      sortedGradeClasses.forEach((gc: GradeClass) => {
+        days.forEach((day) => {
+          formattedData.forEach((period: PeriodRow) => {
+            // Check if there's an existing schedule for this cell
+            const existingSchedule = existingSchedules.find(
+              (s) =>
+                s.grade === gc.grade &&
+                s.className === gc.className &&
+                s.day === day.toUpperCase() &&
+                s.startTime === period.startTime &&
+                s.endTime === period.endTime
+            );
+
+            initialTimetable.push({
+              day,
+              periodId: period.id,
+              subjectName: existingSchedule ? existingSchedule.subject : null,
+              gradeClassId: gc.id,
+              teacherName: existingSchedule ? existingSchedule.teacherName : "",
+              teacherId: existingSchedule ? existingSchedule.teacherId : "",
             });
           });
         });
-        setTimetable(initialTimetable);
-      } catch (error) {
-        console.error("Failed to load data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+      });
 
-    loadData();
-  }, []);
+      setTimetable(initialTimetable);
+    } catch (error) {
+      console.error("Failed to load data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  loadData();
+}, []);
 
   useEffect(() => {
     if (search.trim() === "") {
@@ -165,52 +213,52 @@ const handleSubmit = (gradeClassId: string) => {
     }
   }, [search, gradeClasses]);
 
-  const handleDrop = (
-    subjectName: string,
-    day: string,
-    periodId: string,
-    gradeClassId: string,
-    teacherName: string // Add teacherName parameter
-  ) => {
-    setTimetable((prev) =>
-      prev.map((cell) => {
-        if (
-          cell.day === day &&
-          cell.periodId === periodId &&
-          cell.gradeClassId === gradeClassId
-        ) {
-          // If replacing a subject, increment its quota for the specific section
-          if (cell.subjectName) {
-            setSubjectsAndQuotas((prevQuotas) =>
-              prevQuotas.map((sub) =>
-                sub.subjectName === cell.subjectName &&
-                sub.gradeClassId === gradeClassId
-                  ? { ...sub, weeklyQuota: sub.weeklyQuota + 1 }
-                  : sub
-              )
-            );
-          }
-          // Decrease the quota for the new subject for the specific section
+ const handleDrop = (
+  subjectName: string,
+  day: string,
+  periodId: string,
+  gradeClassId: string,
+  teacherName: string,
+  teacherId:string
+) => {
+  setTimetable((prev) =>
+    prev.map((cell) => {
+      if (
+        cell.day === day &&
+        cell.periodId === periodId &&
+        cell.gradeClassId === gradeClassId
+      ) {
+        // If replacing a subject, increment its quota
+        if (cell.subjectName) {
           setSubjectsAndQuotas((prevQuotas) =>
             prevQuotas.map((sub) =>
-              sub.subjectName === subjectName &&
-              sub.gradeClassId === gradeClassId
-                ? { ...sub, weeklyQuota: sub.weeklyQuota - 1 }
+              sub.subjectName === cell.subjectName && sub.gradeClassId === gradeClassId
+                ? { ...sub, weeklyQuota: sub.weeklyQuota + 1 }
                 : sub
             )
           );
-          return { ...cell, subjectName, teacherName }; // Update cell with teacherName
         }
-        return cell;
-      })
-    );
-  };
+        // Decrease the quota for the new subject
+        setSubjectsAndQuotas((prevQuotas) =>
+          prevQuotas.map((sub) =>
+            sub.subjectName === subjectName && sub.gradeClassId === gradeClassId
+              ? { ...sub, weeklyQuota: sub.weeklyQuota - 1 }
+              : sub
+          )
+        );
+        return { ...cell, subjectName, teacherName ,teacherId}; // Update the cell with the new subject
+      }
+      return cell;
+    })
+  );
+};
 
 
   const handleRemoveSubject = (
     day: string,
     periodId: string,
-    gradeClassId: string
+    gradeClassId: string,
+    
   ) => {
     setTimetable((prev) =>
       prev.map((cell) => {
@@ -218,6 +266,7 @@ const handleSubmit = (gradeClassId: string) => {
           cell.day === day &&
           cell.periodId === periodId &&
           cell.gradeClassId === gradeClassId
+          
         ) {
           // Increment the quota for the removed subject
           if (cell.subjectName) {
@@ -229,13 +278,14 @@ const handleSubmit = (gradeClassId: string) => {
               )
             );
           }
-          return { ...cell, subjectName: null, teacherName: "" }; // Clear the cell
+          return { ...cell, subjectName: null, teacherName: "", teacherId:"" }; // Clear the cell
         }
         return cell;
       })
     );
   };
 
+  
   return (
     <DndProvider backend={HTML5Backend}>
       <div className="space-y-8">
@@ -265,6 +315,7 @@ const handleSubmit = (gradeClassId: string) => {
                       weeklyQuota={sub.weeklyQuota}
                       disabled={sub.weeklyQuota === 0}
                       teacherName={sub.teacherName} // Pass teacherName to SubjectItem
+                      teacherId={sub.teacherId}
                     />
                   ))}
               </div>
@@ -324,6 +375,7 @@ const handleSubmit = (gradeClassId: string) => {
                               periodId={row.id}
                               subjectName={cell?.subjectName || null}
                               teacherName={cell?.teacherName || null}
+                              teacherId={cell?.teacherId || null}
                               gradeClassId={gc.id}
                               onDrop={handleDrop}
                               onRemove={handleRemoveSubject} // Pass the remove function

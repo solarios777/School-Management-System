@@ -45,6 +45,7 @@ export async function GET() {
         gradeClassId: item.gradeClassId,
         weeklyQuota: quota ? quota.weeklyPeriods : null,
         teacherName: teacherAssignment ? `${teacherAssignment.teacher.name} ${teacherAssignment.teacher.surname}` : "Unassigned",
+        teacherId: teacherAssignment ? teacherAssignment.teacher.id : "Unassigned",
       };
     });
 
