@@ -10,6 +10,7 @@ interface TimetableCellProps {
   subjectName: string | null;
   teacherName?: string | null;
   gradeClassId: string;
+  
   onDrop: (
     subjectName: string,
     day: string,
@@ -17,6 +18,7 @@ interface TimetableCellProps {
     gradeClassId: string,
     teacherName: string
   ) => void;
+  onRemove: (day: string, periodId: string, gradeClassId: string) => void;
   isBreak: boolean;
   subjectColor?: string;
 }
@@ -28,9 +30,11 @@ export const TimetableCell: React.FC<TimetableCellProps> = ({
   teacherName,
   gradeClassId,
   onDrop,
-  isBreak,
+  onRemove,
   subjectColor,
-}) => {
+  isBreak,
+}
+) => {
   const [{ isOver }, drop] = useDrop(() => ({
     accept: "SUBJECT",
     drop: (item: { subjectName: string; teacherName: string }) => {
@@ -53,12 +57,22 @@ export const TimetableCell: React.FC<TimetableCellProps> = ({
         isOver && !isBreak ? "bg-gray-300" : backgroundColor
       } ${isBreak ? "bg-yellow-200" : ""}`}
     >
-      {subjectName && (
-        <div>
-          <div>{subjectName}</div>
-          {teacherName && <div className="text-sm text-gray-600">{teacherName}</div>}
-        </div>
-      )}
+    {subjectName && (
+  <div className="flex justify-between p-2 border rounded-lg group">
+    <div>
+      <div>{subjectName}</div>
+      {teacherName && <div className="text-sm text-gray-600">{teacherName}</div>}
+    </div>
+
+    <button
+      onClick={() => onRemove(day, periodId, gradeClassId)}
+      className="relative text-red-500 hover:text-red-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200 border border-red-500 rounded-full w-6 h-6 flex items-center justify-center"
+    >
+      X
+    </button>
+  </div>
+)}
+
     </td>
   );
 };

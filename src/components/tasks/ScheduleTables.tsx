@@ -206,6 +206,36 @@ const handleSubmit = (gradeClassId: string) => {
     );
   };
 
+
+  const handleRemoveSubject = (
+    day: string,
+    periodId: string,
+    gradeClassId: string
+  ) => {
+    setTimetable((prev) =>
+      prev.map((cell) => {
+        if (
+          cell.day === day &&
+          cell.periodId === periodId &&
+          cell.gradeClassId === gradeClassId
+        ) {
+          // Increment the quota for the removed subject
+          if (cell.subjectName) {
+            setSubjectsAndQuotas((prevQuotas) =>
+              prevQuotas.map((sub) =>
+                sub.subjectName === cell.subjectName && sub.gradeClassId === gradeClassId
+                  ? { ...sub, weeklyQuota: sub.weeklyQuota + 1 }
+                  : sub
+              )
+            );
+          }
+          return { ...cell, subjectName: null, teacherName: "" }; // Clear the cell
+        }
+        return cell;
+      })
+    );
+  };
+
   return (
     <DndProvider backend={HTML5Backend}>
       <div className="space-y-8">
@@ -296,6 +326,7 @@ const handleSubmit = (gradeClassId: string) => {
                               teacherName={cell?.teacherName || null}
                               gradeClassId={gc.id}
                               onDrop={handleDrop}
+                              onRemove={handleRemoveSubject} // Pass the remove function
                               subjectColor={subject?.color} // Pass the subject's color
                               isBreak={row.type === "BREAK"} // Pass isBreak prop
                             />
