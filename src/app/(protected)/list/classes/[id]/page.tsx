@@ -1,4 +1,5 @@
 import AGgrid from "@/components/AGgrid";
+import ClassScheduleTable from "@/components/tasks/ClassScheduleTable";
 import prisma from "@/lib/prisma";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -23,6 +24,7 @@ const SingleClassPage = async ({ params }: { params: { id: string } }) => {
   });
 
   if (!gradeClass) return notFound();
+  const gradeClassId = gradeClass.id;
 
   // Extract class details
   const { grade, class: section, enrollments } = gradeClass;
@@ -81,7 +83,13 @@ const SingleClassPage = async ({ params }: { params: { id: string } }) => {
         </Link>
       </div>
       <div></div>
+       <div className="mt-4 bg-white rounded-md p-4 h-[800px]">
+                <h1>class&apos;s Schedule</h1>
+                <ClassScheduleTable gradeClassId={gradeClassId} type="class" />
+              </div>
+              <h1>Students</h1>
       <AGgrid columns={studentColumns} data={students} list="students" />
+      
     </div>
   );
 };

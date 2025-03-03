@@ -8,6 +8,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import TeacherScheduleTable from "@/components/tasks/TeacherScheduleTable";
+
 const SingleTeacherPage = async ({
   params: { id },
 }: {
@@ -59,10 +61,14 @@ const SingleTeacherPage = async ({
                 <h1 className="text-xl font-semibold">
                   {teacher.name + " " + teacher.surname}
                 </h1>
-                <div className="rounded-md bg-black px-2 py-1 cursor-pointer" >
-                {role === "admin" && (
-                  <FormContainer  table="teacher" type="update" data={teacher}/>
-                )}
+                <div className="rounded-md bg-black px-2 py-1 cursor-pointer">
+                  {role === "admin" && (
+                    <FormContainer
+                      table="teacher"
+                      type="update"
+                      data={teacher}
+                    />
+                  )}
                 </div>
               </div>
               <p className="text-sm text-gray-500">
@@ -70,11 +76,21 @@ const SingleTeacherPage = async ({
               </p>
               <div className="flex items-center justify-between gap-2 flex-wrap text-xs font-medium">
                 <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
-                  <Image src="/blood.png" alt="Blood Type" width={14} height={14} />
+                  <Image
+                    src="/blood.png"
+                    alt="Blood Type"
+                    width={14}
+                    height={14}
+                  />
                   <span>{teacher.bloodType || "N/A"}</span>
                 </div>
                 <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
-                  <Image src="/date.png" alt="Birthday" width={14} height={14} />
+                  <Image
+                    src="/date.png"
+                    alt="Birthday"
+                    width={14}
+                    height={14}
+                  />
                   <span>
                     {teacher.birthday
                       ? new Intl.DateTimeFormat("en-GB").format(
@@ -124,31 +140,35 @@ const SingleTeacherPage = async ({
                 <span className="text-sm text-gray-400">Assignments</span>
               </div>
             </div>
-           <div className="bg-white p-4 rounded-md flex flex-col gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
-  <Image
-    src="/singleLesson.png"
-    alt="Supervision"
-    width={24}
-    height={24}
-    className="w-6 h-6"
-  />
-  <div>
-    <h1 className="text-xl font-semibold">Supervisions</h1>
-    <div className="text-sm text-gray-500">
-      {teacher.superviser.length > 0 ? (
-        teacher.superviser.map((supervision) => (
-          <div key={supervision.id} className="flex items-center gap-2">
-            <span className="text-black">
-              {supervision.gradeClass.grade.level} {supervision.gradeClass.class.name}
-            </span>
-          </div>
-        ))
-      ) : (
-        <span>No supervisions assigned</span>
-      )}
-    </div>
-  </div>
-</div>
+            <div className="bg-white p-4 rounded-md flex flex-col gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
+              <Image
+                src="/singleLesson.png"
+                alt="Supervision"
+                width={24}
+                height={24}
+                className="w-6 h-6"
+              />
+              <div>
+                <h1 className="text-xl font-semibold">Supervisions</h1>
+                <div className="text-sm text-gray-500">
+                  {teacher.superviser.length > 0 ? (
+                    teacher.superviser.map((supervision) => (
+                      <div
+                        key={supervision.id}
+                        className="flex items-center gap-2"
+                      >
+                        <span className="text-black">
+                          {supervision.gradeClass.grade.level}{" "}
+                          {supervision.gradeClass.class.name}
+                        </span>
+                      </div>
+                    ))
+                  ) : (
+                    <span>No supervisions assigned</span>
+                  )}
+                </div>
+              </div>
+            </div>
 
             <div className="bg-white p-4 rounded-md flex gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
               <Image
@@ -170,7 +190,7 @@ const SingleTeacherPage = async ({
         {/* BOTTOM */}
         <div className="mt-4 bg-white rounded-md p-4 h-[800px]">
           <h1>Teacher&apos;s Schedule</h1>
-          {/* <BigCalendarContainer type="teacherId" id={teacher.id} /> */}
+          <TeacherScheduleTable teacherId={teacher.id} />
         </div>
       </div>
       {/* RIGHT */}

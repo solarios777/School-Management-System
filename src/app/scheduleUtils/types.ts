@@ -24,6 +24,7 @@ export interface SubjectQuota {
   teacherId: string;
   color: string;
 }
+export const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 
 export interface TimetableCell {
   day: string;

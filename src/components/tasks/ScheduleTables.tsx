@@ -95,6 +95,13 @@ const handleSubmit = async (gradeClassId: string) => {
       if(!entry.startTime || !entry.endTime){
         throw new Error(`invalid start time or endtim`)
       }
+console.log(entry.day,
+        entry.startTime,
+        entry.endTime,
+        entry.subjectId,
+        entry.gradeClassId,
+        entry.teacherId,
+        entry.year);
 
       await upsertSchedule(
         entry.day,
@@ -112,8 +119,7 @@ const handleSubmit = async (gradeClassId: string) => {
     toast.error("Failed to submit schedule:");
   }
 };
-
-  useEffect(() => {
+useEffect(() => {
   const loadData = async () => {
     try {
       // Fetch grade classes
@@ -163,22 +169,29 @@ const handleSubmit = async (gradeClassId: string) => {
       }));
 
       const subjectsWithColors = assignSubjectColors(formattedSubjectsData);
-      setSubjectsAndQuotas(subjectsWithColors);
 
-      // Initialize timetable cells
+      // Initialize timetable cells and calculate quota usage
       const initialTimetable: TimetableCellType[] = [];
+      const quotaUsageMap: { [key: string]: number } = {};
+
       sortedGradeClasses.forEach((gc: GradeClass) => {
         days.forEach((day) => {
           formattedData.forEach((period: PeriodRow) => {
             // Check if there's an existing schedule for this cell
             const existingSchedule = existingSchedules.find(
-              (s) =>
+              (s: any) =>
                 s.grade === gc.grade &&
                 s.className === gc.className &&
                 s.day === day.toUpperCase() &&
                 s.startTime === period.startTime &&
                 s.endTime === period.endTime
             );
+
+            if (existingSchedule) {
+              // Increment the quota usage for this subject
+              const key = `${existingSchedule.subject}-${gc.id}`;
+              quotaUsageMap[key] = (quotaUsageMap[key] || 0) + 1;
+            }
 
             initialTimetable.push({
               day,
@@ -192,6 +205,17 @@ const handleSubmit = async (gradeClassId: string) => {
         });
       });
 
+      // Update the subjectsAndQuotas state to reflect the reduced quota
+      const updatedSubjectsAndQuotas = subjectsWithColors.map((subject) => {
+        const key = `${subject.subjectName}-${subject.gradeClassId}`;
+        const usage = quotaUsageMap[key] || 0;
+        return {
+          ...subject,
+          weeklyQuota: subject.weeklyQuota - usage,
+        };
+      });
+
+      setSubjectsAndQuotas(updatedSubjectsAndQuotas);
       setTimetable(initialTimetable);
     } catch (error) {
       console.error("Failed to load data:", error);

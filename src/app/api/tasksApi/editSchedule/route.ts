@@ -23,6 +23,17 @@ export async function POST(req: Request) {
     }
 
     const actualSubjectId = subjectClassGrade.subjectId;
+    const existingTeacher=await prisma.schedule.findFirst({
+      where:{
+        teacherId,
+        day,
+        startTime,
+        endTime
+      }
+    })
+    if(existingTeacher){
+      return NextResponse.json({error:"Teacher already has class a this time"},{status:400})
+    }
 
     // Step 2: Check if a schedule already exists for the given day, time, and grade class
     const existingSchedule = await prisma.schedule.findFirst({

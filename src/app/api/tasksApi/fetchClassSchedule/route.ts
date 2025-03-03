@@ -1,29 +1,24 @@
-// app/api/teacher-schedule/route.ts
+// app/api/class-schedule/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const teacherId = searchParams.get("teacherId");
+    const gradeClassId = searchParams.get("gradeClassId");
 
-    if (!teacherId) {
+    if (!gradeClassId) {
       return NextResponse.json(
-        { error: "Teacher ID is required" },
+        { error: "Grade Class ID is required" },
         { status: 400 }
       );
     }
 
     const schedule = await prisma.schedule.findMany({
-      where: { teacherId },
+      where: { gradeClassId },
       include: {
         subject: true,
-        gradeClass: {
-          include: {
-            grade: true,
-            class: true,
-          },
-        },
+        teacher: true,
       },
       orderBy: [
         { day: "asc" },
@@ -37,13 +32,13 @@ export async function GET(req: NextRequest) {
       startTime: entry.startTime,
       endTime: entry.endTime,
       subject: entry.subject.name,
-      grade: entry.gradeClass.grade.level,
-      className: entry.gradeClass.class.name,
+      teacherName: entry.teacher.name,
+      teacherId: entry.teacher.id,
     }));
 
     return NextResponse.json(formattedSchedule, { status: 200 });
   } catch (error) {
-    console.error("Error fetching teacher schedule:", error);
+    console.error("Error fetching class schedule:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }

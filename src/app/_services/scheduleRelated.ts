@@ -138,6 +138,16 @@ export const fetchTeachers = async () => {
   }
 };
 
+export const fetchTeacherSchedule = async (teacherId: string) => {
+  try {
+    const response = await axiosInstance.get(`/tasksApi/teacherforSchedule?teacherId=${teacherId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching teacher schedule:", error);
+    throw error;
+  }
+};
+
 
 // utils/scheduleUtils.ts
 
@@ -169,6 +179,17 @@ export const upsertSchedule = async (
     return response.data;
   } catch (error) {
     console.error("Error handling schedule:", error);
+    throw error;
+  }
+};
+
+
+export const fetchClassSchedule = async (gradeClassId: string) => {
+  try {
+    const response = await axiosInstance.get(`/tasksApi/fetchClassSchedule?gradeClassId=${gradeClassId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching class schedule:", error);
     throw error;
   }
 };
