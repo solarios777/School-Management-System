@@ -1,23 +1,27 @@
-
-import { currentUser } from "@/lib/auth";
+"use client";
 import Image from "next/image";
 import { UserButton } from "./auth/user-button";
+import  Menu  from "@/components/Menu";
+import { MenuIcon } from "lucide-react";
+import { useState } from "react";
 
+const Navbar = ({ user }:any) => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const role = user?.role?.toLowerCase();
+  const username = user?.name;
 
-
-
-const Navbar = async () => {
-  const user= await currentUser()
-  const role = user?.role.toLowerCase()
-  const userId = user?.id
-  const username = user?.name
-  
-  
-   
-  
-  
   return (
     <div className="flex items-center justify-between p-4">
+      {/* Hamburger Menu for Mobile */}
+      <div className="lg:hidden">
+        <button
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          className="text-gray-500 focus:outline-none"
+        >
+          <MenuIcon className="w-6 h-6" />
+        </button>
+      </div>
+
       {/* SEARCH BAR */}
       <div className="hidden md:flex items-center gap-2 text-xs rounded-full ring-[1.5px] ring-gray-300 px-2">
         <Image src="/search.png" alt="" width={14} height={14} />
@@ -27,6 +31,7 @@ const Navbar = async () => {
           className="w-[200px] p-2 bg-transparent outline-none"
         />
       </div>
+
       {/* ICONS AND USER */}
       <div className="flex items-center gap-6 justify-end w-full">
         <div className="bg-white rounded-full w-7 h-7 flex items-center justify-center cursor-pointer">
@@ -42,16 +47,22 @@ const Navbar = async () => {
           <span className="text-xs leading-3 font-medium">{username}</span>
           <span className="text-[10px] text-gray-500 text-right">{role}</span>
         </div>
-       
-        {/* <Image
-          src="/avatar.png"
-          alt=""
-          width={36}
-          height={36}
-          className="rounded-full"
-        /> */}
-        <UserButton/>
+        <UserButton />
       </div>
+
+      {/* Mobile Menu */}
+      {isMenuOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          onClick={() => setIsMenuOpen(false)}
+        >
+          <div className="fixed inset-y-0 left-0 w-64 bg-white z-50 overflow-y-auto">
+            <div className="p-4">
+              <Menu />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

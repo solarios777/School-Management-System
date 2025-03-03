@@ -1,162 +1,138 @@
 "use client";
-import Image from "next/image";
 import Link from "next/link";
 import { useCurrentUser } from "../../hooks/use-currentUser";
 import { useState } from "react";
+
 const Menu = () => {
- const user = useCurrentUser();
-const role = user?.role?.toLowerCase(); 
- const [showSettingsDropdown, setShowSettingsDropdown] = useState(false);
-const menuItems = [
-  {
-    title: "MENU",
-    items: [
-      {
-        icon: "/home.png",
-        label: "Register",
-        href: "/list/register",
-        visible: ["admin"],
-      },
-      {
-        icon: "/home.png",
-        label: "Home",
-        href: `/${role}`,
-        visible: ["admin", "teacher", "student", "parent"],
-      },
-      {
-        icon: "/home.png",
-        label: "Dashboard",
-        href: `/list/AttendanceStat`,
-        visible: ["admin", "teacher"],
-      },
-       {
-        icon: "/home.png",
-        label: "resultDashboard",
-        href: `/list/resultDashboard`,
-        visible: ["admin", "teacher"],
-      },
-       {
-        icon: "/home.png",
-        label: "addResult",
-        href: `/list/addResults`,
-        visible: ["admin", "teacher"],
-      }, 
-      {
-        icon: "/home.png",
-        label: "ViewResult",
-        href: `/list/viewResults`,
-        visible: ["admin", "teacher"],
-      },
-      {
-        icon: "/home.png",
-        label: "studentResult",
-        href: `/list/singleStudentResult`,
-        visible: ["admin", "teacher"],
-      },
-       {
-        icon: "/home.png",
-        label: "Schedule",
-        href: `/list/schedule`,
-        visible: ["admin", "teacher"],
-      },
-      {
-        icon: "/home.png",
-        label: "tasks",
-        href: `/list/tasks`,
-        visible: ["admin", "teacher"],
-      },
-      {
-        icon: "/teacher.png",
-        label: "Teachers",
-        href: "/list/teachers",
-        visible: ["admin", "teacher"],
-      },
-      {
-        icon: "/student.png",
-        label: "Students",
-        href: "/list/students",
-        visible: ["admin", "teacher"],
-      },
-      {
-        icon: "/parent.png",
-        label: "Parents",
-        href: "/list/parents",
-        visible: ["admin", "teacher"],
-      },
-      {
-        icon: "/subject.png",
-        label: "Subjects",
-        href: "/list/subjects",
-        visible: ["admin"],
-      },
-      {
-        icon: "/class.png",
-        label: "Classes",
-        href: "/list/classes",
-        visible: ["admin", "teacher"],
-      },
-      {
-        icon: "/attendance.png",
-        label: "Attendance",
-        href: "/list/attendance",
-        visible: ["admin", "teacher"],
-      },
-      {
-        icon: "/lesson.png",
-        label: "Lessons",
-        href: "/list/lessons",
-        visible: ["admin", "teacher", "student", "parent"],
-      },
-      {
-        icon: "/exam.png",
-        label: "Exams",
-        href: "/list/exams",
-        visible: ["admin", "teacher", "student", "parent"],
-      },
-      {
-        icon: "/assignment.png",
-        label: "Assignments",
-        href: "/list/assignments",
-        visible: ["admin", "teacher", "student", "parent"],
-      },
-      {
-        icon: "/result.png",
-        label: "Results",
-        href: "/list/results",
-        visible: ["admin", "teacher", "student", "parent"],
-      },
-      
-      {
-        icon: "/calendar.png",
-        label: "Events",
-        href: "/list/event",
-        visible: ["admin", "teacher", "student", "parent"],
-      },
-      {
-        icon: "/message.png",
-        label: "Messages",
-        href: "/list/messages",
-        visible: ["admin", "teacher", "student", "parent"],
-      },
-      {
-        icon: "/announcement.png",
-        label: "Announcements",
-        href: "/list/announcements",
-        visible: ["admin", "teacher", "student", "parent"],
-      },
-    ],
-  },
-   {
+  const user = useCurrentUser();
+  const role = user?.role?.toLowerCase();
+  const [showSettingsDropdown, setShowSettingsDropdown] = useState(false);
+
+  const menuItems = [
+    {
+      title: "MENU",
+      items: [
+        {
+          label: "Register",
+          href: "/list/register",
+          visible: ["admin"],
+        },
+        {
+          label: "Home",
+          href: `/${role}`,
+          visible: ["admin", "teacher", "student", "parent"],
+        },
+        {
+          label: "Dashboard",
+          href: `/list/AttendanceStat`,
+          visible: ["admin", "teacher"],
+        },
+        {
+          label: "Result Dashboard",
+          href: `/list/resultDashboard`,
+          visible: ["admin", "teacher"],
+        },
+        {
+          label: "Add Result",
+          href: `/list/addResults`,
+          visible: ["admin", "teacher"],
+        },
+        {
+          label: "View Result",
+          href: `/list/viewResults`,
+          visible: ["admin", "teacher"],
+        },
+        {
+          label: "Student Result",
+          href: `/list/singleStudentResult`,
+          visible: ["admin", "teacher"],
+        },
+        {
+          label: "Schedule",
+          href: `/list/schedule`,
+          visible: ["admin", "teacher"],
+        },
+        {
+          label: "Tasks",
+          href: `/list/tasks`,
+          visible: ["admin", "teacher"],
+        },
+        {
+          label: "Teachers",
+          href: "/list/teachers",
+          visible: ["admin", "teacher"],
+        },
+        {
+          label: "Students",
+          href: "/list/students",
+          visible: ["admin", "teacher"],
+        },
+        {
+          label: "Parents",
+          href: "/list/parents",
+          visible: ["admin", "teacher"],
+        },
+        {
+          label: "Subjects",
+          href: "/list/subjects",
+          visible: ["admin"],
+        },
+        {
+          label: "Classes",
+          href: "/list/classes",
+          visible: ["admin", "teacher"],
+        },
+        {
+          label: "Attendance",
+          href: "/list/attendance",
+          visible: ["admin", "teacher"],
+        },
+        {
+          label: "Lessons",
+          href: "/list/lessons",
+          visible: ["admin", "teacher", "student", "parent"],
+        },
+        {
+          label: "Exams",
+          href: "/list/exams",
+          visible: ["admin", "teacher", "student", "parent"],
+        },
+        {
+          label: "Assignments",
+          href: "/list/assignments",
+          visible: ["admin", "teacher", "student", "parent"],
+        },
+        {
+          label: "Results",
+          href: "/list/results",
+          visible: ["admin", "teacher", "student", "parent"],
+        },
+        {
+          label: "Events",
+          href: "/list/event",
+          visible: ["admin", "teacher", "student", "parent"],
+        },
+        {
+          label: "Messages",
+          href: "/list/messages",
+          visible: ["admin", "teacher", "student", "parent"],
+        },
+        {
+          label: "Announcements",
+          href: "/list/announcements",
+          visible: ["admin", "teacher", "student", "parent"],
+        },
+      ],
+    },
+    {
       title: "OTHER",
       items: [
         {
-          icon: "/profile.png",
-          label: "help",
+          label: "Help",
           href: "/list/AdminPasswordChange",
           visible: ["admin"],
         },
         {
-          icon: "/setting.png",
           label: "Settings",
           href: "#",
           visible: ["admin", "teacher", "student", "parent"],
@@ -166,7 +142,6 @@ const menuItems = [
               label: "Change Password",
               href: "/list/changePassword",
             },
-            
             {
               label: "Preferences",
               href: "/settings/preferences",
@@ -174,17 +149,13 @@ const menuItems = [
           ],
         },
         {
-          icon: "/logout.png",
           label: "Logout",
           href: "/logout",
           visible: ["admin", "teacher", "student", "parent"],
         },
       ],
     },
-];
-
-
- // Ensure role is in lowercase
+  ];
 
   return (
     <div className="mt-4 text-sm overflow-y-scroll pb-40">
@@ -194,9 +165,7 @@ const menuItems = [
             {section.title}
           </span>
           {section.items
-            .filter((item) =>
-              item.visible.some((r) => r.toLowerCase() === role)
-            )
+            .filter((item) => item.visible.some((r) => r.toLowerCase() === role))
             .map((item) => (
               <div key={item.label} className="relative">
                 {!item.isDropdown ? (
@@ -204,8 +173,7 @@ const menuItems = [
                     href={item.href}
                     className="flex items-center justify-center lg:justify-start gap-4 text-gray-500 py-2 md:px-2 rounded-md hover:bg-blue-200"
                   >
-                    <Image src={item.icon} alt="" width={20} height={20} />
-                    <span className="hidden lg:block">{item.label}</span>
+                    <span>{item.label}</span>
                   </Link>
                 ) : (
                   <>
@@ -213,10 +181,9 @@ const menuItems = [
                       onClick={() =>
                         setShowSettingsDropdown(!showSettingsDropdown)
                       }
-                      className="flex items-center justify-center lg:justify-start gap-4 text-gray-500 py-2 md:px-2 rounded-md hover:bg-lamaSkyLight w-full"
+                      className="flex items-center justify-center lg:justify-start gap-4 text-gray-500 py-2 md:px-2 rounded-md hover:bg-blue-200 w-full"
                     >
-                      <Image src={item.icon} alt="" width={20} height={20} />
-                      <span className="hidden lg:block">{item.label}</span>
+                      <span>{item.label}</span>
                     </button>
                     {showSettingsDropdown && (
                       <div className="absolute left-0 mt-2 bg-white shadow-lg rounded-md text-sm z-10">

@@ -21,20 +21,32 @@ type RouteAccessMap = {
   [key: string]: string[];
 };
 
-export const routeAccessMap: RouteAccessMap = {
-  "/admin(.*)": ["admin"],
-  "/student(.*)": ["student"],
-  "/teacher(.*)": ["teacher"],
-  "/parent(.*)": ["parent"],
+export const routeAccessMap = {
+  "/admin": ["admin"],
+  "/list/register": ["admin"],
   "/list/teachers": ["admin"],
+  "/list/teachers/[id]": ["admin", "teacher"], // Dynamic route for teachers
   "/list/students": ["admin"],
+  "/list/students/[id]": ["admin", "student"], // Dynamic route for students
   "/list/parents": ["admin"],
+  "/list/parents/[id]": ["admin", "parent"], // Dynamic route for parents
   "/list/subjects": ["admin"],
-  "/list/classes": ["admin", "teacher"],
+  "/list/classes": ["admin"],
+  "/list/attendance": ["admin"],
+  "/list/lessons": ["admin", "teacher", "student", "parent"],
   "/list/exams": ["admin", "teacher", "student", "parent"],
   "/list/assignments": ["admin", "teacher", "student", "parent"],
   "/list/results": ["admin", "teacher", "student", "parent"],
-  "/list/attendance": ["admin", "teacher"],
-  "/list/events": ["admin", "teacher", "student", "parent"],
+  "/list/event": ["admin", "teacher", "student", "parent"],
+  "/list/messages": ["admin", "teacher", "student", "parent"],
   "/list/announcements": ["admin", "teacher", "student", "parent"],
+  "/list/schedule": ["admin"],
+  "/list/tasks": ["admin"],
+  "/list/resultDashboard": ["admin", "teacher"],
+  "/list/addResults": ["admin", "teacher"],
+  "/list/viewResults": ["admin", "teacher"],
+  "/list/singleStudentResult": ["admin", "teacher"],
+  "/list/changePassword": ["admin", "teacher", "student", "parent"],
+  "/settings/preferences": ["admin", "teacher", "student", "parent"],
+  "/logout": ["admin", "teacher", "student", "parent"],
 };
