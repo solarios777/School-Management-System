@@ -15,13 +15,13 @@ export async function GET(request: Request) {
       );
     }
 
-    // Fetch students by parent ID
-    const students = await prisma.student.findMany({
+    // Fetch students by parent ID using the join table
+    const students = await prisma.studentParent.findMany({
       where: { parentId },
-      select: { id: true, name: true, username: true,surname:true },
+      include: { student: true },
     });
 
-    return NextResponse.json(students);
+    return NextResponse.json(students.map((sp) => sp.student));
   } catch (error) {
     console.error('Error fetching students by parent ID:', error);
     return NextResponse.json(

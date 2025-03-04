@@ -4,40 +4,44 @@ import prisma from '@/lib/prisma';
 
 export async function POST(request: Request) {
   try {
-    const { studentName, studentUsername, parentId } = await request.json();
+    const { studentId, parentId } = await request.json();
 
     // Validate input
-    if (!studentName || !studentUsername || !parentId) {
+    if (!studentId || !parentId) {
       return NextResponse.json(
-        { error: 'Student name, username, and parent ID are required' },
+        { error: 'Student ID and Parent ID are required' },
         { status: 400 }
       );
     }
 
-    // Find the student by name and username
-    const student = await prisma.student.findFirst({
+    // Check if the relationship already exists
+    const existingRelationship = await prisma.studentParent.findUnique({
       where: {
-        name: studentName,
-        username: studentUsername,
+        studentId_parentId: {
+          studentId,
+          parentId,
+        },
       },
     });
 
-    if (!student) {
+    if (existingRelationship) {
       return NextResponse.json(
-        { error: 'Student not found' },
-        { status: 404 }
+        { error: 'Relationship already exists' },
+        { status: 400 }
       );
     }
 
-    // Update the student's parentId
-    const updatedStudent = await prisma.student.update({
-      where: { id: student.id },
-      data: { parentId },
+    // Create the new relationship
+    const newRelationship = await prisma.studentParent.create({
+      data: {
+        studentId,
+        parentId,
+      },
     });
 
     return NextResponse.json({
       message: 'Parent relationship created successfully',
-      student: updatedStudent,
+      relationship: newRelationship,
     });
   } catch (error) {
     console.error('Error updating parent relationship:', error);

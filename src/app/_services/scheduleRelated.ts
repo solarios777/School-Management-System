@@ -1,5 +1,22 @@
 import axios from 'axios';
+import { error } from 'console';
 
+interface ErrorResponse {
+  error: string;
+  details?: {
+    teacherName?: string;
+    gradeLevel?: string;
+    className?: string;
+    day?: string;
+    period?: string;
+  } | null;
+}
+
+// Define the structure of the success response locally
+interface SuccessResponse {
+  success: boolean;
+  schedule: any; // Replace 'any' with a more specific type if you have a Schedule interface
+}
 const axiosInstance = axios.create({
   baseURL: '/api',
   headers: {
@@ -14,6 +31,8 @@ axiosInstance.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+
 
 export const assignSubjects = async (selectedSubjects: string[], selectedSections: Record<string, string[]>) => {
   try {
@@ -159,7 +178,8 @@ export const upsertSchedule = async (
   subjectId: string,
   gradeClassId: string,
   teacherId: string,
-  year: string
+  year: string,
+ 
 ) => {
   try {
     const response = await axiosInstance.post("/tasksApi/editSchedule", {
@@ -172,18 +192,32 @@ export const upsertSchedule = async (
       year,
     });
 
-    if (!response.data) {
-      throw new Error("Failed to handle schedule");
-    }
-
+    // Return the success response from the backend
     return response.data;
-  } catch (error) {
-    console.error("Error handling schedule:", error);
-    throw error;
+  } catch (error:any) {
+    // Handle Axios errors and return a consistent error structure
+    if (error.response) {
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx
+      return {
+        error: error.response.data.error || "Failed to handle schedule",
+        details: error.response.data.details || null,
+      };
+    } else if (error.request) {
+      // The request was made but no response was received
+      return {
+        error: "No response received from the server",
+        details: null,
+      };
+    } else {
+      // Something happened in setting up the request that triggered an error
+      return {
+        error: "Failed to handle schedule",
+        details: null,
+      };
+    }
   }
 };
-
-
 export const fetchClassSchedule = async (gradeClassId: string) => {
   try {
     const response = await axiosInstance.get(`/tasksApi/fetchClassSchedule?gradeClassId=${gradeClassId}`);

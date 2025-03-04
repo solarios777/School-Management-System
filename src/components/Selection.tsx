@@ -118,7 +118,8 @@ const SelectionClient: React.FC<SelectionClientProps> = ({ grades, classes }) =>
           </select>
         </div>
       </div>
-      <AttendanceGrid attendanceData={attendanceData} selectedMonth={month} />
+      {attendanceData.length>0 ?
+      <AttendanceGrid attendanceData={attendanceData} selectedMonth={month} />:""}
     </>
   );
 };

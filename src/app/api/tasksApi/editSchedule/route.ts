@@ -6,13 +6,10 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { day, startTime, endTime, subjectId, gradeClassId, teacherId, year } = body;
 
-    console.log(day,startTime,endTime,subjectId,gradeClassId,teacherId,year);
-    
-
     // Step 1: Find the actual subjectId from the SubjectClassGrade table
     const subjectClassGrade = await prisma.subjectClassGrade.findUnique({
-      where: { id: subjectId }, // Use the provided subjectId (which is the id from SubjectClassGrade)
-      select: { subjectId: true }, // Select only the subjectId
+      where: { id: subjectId },
+      select: { subjectId: true },
     });
 
     if (!subjectClassGrade) {
@@ -23,16 +20,48 @@ export async function POST(req: Request) {
     }
 
     const actualSubjectId = subjectClassGrade.subjectId;
-    const existingTeacher=await prisma.schedule.findFirst({
-      where:{
+
+    // Check if the teacher already has a class at this time in a DIFFERENT grade class
+    const existingTeacher = await prisma.schedule.findFirst({
+      where: {
         teacherId,
         day,
         startTime,
-        endTime
-      }
-    })
-    if(existingTeacher){
-      return NextResponse.json({error:"Teacher already has class a this time"},{status:400})
+        endTime,
+        NOT: {
+          gradeClassId: gradeClassId, // Exclude the current grade class
+        },
+      },
+      include: {
+        teacher: true,
+        gradeClass: {
+          include: {
+            grade: true,
+            class: true,
+          },
+        },
+      },
+    });
+
+    if (existingTeacher) {
+      const teacherName = existingTeacher.teacher.name;
+      const gradeLevel = existingTeacher.gradeClass.grade.level;
+      const className = existingTeacher.gradeClass.class.name;
+      const period = existingTeacher.startTime + " - " + existingTeacher.endTime;
+
+      return NextResponse.json(
+        {
+          error: "Teacher already has a class at this time",
+          details: {
+            teacherName,
+            gradeLevel,
+            className,
+            day,
+            period,
+          },
+        },
+        { status: 400 }
+      );
     }
 
     // Step 2: Check if a schedule already exists for the given day, time, and grade class
@@ -52,7 +81,7 @@ export async function POST(req: Request) {
       schedule = await prisma.schedule.update({
         where: { id: existingSchedule.id },
         data: {
-          subjectId: actualSubjectId, // Use the actual subjectId
+          subjectId: actualSubjectId,
           teacherId,
         },
       });
@@ -63,7 +92,7 @@ export async function POST(req: Request) {
           day,
           startTime,
           endTime,
-          subjectId: actualSubjectId, // Use the actual subjectId
+          subjectId: actualSubjectId,
           gradeClassId,
           teacherId,
           year,
@@ -71,11 +100,11 @@ export async function POST(req: Request) {
       });
     }
 
-    return NextResponse.json(schedule, { status: 200 });
-  } catch (error) {
+    return NextResponse.json({ success: true, schedule }, { status: 200 });
+  } catch (error:any) {
     console.error("Error handling schedule:", error);
     return NextResponse.json(
-      { error: "Failed to handle schedule" },
+      { error: "Failed to handle schedule", details: error.message },
       { status: 500 }
     );
   }

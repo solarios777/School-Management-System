@@ -68,14 +68,13 @@ const onSubmit = async (data: FormData) => {
       return;
     }
 
-    // Call the backend API to update the parent relationship
+    // Call the backend API to create the parent relationship
     const response = await updateParentRelationship(
-      data.studentName,
-      data.studentUsername,
-      parentId
+      selectedStudent.id, // Pass studentId
+      parentId // Pass parentId
     );
 
-    console.log("Parent relationship updated:", response);
+    console.log("Parent relationship created:", response);
     alert("Relationship created successfully!");
     setOpen(false);
   } catch (error) {
@@ -83,7 +82,6 @@ const onSubmit = async (data: FormData) => {
     alert("Failed to create relationship");
   }
 };
-
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

@@ -27,6 +27,7 @@ import { sortGradeClasses } from "../../app/scheduleUtils/utils";
 import { subjectColors } from "../../app/scheduleUtils/colors";
 import { toast } from "react-toastify";
 
+
 const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 
 export default function ScheduleTables() {
@@ -92,18 +93,12 @@ const handleSubmit = async (gradeClassId: string) => {
       if (!entry.subjectId) {
         throw new Error(`Invalid subjectId for ${entry.subjectName}`);
       }
-      if(!entry.startTime || !entry.endTime){
-        throw new Error(`invalid start time or endtim`)
+      if (!entry.startTime || !entry.endTime) {
+        throw new Error(`Invalid start time or end time`);
       }
-console.log(entry.day,
-        entry.startTime,
-        entry.endTime,
-        entry.subjectId,
-        entry.gradeClassId,
-        entry.teacherId,
-        entry.year);
 
-      await upsertSchedule(
+      // Call the upsertSchedule function
+      const response = await upsertSchedule(
         entry.day,
         entry.startTime,
         entry.endTime,
@@ -112,11 +107,28 @@ console.log(entry.day,
         entry.teacherId,
         entry.year
       );
+
+      // Check if the response contains an error
+      if (response.error) {
+        // Display the backend error message in the toast
+        if (response.details) {
+          const { teacherName, gradeLevel, className, day, period } = response.details;
+          toast.error(
+            `Teacher ${teacherName} already has a class in ${gradeLevel} ${className} on ${day} during ${period}`
+          );
+        } else {
+          toast.error(response.error);
+        }
+        return; // Stop further processing
+      }
     }
 
+    // If everything is successful, show a success toast
     toast.success("Schedule updated successfully!");
   } catch (error) {
-    toast.error("Failed to submit schedule:");
+    // Handle any unexpected errors
+    console.error("Failed to submit schedule:", error);
+    toast.error("Failed to submit schedule");
   }
 };
 useEffect(() => {

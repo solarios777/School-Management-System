@@ -82,7 +82,7 @@ model Student {
   rank        Rank[]
   parentId    String? 
   firstLogin  Boolean @default(true)         // Optional parent ID
-  parent      Parent?         @relation(fields: [parentId], references: [id]) 
+  parents     StudentParent[] // Many-to-many relationship with Parent
 }
 
 model Teacher {
@@ -134,7 +134,17 @@ model Parent {
   role      UserRole @default(PARENT)
   birthday  DateTime?
   firstLogin Boolean @default(true) 
-  students  Student[]
+  students    StudentParent[] // Many-to-many relationship with Student
+}
+
+model StudentParent {
+  id        String      @id @default(cuid())
+  studentId String
+  parentId  String
+  student   Student @relation(fields: [studentId], references: [id])
+  parent    Parent  @relation(fields: [parentId], references: [id])
+
+  @@unique([studentId, parentId,id]) // Composite primary key
 }
 model Subject {
   id       String    @id @default(cuid())
@@ -216,12 +226,23 @@ model Announcement {
   id          String      @id @default(cuid())
   title       String
   description String
-  date        DateTime
+  date        DateTime    @default(now())
 
-  classId String?
+  // Optional: If the announcement is for specific grades or sections
+  gradeIds    String[]    @default([]) // Array of grade IDs
+  classIds    String[]    @default([]) // Array of class IDs
+
+  // Optional: If the announcement is for the whole school
+  isForWholeSchool Boolean @default(false)
+
+  // Optional: If the announcement is for teachers or parents
+  isForTeachers Boolean @default(false)
+  isForParents  Boolean @default(false)
+
+  // Relations
   class   Class? @relation(fields: [classId], references: [id])
+  classId String?
 }
-
 
 model Attendance {
   id       String   @id @default(cuid())

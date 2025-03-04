@@ -23,24 +23,23 @@ export const RemoveParentRelationshipDialog = ({ parentId }: { parentId: string 
   };
 
   const handleRemoveRelationship = async () => {
-    if (!selectedStudentId) {
-      alert('Please select a student');
-      return;
-    }
+  if (!selectedStudentId) {
+    alert('Please select a student');
+    return;
+  }
 
-    setLoading(true);
-    try {
-      await removeParentRelationship(selectedStudentId);
-      alert('Relationship removed successfully');
-      setOpen(false);
-    } catch (error) {
-      console.error('Error removing relationship:', error);
-      alert('Failed to remove relationship');
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  setLoading(true);
+  try {
+    await removeParentRelationship(selectedStudentId, parentId); // Pass studentId and parentId
+    alert('Relationship removed successfully');
+    setOpen(false);
+  } catch (error) {
+    console.error('Error removing relationship:', error);
+    alert('Failed to remove relationship');
+  } finally {
+    setLoading(false);
+  }
+};
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>

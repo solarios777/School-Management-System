@@ -4,25 +4,29 @@ import prisma from '@/lib/prisma';
 
 export async function POST(request: Request) {
   try {
-    const { studentId } = await request.json();
+    const { studentId, parentId } = await request.json();
 
     // Validate input
-    if (!studentId) {
+    if (!studentId || !parentId) {
       return NextResponse.json(
-        { error: 'Student ID is required' },
+        { error: 'Student ID and parent ID are required' },
         { status: 400 }
       );
     }
 
-    // Remove the parent relationship by setting parentId to null
-    const updatedStudent = await prisma.student.update({
-      where: { id: studentId },
-      data: { parentId: null },
+    // Remove the relationship
+    const deletedRelationship = await prisma.studentParent.delete({
+      where: {
+        studentId_parentId: {
+          studentId,
+          parentId,
+        },
+      },
     });
 
     return NextResponse.json({
       message: 'Parent relationship removed successfully',
-      student: updatedStudent,
+      relationship: deletedRelationship,
     });
   } catch (error) {
     console.error('Error removing parent relationship:', error);
