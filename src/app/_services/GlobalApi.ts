@@ -255,5 +255,31 @@ export const calculateRank = async (year: string, semester: number) => {
   }
 };
 
+export const fetchStudentsforParent = async (query: string, field: "name" | "username") => {
+  try {
+    const response = await axiosInstance.get(`/studentforParent?query=${query}&field=${field}`);
+    const data = await response.data;
+    return data;
+  } catch (error) {
+    console.error("Error fetching students:", error);
+    return [];
+  }
+};
+
+// Update parent relationship
+export const updateParentRelationship = async (studentName: string, studentUsername: string, parentId: string) => {
+  try {
+    const response = await axiosInstance.post('/createStudentParent', {
+      studentName,
+      studentUsername,
+      parentId,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error updating parent relationship:', error);
+    throw error;
+  }
+};
+
 
 export default axiosInstance;
