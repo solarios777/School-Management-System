@@ -50,7 +50,7 @@ const SingleParentPage = async ({
                 </h1>
                 <div className="rounded-md bg-black px-2 py-1 cursor-pointer" >
                 {role === "admin" && (
-                  <FormContainer  table="student" type="update" data={parent}/>
+                  <FormContainer  table="parent" type="update" data={parent}/>
                 )}
                 </div>
               </div>

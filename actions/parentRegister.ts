@@ -94,3 +94,57 @@ export const createParent = async (
     };
   }
 };
+
+
+export const updateParent = async (
+  currentState: CurrentState,
+  
+  data: Partial<ParentSchema>
+): Promise<{ success: boolean; error: boolean; message: string }> => {
+  try {
+    // Check if the teacher exists
+    const existingParent = await prisma.parent.findUnique({
+      where: { id: data.id },
+    });
+
+    if (!existingParent) {
+      return {
+        success: false,
+        error: true,
+        message: "Parent not found.",
+      };
+    }
+
+    // Update the teacher data except the password
+    await prisma.parent.update({
+      where: { id: data.id },
+      data: {
+        // username: data.username || existingParent.username,
+        name: data.name || existingParent.name,
+        surname: data.surname || existingParent.surname,
+        email: data.email || existingParent.email,
+        phone: data.phone || existingParent.phone,
+        address: data.address || existingParent.address,
+        img: data.img || existingParent.img,
+        bloodType: data.bloodType || existingParent.bloodType,
+        birthday: data.birthday || existingParent.birthday,
+        sex: data.sex || existingParent.sex,
+        role: data.role || existingParent.role,
+      },
+    });
+
+    return {
+      success: true,
+      error: false,
+      message: "Parent updated successfully.",
+    };
+  } catch (err) {
+    console.error("Error while updating Parent:", err);
+
+    return {
+      success: false,
+      error: true,
+      message: "An unexpected error occurred.",
+    };
+  }
+};
