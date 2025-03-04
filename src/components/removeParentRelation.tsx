@@ -4,11 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { useState } from "react";
-import { fetchStudentsByParentId, removeParentRelationship } from "@/lib/api";
+import { fetchStudentsByParentId, removeParentRelationship } from "@/app/_services/GlobalApi";
 
 export const RemoveParentRelationshipDialog = ({ parentId }: { parentId: string }) => {
   const [open, setOpen] = useState(false);
-  const [students, setStudents] = useState<{ id: string; name: string; username: string }[]>([]);
+  const [students, setStudents] = useState<{ id: string; name: string; username: string,surname:string }[]>([]);
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -67,7 +67,7 @@ export const RemoveParentRelationshipDialog = ({ parentId }: { parentId: string 
               <SelectContent>
                 {students.map((student) => (
                   <SelectItem key={student.id} value={student.id}>
-                    {student.name} ({student.username})
+                    {student.name} {student.surname}({student.username})
                   </SelectItem>
                 ))}
               </SelectContent>

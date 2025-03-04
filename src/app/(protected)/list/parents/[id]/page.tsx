@@ -8,6 +8,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import FormContainer from "@/components/FormContainer";
 import { CreateStudentParentRelationshipDialog } from "@/components/StudentParentRelation";
+import { RemoveParentRelationshipDialog } from "@/components/removeParentRelation";
 
 const SingleParentPage = async ({
   params: { id },
@@ -153,6 +154,8 @@ const SingleParentPage = async ({
 
         {/* Add the Create Relationship Dialog */}
         <CreateStudentParentRelationshipDialog parentId={parent.id} />
+
+      <RemoveParentRelationshipDialog parentId={parent.id} />
         <Performance />
         <Announcements />
       </div>

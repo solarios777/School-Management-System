@@ -257,7 +257,7 @@ export const calculateRank = async (year: string, semester: number) => {
 
 export const fetchStudentsforParent = async (query: string, field: "name" | "username") => {
   try {
-    const response = await axiosInstance.get(`/studentforParent?query=${query}&field=${field}`);
+    const response = await axiosInstance.get(`/parentStudentRelation/studentforParent?query=${query}&field=${field}`);
     const data = await response.data;
     return data;
   } catch (error) {
@@ -269,7 +269,7 @@ export const fetchStudentsforParent = async (query: string, field: "name" | "use
 // Update parent relationship
 export const updateParentRelationship = async (studentName: string, studentUsername: string, parentId: string) => {
   try {
-    const response = await axiosInstance.post('/createStudentParent', {
+    const response = await axiosInstance.post('/parentStudentRelation/createStudentParent', {
       studentName,
       studentUsername,
       parentId,
@@ -277,6 +277,32 @@ export const updateParentRelationship = async (studentName: string, studentUsern
     return response.data;
   } catch (error) {
     console.error('Error updating parent relationship:', error);
+    throw error;
+  }
+};
+
+// Fetch students by parent ID
+export const fetchStudentsByParentId = async (parentId: string) => {
+  try {
+    const response = await axiosInstance.get('/parentStudentRelation/StudentByParentId', {
+      params: { parentId },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching students by parent ID:', error);
+    return [];
+  }
+};
+
+// Remove parent relationship
+export const removeParentRelationship = async (studentId: string) => {
+  try {
+    const response = await axiosInstance.post('/parentStudentRelation/removeRelation', {
+      studentId,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error removing parent relationship:', error);
     throw error;
   }
 };
