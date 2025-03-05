@@ -38,7 +38,7 @@ export const RemoveParentRelationshipDialog = ({ parentId }: { parentId: string 
     alert('Failed to remove relationship');
   } finally {
     setLoading(false);
-  }
+  } 
 };
   return (
     <Dialog open={open} onOpenChange={setOpen}>

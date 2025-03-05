@@ -8,6 +8,7 @@ import { ScrollArea } from "../ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "react-toastify";
+import { createAnnouncement } from "@/app/_services/announcement";
 
 type Grade = { id: string; level: number };
 type Class = { id: string; name: string };
@@ -87,18 +88,7 @@ const AnnouncementPage: React.FC<Props> = ({ grades, classes }) => {
     };
 
     try {
-      const response = await fetch("/api/announcements", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(announcementData),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to create announcement.");
-      }
-
+      const response = await createAnnouncement(announcementData);
       toast.success("Announcement created successfully!");
       setShowDialog(false);
       setTitle("");
@@ -111,7 +101,7 @@ const AnnouncementPage: React.FC<Props> = ({ grades, classes }) => {
     } catch (error) {
       toast.error("Failed to create announcement. Please try again.");
     }
-  };
+  }
 
   return (
     <div className="p-6">
@@ -154,7 +144,7 @@ const AnnouncementPage: React.FC<Props> = ({ grades, classes }) => {
                   onCheckedChange={() => setIsForTeachers(!isForTeachers)}
                 />
                 <label htmlFor="teachers" className="text-sm">
-                  Announcement only for teachers
+                  Announcement for teachers
                 </label>
               </div>
 
@@ -165,7 +155,7 @@ const AnnouncementPage: React.FC<Props> = ({ grades, classes }) => {
                   onCheckedChange={() => setIsForParents(!isForParents)}
                 />
                 <label htmlFor="parents" className="text-sm">
-                  Announcement only for parents
+                  Announcement for parents
                 </label>
               </div>
             </div>

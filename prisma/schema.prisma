@@ -144,7 +144,7 @@ model StudentParent {
   student   Student @relation(fields: [studentId], references: [id])
   parent    Parent  @relation(fields: [parentId], references: [id])
 
-  @@unique([studentId, parentId,id]) // Composite primary key
+  @@unique([studentId, parentId]) // Composite unique constraint on studentId and parentId only
 }
 model Subject {
   id       String    @id @default(cuid())
@@ -227,19 +227,11 @@ model Announcement {
   title       String
   description String
   date        DateTime    @default(now())
-
-  // Optional: If the announcement is for specific grades or sections
-  gradeIds    String[]    @default([]) // Array of grade IDs
-  classIds    String[]    @default([]) // Array of class IDs
-
-  // Optional: If the announcement is for the whole school
+  gradeIds    String[]    @default([]) 
+  classIds    String[]    @default([])
   isForWholeSchool Boolean @default(false)
-
-  // Optional: If the announcement is for teachers or parents
   isForTeachers Boolean @default(false)
   isForParents  Boolean @default(false)
-
-  // Relations
   class   Class? @relation(fields: [classId], references: [id])
   classId String?
 }

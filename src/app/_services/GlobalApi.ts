@@ -254,7 +254,7 @@ export const calculateRank = async (year: string, semester: number) => {
     throw error;
   }
 };
-
+ 
 
 // Fetch students for parent (search by name or username)
 export const fetchStudentsforParent = async (query: string, field: 'name' | 'username') => {
