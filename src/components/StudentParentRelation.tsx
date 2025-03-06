@@ -8,6 +8,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { fetchStudentsforParent, updateParentRelationship } from "@/app/_services/GlobalApi";
+import { useRouter } from "next/navigation";
+
 
 const schema = z.object({
   studentName: z.string().min(1, "Student name is required"),
@@ -25,7 +27,8 @@ export const CreateStudentParentRelationshipDialog = ({ parentId }: { parentId: 
   const [studentsByName, setStudentsByName] = useState<{ id: string; name: string; username: string }[]>([]);
   const [studentsByUsername, setStudentsByUsername] = useState<{ id: string; name: string; username: string }[]>([]);
   const [selectedStudent, setSelectedStudent] = useState<{ id: string; name: string; username: string } | null>(null);
-
+ 
+  const router=useRouter()
   const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm<FormData>({
     resolver: zodResolver(schema),
   });
@@ -34,7 +37,7 @@ export const CreateStudentParentRelationshipDialog = ({ parentId }: { parentId: 
   const studentUsername = watch("studentUsername");
 
   const handleSearchByName = async (query: string) => {
-    if (query.length >= 3) {
+    if (query.length >= 2) {
       const data = await fetchStudentsforParent(query, "name");
       setStudentsByName(data);
     } else {
@@ -43,7 +46,7 @@ export const CreateStudentParentRelationshipDialog = ({ parentId }: { parentId: 
   };
 
   const handleSearchByUsername = async (query: string) => {
-    if (query.length >= 3) {
+    if (query.length >= 2) {
       const data = await fetchStudentsforParent(query, "username");
       setStudentsByUsername(data);
     } else {
@@ -73,10 +76,9 @@ const onSubmit = async (data: FormData) => {
       selectedStudent.id, // Pass studentId
       parentId // Pass parentId
     );
-
-    console.log("Parent relationship created:", response);
     alert("Relationship created successfully!");
     setOpen(false);
+    router.refresh()
   } catch (error) {
     console.error("Error creating relationship:", error);
     alert("Failed to create relationship");

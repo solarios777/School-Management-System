@@ -45,7 +45,7 @@ export const routeAccessMap = {
   "/list/resultDashboard": ["admin", "teacher"],
   "/list/addResults": ["admin", "teacher"],
   "/list/viewResults": ["admin", "teacher"],
-  "/list/singleStudentResult": ["admin", "teacher"],
+  "/list/singleStudentResult": ["admin", "teacher","student","parent"],
   "/list/changePassword": ["admin", "teacher", "student", "parent"],
   "/settings/preferences": ["admin", "teacher", "student", "parent"],
   "/logout": ["admin", "teacher", "student", "parent"],

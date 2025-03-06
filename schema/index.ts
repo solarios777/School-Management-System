@@ -141,9 +141,6 @@ export const changePasswordSchema = z.object({
 })
 export type ChangePasswordSchema = z.infer<typeof changePasswordSchema >;
 
-
-const currentYear = new Date().getFullYear();
-
 export const superviserSchema = z.object({
   id: z.string().optional(),
   teachername: z
@@ -152,10 +149,8 @@ export const superviserSchema = z.object({
   grade: z.coerce.string().min(1, { message: "Grade is required!" }),
   classname: z.coerce.string().min(1, { message: "Section is required!" }),
   year: z.coerce
-    .number()
-    .int({ message: "Year must be an integer!" })
-    .min(currentYear, { message: `Year must be ${currentYear}!` })
-    .max(currentYear, { message: `Year must be ${currentYear}!` }),
+    .string()
+    .min(3, { message: "Year is required!" }),
 });
 
 export type SuperviserSchema = z.infer<typeof superviserSchema >;

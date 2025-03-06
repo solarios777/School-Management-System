@@ -12,52 +12,13 @@ const Menu = () => {
     {
       title: "MENU",
       items: [
-        {
-          label: "Register",
-          href: "/list/register",
-          visible: ["admin"],
-        },
+        
         {
           label: "Home",
           href: `/${role}`,
           visible: ["admin", "teacher", "student", "parent"],
         },
-        {
-          label: "Dashboard",
-          href: `/list/AttendanceStat`,
-          visible: ["admin", "teacher"],
-        },
-        {
-          label: "Result Dashboard",
-          href: `/list/resultDashboard`,
-          visible: ["admin", "teacher"],
-        },
-        {
-          label: "Add Result",
-          href: `/list/addResults`,
-          visible: ["admin", "teacher"],
-        },
-        {
-          label: "View Result",
-          href: `/list/viewResults`,
-          visible: ["admin", "teacher"],
-        },
-        {
-          label: "Student Result",
-          href: `/list/singleStudentResult`,
-          visible: ["admin", "teacher"],
-        },
-        {
-          label: "Schedule",
-          href: `/list/schedule`,
-          visible: ["admin", "teacher"],
-        },
-        {
-          label: "Tasks",
-          href: `/list/tasks`,
-          visible: ["admin", "teacher"],
-        },
-        {
+         {
           label: "Teachers",
           href: "/list/teachers",
           visible: ["admin", "teacher"],
@@ -88,39 +49,66 @@ const Menu = () => {
           visible: ["admin", "teacher"],
         },
         {
-          label: "Lessons",
-          href: "/list/lessons",
-          visible: ["admin", "teacher", "student", "parent"],
+          label: "Dashboard",
+          href: `/list/AttendanceStat`,
+          visible: ["admin", "teacher"],
         },
         {
-          label: "Exams",
-          href: "/list/exams",
-          visible: ["admin", "teacher", "student", "parent"],
+          label: "Result Dashboard",
+          href: `/list/resultDashboard`,
+          visible: ["admin", "teacher"],
+        },
+       
+        {
+          label: "View Result",
+          href: `/list/viewResults`,
+          visible: ["admin", "teacher"],
         },
         {
-          label: "Assignments",
-          href: "/list/assignments",
-          visible: ["admin", "teacher", "student", "parent"],
+          label: "Tasks",
+          href: `/list/tasks`,
+          visible: ["admin", "teacher"],
         },
         {
-          label: "Results",
-          href: "/list/results",
-          visible: ["admin", "teacher", "student", "parent"],
+          label: "Schedule",
+          href: `/list/schedule`,
+          visible: ["admin", "teacher"],
         },
-        {
-          label: "Events",
-          href: "/list/event",
-          visible: ["admin", "teacher", "student", "parent"],
-        },
-        {
-          label: "Messages",
-          href: "/list/messages",
-          visible: ["admin", "teacher", "student", "parent"],
-        },
+      
+        // {
+        //   label: "Lessons",
+        //   href: "/list/lessons",
+        //   visible: ["admin", "teacher", "student", "parent"],
+        // },
+        // {
+        //   label: "Exams",
+        //   href: "/list/exams",
+        //   visible: ["admin", "teacher", "student", "parent"],
+        // },
+        // {
+        //   label: "Assignments",
+        //   href: "/list/assignments",
+        //   visible: ["admin", "teacher", "student", "parent"],
+        // },
+        // {
+        //   label: "Results",
+        //   href: "/list/results",
+        //   visible: ["admin", "teacher"],
+        // },
+        // {
+        //   label: "Events",
+        //   href: "/list/event",
+        //   visible: ["admin", "teacher", "student", "parent"],
+        // },
+        // {
+        //   label: "Messages",
+        //   href: "/list/messages",
+        //   visible: ["admin", "teacher", "student", "parent"],
+        // },
         {
           label: "Announcements",
           href: "/list/announcements",
-          visible: ["admin", "teacher", "student", "parent"],
+          visible: ["admin"],
         },
       ],
     },
@@ -148,11 +136,7 @@ const Menu = () => {
             },
           ],
         },
-        {
-          label: "Logout",
-          href: "/logout",
-          visible: ["admin", "teacher", "student", "parent"],
-        },
+        
       ],
     },
   ];

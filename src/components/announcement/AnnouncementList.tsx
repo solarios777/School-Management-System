@@ -217,7 +217,11 @@ const AnnouncementList: React.FC<Props> = ({ grades, classes }) => {
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <h3 className="font-bold cursor-pointer">{announcement.title}</h3>
+                      <h3 className="font-bold cursor-pointer"  style={{
+                  whiteSpace: "normal", // Ensure text wraps
+                  wordBreak: "break-word", // Break long words
+                  overflowWrap: "break-word", // Ensure words break properly
+                }}>{announcement.title}</h3>
                     </TooltipTrigger>
                     <TooltipContent>
                       <p>Announced for: {getAnnouncementTarget(announcement)}</p>
@@ -261,7 +265,11 @@ const AnnouncementList: React.FC<Props> = ({ grades, classes }) => {
                   </Dialog>
                 </div>
               </div>
-              <p className="text-sm">{announcement.description}</p>
+              <p className="text-sm"  style={{
+                  whiteSpace: "normal", // Ensure text wraps
+                  wordBreak: "break-word", // Break long words
+                  overflowWrap: "break-word", // Ensure words break properly
+                }}>{announcement.description}</p>
               <p className="text-xs text-gray-500">
                 {new Date(announcement.date).toLocaleString()}
               </p>

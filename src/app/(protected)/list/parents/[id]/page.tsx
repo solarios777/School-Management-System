@@ -18,15 +18,49 @@ const SingleParentPage = async ({
   const user = await currentUser();
   const role = user?.role.toLowerCase();
 
-  // Retrieve student data
+  // Retrieve parent data
   const parent = await prisma.parent.findUnique({
     where: { id },
-    
+    include: {
+      students: {
+        include: {
+          student: {
+            include: {
+              enrollments: {
+                include: {
+                  gradeClass: {
+                    include: {
+                      grade: true, // Include grade level
+                      class: true, // Include class (section)
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
   });
 
   if (!parent) {
     return notFound();
   }
+
+  // Extract students with their grade and section
+  const students = parent.students.map((sp) => {
+    const student = sp.student;
+    const enrollment = student.enrollments[0]; // Assuming each student has at least one enrollment
+    const gradeClass = enrollment?.gradeClass;
+    const grade = gradeClass?.grade || { level: "N/A" }; // Grade level (default to "N/A" if not found)
+    const section = gradeClass?.class || { name: "N/A" }; // Class (section) (default to "N/A" if not found)
+
+    return {
+      ...student,
+      grade,
+      section,
+    };
+  });
 
   return (
     <div className="flex-1 p-4 flex flex-col gap-4 xl:flex-row">
@@ -45,15 +79,15 @@ const SingleParentPage = async ({
                 className="w-36 h-36 rounded-full object-cover"
               />
             </div>
-           <div className="w-2/3 flex flex-col justify-between gap-4">
+            <div className="w-2/3 flex flex-col justify-between gap-4">
               <div className="flex items-center gap-4">
                 <h1 className="text-xl font-semibold">
                   {parent.name + " " + parent.surname}
                 </h1>
-                <div className="rounded-md bg-black px-2 py-1 cursor-pointer" >
-                {role === "admin" && (
-                  <FormContainer  table="parent" type="update" data={parent}/>
-                )}
+                <div className="rounded-md bg-black px-2 py-1 cursor-pointer">
+                  {role === "admin" && (
+                    <FormContainer table="parent" type="update" data={parent} />
+                  )}
                 </div>
               </div>
               <p className="text-sm text-gray-500">
@@ -68,9 +102,7 @@ const SingleParentPage = async ({
                   <Image src="/date.png" alt="Birthday" width={14} height={14} />
                   <span>
                     {parent.birthday
-                      ? new Intl.DateTimeFormat("en-GB").format(
-                          parent.birthday
-                        )
+                      ? new Intl.DateTimeFormat("en-GB").format(parent.birthday)
                       : "N/A"}
                   </span>
                 </div>
@@ -85,77 +117,39 @@ const SingleParentPage = async ({
               </div>
             </div>
           </div>
-
-          {/* SMALL CARDS */}
-          
-          <div className="flex-1 flex gap-4 justify-between flex-wrap">
-  {/* Grade Card */}
-  <div className="bg-white p-4 rounded-md flex gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
-    <Image
-      src="/singleClass.png" // Update the icon if necessary
-      alt="Student Grade"
-      width={24}
-      height={24}
-      className="w-6 h-6"
-    />
-    <div>
-      <h1 className="text-xl font-semibold">
-        {/* {parent.enrollments[0]?.gradeClass?.grade?.level || "N/A"} */}
-      </h1>
-      <span className="text-sm text-gray-400">Grade</span>
-    </div>
-  </div>
-
-  {/* Class Card */}
-  <div className="bg-white p-4 rounded-md flex gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
-    <Image
-      src="/singleClass.png" // Update the icon if necessary
-      alt="Student Class"
-      width={24}
-      height={24}
-      className="w-6 h-6"
-    />
-    <div>
-      <h1 className="text-xl font-semibold">
-        {/* {student.enrollments[0]?.gradeClass?.class?.name || "N/A"} */}
-      </h1>
-      <span className="text-sm text-gray-400">Section</span>
-    </div>
-  </div>
-</div>
-
         </div>
+
         {/* BOTTOM */}
-        <div className="mt-4 bg-white rounded-md p-4 h-[800px]">
-          <h1>Student&apos;s Schedule</h1>
-          {/* Schedule could go here */}
-          {/* <BigCalendar type="studentId" id={student.id} /> */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4 bg-white rounded-md p-4">
+          {students.map((student) => (
+            <div
+              key={student.id}
+              className="rounded-2xl odd:bg-lamaPurple even:bg-lamaYellow p-4 flex-1 min-w-[130px]"
+            >
+              <div className="flex justify-between items-center">
+                {/* You can add additional icons or buttons here if needed */}
+              </div>
+              <Link href={`/list/students/${student.id}`}>
+                <h3 className="text-md md:text-lg lg:text-xl font-semibold my-4">
+                  {student.name} {student.surname}
+                </h3>
+              </Link>
+              <h3 className="capitalize text-sm font-medium text-gray-500">
+                Grade: {student.grade.level} {student.section.name}
+              </h3>
+            </div>
+          ))}
         </div>
       </div>
+
       {/* RIGHT */}
       <div className="w-full xl:w-1/3 flex flex-col gap-4">
-        <div className="bg-white p-4 rounded-md">
-          <h1 className="text-xl font-semibold">Shortcuts</h1>
-          <div className="mt-4 flex gap-4 flex-wrap text-xs text-gray-500">
-            <Link
-              className="p-3 rounded-md bg-lamaSkyLight"
-              href={`/list/classes?studentId=${parent.id}`}
-            >
-              Student&apos;s Classes
-            </Link>
-            <Link
-              className="p-3 rounded-md bg-lamaPurpleLight"
-              href={`/list/assignments?studentId=${parent.id}`}
-            >
-              Student&apos;s Assignments
-            </Link>
-          </div>
-        </div>
-
-        {/* Add the Create Relationship Dialog */}
-        <CreateStudentParentRelationshipDialog parentId={parent.id} />
-
-      <RemoveParentRelationshipDialog parentId={parent.id} />
+        {role === "admin" && (
+          <>
+            <CreateStudentParentRelationshipDialog parentId={parent.id} />
+            <RemoveParentRelationshipDialog parentId={parent.id} />
+          </>
+        )}
         <Performance />
         <Announcements />
       </div>

@@ -7,7 +7,7 @@ export async function GET(request: Request) {
   const query = searchParams.get('query');
   const field = searchParams.get('field');
 
-  if (!query || query.length < 3 || !field) {
+  if (!query || query.length < 2 || !field) {
     return NextResponse.json([]);
   }
 

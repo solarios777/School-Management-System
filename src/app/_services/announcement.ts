@@ -84,4 +84,14 @@ export const updateAnnouncement = async (id: string, data: any) => {
     throw error;
   }
 };
+
+export const viewAll = async () => {
+  try {
+    const response = await axiosInstance.get('/announcement/viewAll'); // Adjust the endpoint
+    return response.data.announcements;
+  } catch (error) {
+    console.error('Error fetching announcements:', error);
+    throw error;
+  }
+};
 export default axiosInstance;

@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "react-toastify";
 import { createAnnouncement } from "@/app/_services/announcement";
+import { useRouter } from "next/navigation";
 
 type Grade = { id: string; level: number };
 type Class = { id: string; name: string };
@@ -28,7 +29,7 @@ const AnnouncementPage: React.FC<Props> = ({ grades, classes }) => {
   const [selectedSections, setSelectedSections] = useState<{ [key: string]: string[] }>({});
   const [selectAllSections, setSelectAllSections] = useState<{ [key: string]: boolean }>({});
   const [showDialog, setShowDialog] = useState(false);
-
+const router=useRouter();
   // Sorting data
   const sortedGrades = [...grades].sort((a, b) => a.level - b.level);
   const sortedClasses = [...classes].sort((a, b) => a.name.localeCompare(b.name));
@@ -91,6 +92,8 @@ const AnnouncementPage: React.FC<Props> = ({ grades, classes }) => {
       const response = await createAnnouncement(announcementData);
       toast.success("Announcement created successfully!");
       setShowDialog(false);
+      
+  router.refresh();
       setTitle("");
       setDescription("");
       setIsForWholeSchool(false);
