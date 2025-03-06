@@ -9,6 +9,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import TeacherScheduleTable from "@/components/tasks/TeacherScheduleTable";
+import TeacherClassesDialog from "@/components/TeacherClassesDialog";
 
 const SingleTeacherPage = async ({
   params: { id },
@@ -21,7 +22,9 @@ const SingleTeacherPage = async ({
   const teacher = await prisma.teacher.findUnique({
     where: { id },
     include: {
-      assignments: true,
+      assignments: {
+        include: { gradeClass: { include: { class: true, grade: true } } },
+      },
       superviser: {
         include: { gradeClass: { include: { class: true, grade: true } } },
       },
@@ -38,6 +41,7 @@ const SingleTeacherPage = async ({
   if (!teacher) {
     return notFound();
   }
+  
 
   return (
     <div className="flex-1 p-4 flex flex-col gap-4 xl:flex-row">
@@ -170,21 +174,7 @@ const SingleTeacherPage = async ({
               </div>
             </div>
 
-            <div className="bg-white p-4 rounded-md flex gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
-              <Image
-                src="/singleClass.png"
-                alt="Classes"
-                width={24}
-                height={24}
-                className="w-6 h-6"
-              />
-              <div>
-                <h1 className="text-xl font-semibold">
-                  {/* {teacher._count.GradeClass} */}
-                </h1>
-                <span className="text-sm text-gray-400">Classes</span>
-              </div>
-            </div>
+            
           </div>
         </div>
         {/* BOTTOM */}
@@ -198,36 +188,8 @@ const SingleTeacherPage = async ({
         <div className="bg-white p-4 rounded-md">
           <h1 className="text-xl font-semibold">Shortcuts</h1>
           <div className="mt-4 flex gap-4 flex-wrap text-xs text-gray-500">
-            <Link
-              className="p-3 rounded-md bg-lamaSkyLight"
-              href={`/list/classes?supervisorId=${teacher.id}`}
-            >
-              Teacher&apos;s Classes
-            </Link>
-            {/* <Link
-              className="p-3 rounded-md bg-lamaPurpleLight"
-              href={`/list/students?teacherId=${teacher.id}`}
-            >
-              Teacher&apos;s Students
-            </Link> */}
-            {/* <Link
-              className="p-3 rounded-md bg-lamaYellowLight"
-              href={`/list/lessons?teacherId=${teacher.id}`}
-            >
-              Teacher&apos;s Lessons
-            </Link> */}
-            {/* <Link
-              className="p-3 rounded-md bg-pink-50"
-              href={`/list/exams?teacherId=${teacher.id}`}
-            >
-              Teacher&apos;s Exams
-            </Link> */}
-            {/* <Link
-              className="p-3 rounded-md bg-lamaSkyLight"
-              href={`/list/assignments?teacherId=${teacher.id}`}
-            >
-              Teacher&apos;s Assignments
-            </Link> */}
+            <TeacherClassesDialog assignments={teacher.assignments} />
+           
           </div>
         </div>
         <Performance />

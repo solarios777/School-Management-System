@@ -146,8 +146,8 @@ const OtherAnnouncements = async () => {
             </span>
           </div>
           <p className="text-sm text-gray-400 mt-1">
-            {announcement.description.length > 50
-              ? `${announcement.description.substring(0, 50)}...`
+            {announcement.description.length > 30
+              ? `${announcement.description.substring(0, 30)}...`
               : announcement.description}
           </p>
         </div>

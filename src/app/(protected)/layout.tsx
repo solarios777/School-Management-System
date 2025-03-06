@@ -5,6 +5,7 @@ import Link from "next/link";
 import { SessionProvider } from "next-auth/react";
 import { auth } from "../../../auth";
 import { currentUser } from "@/lib/auth";
+import Footer from "@/components/footer";
 
 export default async function DashboardLayout({
   children,
@@ -15,7 +16,8 @@ export default async function DashboardLayout({
    const user = await currentUser();
  return (
     <SessionProvider session={session}>
-      <div className="h-screen flex">
+      <div className="h-screen flex flex-col">
+        <div className="flex">
         {/* LEFT */}
         <div className="w-[0%] md:w-[8%] lg:w-[12%] xl:w-[12%] p-4 hidden lg:block">
           <Link
@@ -30,8 +32,11 @@ export default async function DashboardLayout({
         <div className="w-[100%] md:w-[92%] lg:w-[88%] xl:w-[88%] bg-[#F7F8FA] overflow-scroll flex flex-col">
          <Navbar user={user} />
          <div className='mt-16'>{children}</div>
+        
           
         </div>
+        </div>
+         <Footer/>
       </div>
     </SessionProvider>
   );
