@@ -48,7 +48,7 @@ const Footer = () => {
 
         {/* Copyright and Year */}
         <div className="text-center text-sm text-gray-900">
-          &copy; {currentYear} Your School Name. All rights reserved.
+          &copy; {currentYear} Meki Catholic School. All rights reserved.
         </div>
       </div>
     </footer>

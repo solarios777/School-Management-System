@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useState, useMemo, useRef, useCallback } from "react";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
@@ -7,8 +6,8 @@ import "ag-grid-community/styles/ag-theme-alpine.css";
 import { useRouter } from "next/navigation";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { teachersDelete, studentsDelete, parentsDelete } from "@/app/_services/deleteApi";
-import { ToastContainer, toast } from "react-toastify";
+import { classDelete } from "@/app/_services/deleteApi";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const AGgrid = ({
@@ -33,47 +32,38 @@ const AGgrid = ({
     return gridRef.current.api.getDisplayedRowCount();
   }, []);
 
-  const deleteFunctions: { [key: string]: (id: string) => Promise<any> } = {
-    teachers: teachersDelete,
-    students: studentsDelete,
-    parents: parentsDelete,
-  };
-
   const handleDeleteClick = (Id: string, event: React.MouseEvent) => {
-    event.stopPropagation();
-    setPendingDelete(Id);
-    setIsDeleteDialogOpen(true);
-  };
+  event.stopPropagation();
+  setPendingDelete(Id);
+  setIsDeleteDialogOpen(true);
+};
 
-  const confirmDelete = () => {
-    if (!pendingDelete) return;
-    setCountdown(5);
 
-    const interval = setInterval(() => {
-      setCountdown((prev) => (prev !== null ? prev - 1 : null));
-    }, 1000);
 
-    const timeout = setTimeout(async () => {
-      clearInterval(interval);
-      const deleteFunction = deleteFunctions[list];
-      if (!deleteFunction) {
-        toast.error("Invalid deletion type!");
-        return;
-      }
-      const res = await deleteFunction(pendingDelete);
-      if (res.success) {
-        toast.success(res.message);
-        router.refresh();
-      } else {
-        toast.error(res.message);
-      }
-      setPendingDelete(null);
-      setCountdown(null);
-      setIsDeleteDialogOpen(false);
-    }, 5000);
+const confirmDelete = async () => {
+  if (!pendingDelete) return;
+  setCountdown(5);
+  const interval = setInterval(() => {
+    setCountdown((prev) => (prev !== null ? prev - 1 : null));
+  }, 1000);
 
-    setDeleteTimeout(timeout);
-  };
+  const timeout = setTimeout(async () => {
+    clearInterval(interval);
+     const data = await classDelete(pendingDelete);
+    if (data.success) {
+      toast.success(data.message);
+      router.refresh();
+    } else {
+      toast.error(data.message);
+    }
+
+    setPendingDelete(null);
+    setCountdown(null);
+    setIsDeleteDialogOpen(false);
+  }, 5000);
+
+  setDeleteTimeout(timeout);
+};
 
   const undoDelete = () => {
     if (deleteTimeout) clearTimeout(deleteTimeout);
@@ -156,7 +146,6 @@ const AGgrid = ({
           </DialogContent>
         </Dialog>
       )}
-      <ToastContainer />
     </div>
   );
 };

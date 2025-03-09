@@ -65,51 +65,53 @@ export default function SingleStudentResult({
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
 
-  useEffect(() => {
-    const fetchResults = async () => {
-      if (!searchParams.studentId) return;
-      try {
-        const data = await fetchStudentResults(searchParams.studentId);
-        setResults(data.results);
-        setGrade(data.grade);
-        setSection(data.section);
-        setStudentName(`${data.name} ${data.surname}`)
-        setStudentUserName(data.username)
+ useEffect(() => {
+  const fetchResults = async () => {
+    if (!searchParams.studentId) return;
+    try {
+      const data = await fetchStudentResults(searchParams.studentId);
+      setResults(data.results);
+      setGrade(data.grade);
+      setSection(data.section);
+      setStudentName(`${data.name} ${data.surname}`);
+      setStudentUserName(data.username);
 
+      // Fetch ranks for each unique semester-year combination
+      const uniqueSemesters = Array.from(
+        new Set(data.results.map((result: Result) => `${result.year}-${result.semester}`)
+      ));
 
-        // Fetch ranks for each semester-year combination
-        const rankPromises = data.results.map(async (result: Result) => {
-          const key = `${result.year}-${result.semester}`;
-          if (!ranks[key]) {
-            // Avoid duplicate requests
-            const rankData = await fetchStudentRank(
-              searchParams.studentId!,
-              result.semester,
-              result.year
-            );
-            return { key, rank: rankData.rank };
-          }
-          return null;
-        });
+      const rankPromises = uniqueSemesters.map(async (key: any) => {
+        const [year, semester] = key.split("-");
+        try {
+          const rankData = await fetchStudentRank(
+            searchParams.studentId!,
+            parseInt(semester),
+            year
+          );
+          return { key, rank: rankData.rank };
+        } catch (error) {
+          console.error(`Failed to fetch rank for ${key}`, error);
+          return { key, rank: null }; // If rank fetch fails, store null for that semester
+        }
+      });
 
-        const resolvedRanks = await Promise.all(rankPromises);
-        const newRanks: Record<string, number | null> = {};
-        resolvedRanks.forEach((item) => {
-          if (item) newRanks[item.key] = item.rank;
-        });
+      const resolvedRanks = await Promise.all(rankPromises);
+      const newRanks: Record<string, number | null> = {};
+      resolvedRanks.forEach((item: { key: string; rank: number | null }) => {
+        if (item) newRanks[item.key] = item.rank;
+      });
 
-        setRanks(newRanks);
-      } catch (error) {
-        console.error("Failed to fetch results or ranks", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+      setRanks(newRanks);
+    } catch (error) {
+      console.error("Failed to fetch results or ranks", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchResults();
-  }, [searchParams.studentId]);
-  
-  
+  fetchResults();
+}, [searchParams.studentId]);
 
   const groupedResults = results.reduce((acc: Record<string, any>, result) => {
     const key = `${result.year}-${result.semester}`;
@@ -312,7 +314,7 @@ export default function SingleStudentResult({
 
       {/* Centered Logo */}
       <div className="flex justify-center items-center my-4">
-        <Image src="/android-chrome-512x512.png" alt="School Logo" width={120} height={120} />
+        <Image src="/mcslogo.jpg" alt="School Logo" width={120} height={120} />
       </div>
 
       {/* Student Information */}

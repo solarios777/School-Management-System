@@ -326,7 +326,7 @@ model Result {
   updatedByTeacher  Teacher? @relation(name: "UpdatedByTeacher", fields: [updatedByTeacherId], references: [id])
   updatedByAdmin    Admin?   @relation(name: "UpdatedByAdmin", fields: [updatedByAdminId], references: [id])
 
-  @@unique([studentId, subjectId, examType, year]) // Prevent duplicate results
+  @@unique([studentId, subjectId, examType, year,semester]) // Prevent duplicate results
 }
 model Rank {
   id         String   @id @default(cuid())

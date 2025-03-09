@@ -39,11 +39,11 @@ const SubjectListPage = async ({
       accessor: "teachers",
       className: "hidden md:table-cell",
     },
-     {
-      header: "classes",
-      accessor: "classes",
-      className: "hidden md:table-cell",
-    },
+    //  {
+    //   header: "classes",
+    //   accessor: "classes",
+    //   className: "hidden md:table-cell",
+    // },
     {
       header: "Actions",
       accessor: "action",
@@ -66,7 +66,7 @@ const SubjectListPage = async ({
       >
         <td className="flex items-center gap-4 p-4">{item.name}</td>
         <td className="hidden md:table-cell">{numberOfTeachers|| "No teachers assigned"}</td>
-        <td className="hidden md:table-cell">{teachers|| "No teachers assigned"}</td>
+        {/* <td className="hidden md:table-cell">{teachers|| "No teachers assigned"}</td> */}
 
         <td>
           <div className="flex items-center gap-2">

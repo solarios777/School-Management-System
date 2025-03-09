@@ -19,29 +19,33 @@ const SingleTeacherPage = async ({
   const user = await currentUser();
   const role = user?.role.toLowerCase();
 
-  const teacher = await prisma.teacher.findUnique({
-    where: { id },
-    include: {
-      assignments: {
-        include: { gradeClass: { include: { class: true, grade: true } } },
-      },
-      superviser: {
-        include: { gradeClass: { include: { class: true, grade: true } } },
-      },
-      _count: {
-        select: {
-          assignments: true,
-          superviser: true,
-          // GradeClass: true,
-        },
+ const teacher = await prisma.teacher.findUnique({
+  where: { id },
+  include: {
+    assignments: {
+      include: {
+        gradeClass: { include: { class: true, grade: true } },
+        subject: true, // Include the subject details
       },
     },
-  });
+    superviser: {
+      include: { gradeClass: { include: { class: true, grade: true } } },
+    },
+    _count: {
+      select: {
+        assignments: true,
+        superviser: true,
+      },
+    },
+  },
+});
 
   if (!teacher) {
     return notFound();
   }
-  
+
+  // Extract unique subjects taught by the teacher
+  const subjects = Array.from(new Set(teacher.assignments.map(assignment => assignment.subject.name)));
 
   return (
     <div className="flex-1 p-4 flex flex-col gap-4 xl:flex-row">
@@ -157,15 +161,16 @@ const SingleTeacherPage = async ({
                 <div className="text-sm text-gray-500">
                   {teacher.superviser.length > 0 ? (
                     teacher.superviser.map((supervision) => (
-                      <div
+                      <Link
                         key={supervision.id}
-                        className="flex items-center gap-2"
+                        href={`/list/classes/${supervision.gradeClass.id}`}
+                        className="flex items-center gap-2 hover:underline"
                       >
                         <span className="text-black">
                           {supervision.gradeClass.grade.level}{" "}
                           {supervision.gradeClass.class.name}
                         </span>
-                      </div>
+                      </Link>
                     ))
                   ) : (
                     <span>No supervisions assigned</span>
@@ -173,8 +178,31 @@ const SingleTeacherPage = async ({
                 </div>
               </div>
             </div>
-
-            
+            {/* New Small Card for Teacher's Subjects */}
+            <div className="bg-white p-4 rounded-md flex gap-4 w-full md:w-[48%] xl:w-[45%] 2xl:w-[48%]">
+              <Image
+                src="/subject.png"
+                alt="Subjects"
+                width={24}
+                height={24}
+                className="w-6 h-6"
+              />
+              <div>
+                <h1 className="text-xl font-bold">
+                <div className="text-sm text-gray-500">
+                  {subjects.length > 0 ? (
+                    subjects.map((subject, index) => (
+                      <span key={index} className="block">
+                        {subject}
+                      </span>
+                    ))
+                  ) : (
+                    <span>No subjects assigned</span>
+                  )}
+                </div>
+                </h1>
+              </div>
+            </div>
           </div>
         </div>
         {/* BOTTOM */}
@@ -189,7 +217,6 @@ const SingleTeacherPage = async ({
           <h1 className="text-xl font-semibold">Shortcuts</h1>
           <div className="mt-4 flex gap-4 flex-wrap text-xs text-gray-500">
             <TeacherClassesDialog assignments={teacher.assignments} />
-           
           </div>
         </div>
         <Performance />

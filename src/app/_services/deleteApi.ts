@@ -31,7 +31,7 @@ export const deleteAssessment = async (
     return response.data;
   } catch (error) {
     console.error("Error deleting assessment:", error);
-    return { success: false, message: "Failed to delete assessment." };
+    return { success: false, message: "Failed to delete  assessment." };
   }
 };
 
@@ -69,4 +69,17 @@ export const parentsDelete  = async (parentId: string) => {
   }
 };
 
+
+export const classDelete = async (classId: string) => {
+  
+  try {
+    const response = await axiosInstance.delete(`/Delete/classDelete`, {
+      data: { classId },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error deleting class:", error);
+    return { success: false, message: "Failed to delete class." };
+  }
+};
 export default axiosInstance;

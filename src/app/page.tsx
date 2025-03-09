@@ -16,11 +16,7 @@ const font = Poppins({
 });
 
 const images = [
-  { 
-    src: '/signin.webp', 
-    text: 'Welcome to MCS!', 
-    description: '📚 1,200 Students | 👩‍🏫 80 Teachers' 
-  },
+  
   { 
     src: '/national.webp', 
     text: 'Honoring Our Nation', 
@@ -54,7 +50,7 @@ const Page = () => {
       {/* Hero Section */}
       <section className="relative w-full h-screen flex items-center justify-center">
         <Image 
-          src="/school.webp" 
+          src="/mcsshool.webp" 
           alt="Hero Background" 
           fill 
           className="object-cover brightness-75"

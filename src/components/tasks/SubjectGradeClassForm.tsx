@@ -7,6 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "../ui/scroll-area";
 import { assignSubjects } from "@/app/_services/scheduleRelated";
 import { set } from "date-fns";
+import { useRouter } from "next/navigation";
 
 
 type Subject = { id: string; name: string };
@@ -31,7 +32,7 @@ const SubjectGradeClassForm: React.FC<Props> = ({ subjects, grades, classes }) =
   const sortedGrades = [...grades].sort((a, b) => a.level - b.level);
   const sortedClasses = [...classes].sort((a, b) => a.name.localeCompare(b.name));
   const sortedSubjects = [...subjects].sort((a, b) => a.name.localeCompare(b.name));
-
+  const router=useRouter();
   const handleSubjectSelection = (subjectId: string) => {
     setSelectedSubjects((prev) =>
       prev.includes(subjectId) ? prev.filter((id) => id !== subjectId) : [...prev, subjectId]
@@ -89,6 +90,10 @@ const SubjectGradeClassForm: React.FC<Props> = ({ subjects, grades, classes }) =
       await assignSubjects(selectedSubjects, selectedSections);
       alert("Subjects assigned successfully!");
       setShowDialog(false);
+      setSelectedSubjects([]);
+      setSelectedSections({});
+      setSelectedGrades([]);
+      setSelectAllSections({})
     } catch (error) {
       alert("Failed to assign subjects. Please try again.");
     }

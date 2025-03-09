@@ -89,7 +89,7 @@ const AnnouncementList: React.FC<Props> = ({ grades, classes }) => {
   };
 
   const handleShowMore = () => {
-    setLimit((prev) => prev + 10); // Increase limit by 10
+    setLimit((prev) => prev + 3); // Increase limit by 10
   };
 
   const handleShowLess = () => {
@@ -217,7 +217,7 @@ const AnnouncementList: React.FC<Props> = ({ grades, classes }) => {
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <h3 className="font-bold cursor-pointer"  style={{
+                      <h3 className="font-bold cursor-pointer text-blue-600"  style={{
                   whiteSpace: "normal", // Ensure text wraps
                   wordBreak: "break-word", // Break long words
                   overflowWrap: "break-word", // Ensure words break properly

@@ -90,10 +90,12 @@ const router=useRouter();
 
     try {
       const response = await createAnnouncement(announcementData);
+      
       toast.success("Announcement created successfully!");
       setShowDialog(false);
+      router.refresh();
       
-  router.refresh();
+ 
       setTitle("");
       setDescription("");
       setIsForWholeSchool(false);

@@ -28,6 +28,10 @@ export async function DELETE(req: NextRequest) {
 
     // Delete related records in a transaction
     await prisma.$transaction([
+      // Delete related StudentParent records
+      prisma.studentParent.deleteMany({ where: { studentId } }),
+
+      // Delete other related records
       prisma.enrollment.deleteMany({ where: { studentId } }),
       prisma.attendance.deleteMany({ where: { studentId } }),
       prisma.result.deleteMany({ where: { studentId } }),

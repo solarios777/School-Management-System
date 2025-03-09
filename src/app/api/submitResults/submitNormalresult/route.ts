@@ -88,6 +88,7 @@ export async function POST(req: NextRequest) {
         if (!enrollment) {
           errors.push(`${student.name} is not enrolled in ${grade.level} ${section.name}`);
           return NextResponse.json({ error: `${student.name} is not enrolled in ${grade.level} ${section.name}` }, { status: 403 });
+
         }
 
         // If role is TEACHER, verify their assignment
@@ -98,6 +99,7 @@ export async function POST(req: NextRequest) {
               gradeClassId: gradeClass.id,
               subjectId,
               year,
+              
             },
           });
 
@@ -108,7 +110,7 @@ export async function POST(req: NextRequest) {
         }
 
         return Promise.all(
-          scores.map(async ({ examType, marks }) => {
+          scores.map(async ({ examType, marks }:any) => {
             const numericMarks = parseFloat(marks) || null;
 
             const existingResult = await prisma.result.findFirst({
@@ -143,6 +145,8 @@ export async function POST(req: NextRequest) {
         );
       })
     );
+
+    
 
     return NextResponse.json({ message: "Results saved successfully." });
   } catch (error) {

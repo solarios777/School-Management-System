@@ -111,35 +111,59 @@ const AttendanceGrid: React.FC<AttendanceListProps> = ({
   };
 
   const handleMarkAllPresent = async () => {
-    if (selectedDay) {
-      try {
-        await Promise.all(
-          rowData.map(async (student) => {
+  if (selectedDay) {
+    try {
+      // Update UI immediately
+      const updatedRowData = rowData.map((student) => {
+        // Find the attendance record for the selected day
+        const attendanceForDay = student.attendance.find(
+          (att) => att.day === selectedDay
+        );
+
+        // If the attendance record exists, update it to "PRESENT"
+        if (attendanceForDay) {
+          attendanceForDay.status = "PRESENT";
+        } else {
+          // If the attendance record doesn't exist, create a new one
+          student.attendance.push({
+            date: moment(selectedMonth).date(selectedDay).format("YYYY-MM-DD"),
+            day: selectedDay,
+            status: "PRESENT",
+          });
+          
+          
+        }
+
+        return student;
+      });
+
+      // Update the state to reflect the changes in the UI
+      setRowData([...updatedRowData]);
+
+      // Update backend for ALL students
+      await Promise.all(
+        updatedRowData.map(async (student) => {
+          try {
             await axiosInstance.patch("/attendance", {
               studentId: student.id,
               date: moment(selectedMonth).date(selectedDay).format("YYYY-MM-DD"),
               status: "PRESENT",
             });
-          })
-        );
-
-        // Update UI after successful update
-        setRowData((prevData) =>
-          prevData.map((student) => {
-            const updatedAttendance = student.attendance.map((att) =>
-              att.day === selectedDay ? { ...att, status: "PRESENT" } : att
+          } catch (error) {
+            console.error(
+              `Failed to update attendance for student ${student.id}:`,
+              error
             );
-            return { ...student, attendance: updatedAttendance };
-          })
-        );
+          }
+        })
+      );
 
-        // Force the grid to update
-        setRowData((prevData) => [...prevData]);
-      } catch (error) {
-        console.error("Failed to update all students to PRESENT:", error);
-      }
+      console.log("All students marked as PRESENT successfully!");
+    } catch (error) {
+      console.error("Failed to update all students to PRESENT:", error);
     }
-  };
+  }
+};
 
   return (
     <>

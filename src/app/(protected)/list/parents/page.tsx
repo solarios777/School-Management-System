@@ -15,7 +15,7 @@ type ParentList = {
   phone?: string;
   address: string;
   img?: string;
-  students: string; // Concatenated student names
+  firstpass?: any;
   action?: JSX.Element;
 };
 
@@ -30,9 +30,9 @@ const ParentListPage = async ({
   const columns = [
     { header: "Name", accessor: "name" },
     { header: "Username", accessor: "username" },
-    { header: "Students", accessor: "students" },
     { header: "Phone", accessor: "phone" },
     { header: "Address", accessor: "address" },
+    { header: "First Pass", accessor: "firstpass" },
   ];
 
   const { search } = searchParams;
@@ -61,7 +61,7 @@ const ParentListPage = async ({
     phone: parent.phone || "N/A",
     address: parent.address || "N/A",
     img: parent.img || "/noAvatar.png",
-    students: parent.students.map((student) => student.name).join(", ") || "N/A",
+    firstpass: parent.firstpass,
   }));
 
   return (
@@ -69,7 +69,7 @@ const ParentListPage = async ({
       <div className="flex items-center justify-between">
         <h1 className="hidden md:block text-lg font-semibold">All Parents</h1>
         <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
-          <TableSearch />
+         
           <div className="flex items-center gap-4 self-end">
             <button className="w-8 h-8 flex items-center justify-center rounded-full bg-lamaYellow">
               <Image src="/filter.png" alt="" width={14} height={14} />

@@ -43,6 +43,7 @@ const ClassForm =  ({
     formAction(data)
   });
   useEffect(() => {
+    
     if (state.success) {
       
       toast.success(state.message);
@@ -82,7 +83,7 @@ const ClassForm =  ({
           />}
 
         </div>
-        <Button className="rounded-md">{type==="create"?"Create Subject":"Update Subject"}</Button>
+        <Button className="rounded-md">{type==="create"?"Create new section":"Update Section"}</Button>
 
     </form>
     )

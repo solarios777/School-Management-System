@@ -26,10 +26,15 @@ export async function DELETE(req: NextRequest) {
       );
     }
 
-    // Unlink students from the parent before deletion
+    // Unlink students from the parent (if parentId is directly referenced in Student)
     await prisma.student.updateMany({
       where: { parentId },
       data: { parentId: null },
+    });
+
+    // Delete related StudentParent records (junction table for many-to-many relationship)
+    await prisma.studentParent.deleteMany({
+      where: { parentId },
     });
 
     // Delete the parent

@@ -39,12 +39,12 @@ const PieChartAtten: React.FC<{ attendanceData: AttendanceData }> = ({ attendanc
 
   // Outer Pie Data (Breakdown of Male/Female)
   const dataOuter = [
-    { name: "P-M", value: presentMale, color: COLORS.presentMale },
-    { name: "P-F", value: presentFemale, color: COLORS.presentFemale },
-    { name: "A-M", value: absentMale, color: COLORS.absentMale },
-    { name: "A-F", value: absentFemale, color: COLORS.absentFemale },
-    { name: "L-M", value: lateMale, color: COLORS.lateMale },
-    { name: "L-F", value: lateFemale, color: COLORS.lateFemale },
+    { name: "P-Male", value: presentMale, color: COLORS.presentMale },
+    { name: "P-Female", value: presentFemale, color: COLORS.presentFemale },
+    { name: "A-Male", value: absentMale, color: COLORS.absentMale },
+    { name: "A-Female", value: absentFemale, color: COLORS.absentFemale },
+    { name: "L-Male", value: lateMale, color: COLORS.lateMale },
+    { name: "L-Female", value: lateFemale, color: COLORS.lateFemale },
   ];
 
   return (

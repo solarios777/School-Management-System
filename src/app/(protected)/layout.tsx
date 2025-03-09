@@ -29,7 +29,7 @@ export default async function DashboardLayout({
           <Menu />
         </div>
         {/* RIGHT */}
-        <div className="w-[100%] md:w-[92%] lg:w-[88%] xl:w-[88%] bg-[#F7F8FA] overflow-scroll flex flex-col">
+        <div className="min-h-screen w-[100%] md:w-[92%] lg:w-[88%] xl:w-[88%] bg-[#F7F8FA] overflow-scroll flex flex-col">
          <Navbar user={user} />
          <div className='mt-16'>{children}</div>
         

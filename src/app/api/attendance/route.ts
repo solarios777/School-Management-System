@@ -59,14 +59,29 @@ export async function POST(request: Request) {
 export async function PATCH(request: Request) {
   try {
     const { studentId, date, status } = await request.json();
+    
+
+    // Parse the date string into a Date object
     const formattedDate = new Date(date);
+    
+
+    // Ensure the date is valid
+    if (isNaN(formattedDate.getTime())) {
+      throw new Error("Invalid date format");
+    }
+
+    // Calculate the start and end of the day for the given date
     const startOfDay = new Date(
       formattedDate.getFullYear(),
       formattedDate.getMonth(),
       formattedDate.getDate()
     );
     const endOfDay = new Date(startOfDay);
+
     endOfDay.setDate(endOfDay.getDate() + 1);
+
+    // Calculate the correct day of the month
+    const dayOfMonth = formattedDate.getDate();
 
     // Check if attendance record exists for the student on the given date
     const existingAttendance = await prisma.attendance.findFirst({
@@ -86,11 +101,11 @@ export async function PATCH(request: Request) {
         data: { status },
       });
     } else {
-      // Only create if no existing record for that day
+      // Create a new record with the correct day and date
       await prisma.attendance.create({
         data: {
           studentId,
-          day: formattedDate.getDate(),
+          day: dayOfMonth, // Use the correct day of the month
           date: formattedDate,
           status,
         },

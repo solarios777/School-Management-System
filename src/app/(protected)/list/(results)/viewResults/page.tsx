@@ -27,7 +27,7 @@ const Page = () => {
 
   return (
     <div className="">
-      <h2 className="text-2xl font-bold">Result Dashboard</h2>
+      <h2 className="text-2xl font-bold">View Result</h2>
       <div>
         <ViewResults grades={grades} classes={sections}  />
       </div>

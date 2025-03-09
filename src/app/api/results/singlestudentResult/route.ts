@@ -10,7 +10,6 @@ export async function GET(req: NextRequest) {
     }
 
     const role = user.role;
-    const userId = user.id;
     const studentId = req.nextUrl.searchParams.get("studentId");
 
     if (!studentId) {
@@ -47,39 +46,27 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Student not found" }, { status: 404 });
     }
 
-    // Get latest result's year and semester
-    const latestResult = await prisma.result.findFirst({
-      where: { studentId },
-      orderBy: [{ year: "desc" }, { semester: "desc" }],
-      select: { year: true, semester: true },
-    });
+    // Get all result releases
+    const resultReleases = await prisma.resultRelease.findMany();
 
-    if (!latestResult) {
-      return NextResponse.json({ error: "No results found" }, { status: 404 });
-    }
-
-    const { year, semester } = latestResult;
-    const semesterNumber = Number(semester);
-
+    // Filter results based on release status
     let results = student.result;
 
-    // If user is a student or teacher, check if results are released
-    if (role === "STUDENT" || role === "TEACHER") {
-      const resultRelease = await prisma.resultRelease.findFirst({
-        where: { year, semester: semesterNumber },
+    if (role === "STUDENT" || role === "PARENT") {
+      results = results.filter((result) => {
+        const release = resultReleases.find(
+          (r) =>
+            r.year === result.year &&
+            r.semester === Number(result.semester)
+        );
+        return release?.isReleased === true; // Only include results that are released
       });
 
-      if (!resultRelease || !resultRelease.isReleased) {
-        results = results.filter(
-          (result) => !(result.year === year && result.semester === semester)
+      if (results.length === 0) {
+        return NextResponse.json(
+          { error: "No results are available for viewing." },
+          { status: 403 }
         );
-
-        if (results.length === 0) {
-          return NextResponse.json(
-            { error: "Results for the latest semester are not yet released." },
-            { status: 403 }
-          );
-        }
       }
     }
 

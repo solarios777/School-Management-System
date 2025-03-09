@@ -145,7 +145,7 @@ export async function POST(req: NextRequest) {
         }
 
         await Promise.all(
-          scores.map(async ({ assessmentType, score }) => {
+          scores.map(async ({ assessmentType, score }:any) => {
             const numericMarks = parseFloat(score) || null;
 
             const existingResult = await prisma.result.findFirst({
@@ -154,6 +154,7 @@ export async function POST(req: NextRequest) {
                 subjectId,
                 examType: assessmentType,
                 year,
+                semester,
               },
             });
 

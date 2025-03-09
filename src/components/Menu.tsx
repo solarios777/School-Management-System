@@ -21,17 +21,17 @@ const Menu = () => {
          {
           label: "Teachers",
           href: "/list/teachers",
-          visible: ["admin", "teacher"],
+          visible: ["admin"],
         },
         {
           label: "Students",
           href: "/list/students",
-          visible: ["admin", "teacher"],
+          visible: ["admin"],
         },
         {
           label: "Parents",
           href: "/list/parents",
-          visible: ["admin", "teacher"],
+          visible: ["admin"],
         },
         {
           label: "Subjects",
@@ -41,17 +41,17 @@ const Menu = () => {
         {
           label: "Classes",
           href: "/list/classes",
-          visible: ["admin", "teacher"],
+          visible: ["admin"],
         },
         {
           label: "Attendance",
           href: "/list/attendance",
-          visible: ["admin", "teacher"],
+          visible: ["admin"],
         },
         {
           label: "Dashboard",
           href: `/list/AttendanceStat`,
-          visible: ["admin", "teacher"],
+          visible: ["admin"],
         },
         {
           label: "Result Dashboard",
@@ -67,12 +67,12 @@ const Menu = () => {
         {
           label: "Tasks",
           href: `/list/tasks`,
-          visible: ["admin", "teacher"],
+          visible: ["admin"],
         },
         {
           label: "Schedule",
           href: `/list/schedule`,
-          visible: ["admin", "teacher"],
+          visible: ["admin"],
         },
       
         // {

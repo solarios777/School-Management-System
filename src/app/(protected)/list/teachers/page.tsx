@@ -31,9 +31,6 @@ const TeacherListPage = async ({
   const columns = [
     { header: "Name", accessor: "name" },
     { header: "Username", accessor: "username" },
-    { header: "Grade", accessor: "grade" },
-    { header: "Class", accessor: "class" },
-    { header: "Subject", accessor: "subject" }, // New Subject Column
     { header: "Phone", accessor: "phone" },
     { header: "Address", accessor: "address" },
     { header: "First Pass", accessor: "firstpass" }
@@ -67,14 +64,11 @@ const TeacherListPage = async ({
   // Transform data for AGgrid
   const formattedData: TeacherList[] = data.map((teacher) => ({
     id: teacher.id,
-    name: teacher.name,
+    name: `${teacher.name} ${teacher.surname}`,
     username: teacher.username,
     phone: teacher.phone || "N/A",
     address: teacher.address,
     img: teacher.img || "/noAvatar.png",
-    grade: teacher.assignments[0]?.gradeClass?.grade?.level?.toString() || "N/A",
-    class: teacher.assignments[0]?.gradeClass?.class?.name || "N/A",
-    subject: teacher.assignments[0]?.subject?.name || "N/A", 
     firstpass: teacher.firstpass
     
    
@@ -86,7 +80,7 @@ const TeacherListPage = async ({
       <div className="flex items-center justify-between">
         <h1 className="hidden md:block text-lg font-semibold">All Teachers</h1>
         <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
-          <TableSearch />
+         
           <div className="flex items-center gap-4 self-end">
             <button className="w-8 h-8 flex items-center justify-center rounded-full bg-lamaYellow">
               <Image src="/filter.png" alt="" width={14} height={14} />
