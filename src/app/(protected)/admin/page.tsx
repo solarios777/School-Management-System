@@ -34,6 +34,8 @@ const AdminPage = ({
 
           </div>
           {/* ATTENDANCE CHART */}
+          <div className="w-full lg:w-1/3 h-[450px]">
+          </div>
          
         </div>
         {/* BOTTOM CHART */}

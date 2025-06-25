@@ -59,19 +59,20 @@ const AttendancePage = async () => {
           <div>
             <SetResultDeadline />
           </div>
-          <div className="flex flex-col gap-4">
+          {/* <div className="flex flex-col gap-4"> */}
             <div className="flex flex-col md:flex-row gap-4">
+            <div>
+                <CalculateRank />
+              </div>
               <div>
                 <ReleaseResults />
               </div>
-              <div>
-                <CalculateRank />
-              </div>
+             
             </div>
-            <div>
+            {/* <div>
               <ScheduleTable />
-            </div>
-          </div>
+            </div> */}
+          {/* </div> */}
         </div>
       
     </div>

@@ -39,7 +39,7 @@ const ClassForm =  ({
     message:""
   });
   
-  const onSubmit = handleSubmit((data) => {
+  const onSubmit = handleSubmit((data:any) => {
     formAction(data)
   });
   useEffect(() => {

@@ -76,7 +76,7 @@ const confirmDelete = async () => {
     return [
       {
         headerName: "Roll No.",
-        valueGetter: (params) => params.node.rowIndex + 1,
+        valueGetter: (params:any) => params.node.rowIndex + 1,
         width: 90,
         pinned: "left",
         sortable: false,

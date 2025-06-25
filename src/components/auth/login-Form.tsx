@@ -128,6 +128,7 @@ export const LoginForm = () => {
                                             {...field}
                                             disabled={isPending}
                                         >
+                                            <option value="student" className="text-gray-100">Select your Role</option>
                                             <option value="student">Student</option>
                                             <option value="teacher">Teacher</option>
                                             <option value="parent">Parent</option>

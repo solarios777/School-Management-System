@@ -17,9 +17,10 @@ const AttendanceChartContainer = async () => {
         gte: lastMonday,
       },
     },
+    // fixed by making "present" "status"
     select: {
       date: true,
-      present: true,
+      status: true,
     },
   });
 
@@ -42,8 +43,8 @@ const AttendanceChartContainer = async () => {
     
     if (dayOfWeek >= 1 && dayOfWeek <= 5) {
       const dayName = daysOfWeek[dayOfWeek - 1];
-
-      if (item.present) {
+// fixed by making "present" "status"
+      if (item.status) {
         attendanceMap[dayName].present += 1;
       } else {
         attendanceMap[dayName].absent += 1;

@@ -111,7 +111,8 @@ const AGgrid = ({
           return {
             headerName: col.header,
             field: col.accessor,
-            cellRenderer: (params: any) => {
+                  // fixed by making the 'c' 'C' in cellRenderer
+            CellRenderer: (params: any) => {
               const [isVisible, setIsVisible] = useState(false);
 
               return (
@@ -137,7 +138,7 @@ const AGgrid = ({
       {
         headerName: "Delete",
         field: "actions",
-        cellRenderer: (params: any) => (
+        CellRenderer: (params: any) => (
           <button
             onClick={(e) => handleDeleteClick(params.data.id, e)}
             className="bg-red-500 text-white rounded-full w-7 h-7 flex items-center justify-center"

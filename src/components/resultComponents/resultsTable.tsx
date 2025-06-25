@@ -79,7 +79,7 @@ const ResultsTable: React.FC<ResultsTableProps> = ({ students }) => {
     const dynamicColumns = [
           {
   headerName: "Roll No.",
-  valueGetter: (params) => params.node.rowIndex + 1, // Dynamic roll number based on visible row index
+  valueGetter: (params:any) => params.node.rowIndex + 1, // Dynamic roll number based on visible row index
   width: 90,
   pinned: "left",
   sortable: false, // Prevent sorting from affecting roll number

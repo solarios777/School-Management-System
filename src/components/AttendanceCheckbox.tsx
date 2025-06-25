@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axiosInstance from "@/app/_services/GlobalApi";
-import { log } from "util";
+
 
 interface AttendanceCheckboxProps {
   data: any;

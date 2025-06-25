@@ -1,6 +1,5 @@
 "use client";
 import { useSearchParams } from "next/navigation";
-import SingleSectionAttendance from "@/components/SingleSectionAtten";
 import SingleSectionResult from "@/components/resultComponents/singleSectionResults";
 
 const AttendancePage = () => {
