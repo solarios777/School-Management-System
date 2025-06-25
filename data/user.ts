@@ -1,10 +1,8 @@
 // ./data/user.ts
-import {getUserByParentname, getUserByStudentname, getUserByTeachername,getUserByUsername,getUserByAdminname} from "./getUser"
+import {getUserByParentname, getUserByStudentname, getUserByTeachername,getUserByAdminname} from "./getUser"
 
 export async function getUserByUsernameForRole(username: string, role: string) {
     switch (role) {
-        case "user":
-            return await getUserByUsername(username);
         case "parent":
             return await getUserByParentname(username);
         case "student":

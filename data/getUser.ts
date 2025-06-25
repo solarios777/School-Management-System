@@ -29,7 +29,7 @@ export const getUserById = async (id: string) => {
         if (user) return user;
 
         // Check in Student table
-        user = await prisma.student.findUnique({
+        user= await prisma.student.findUnique({
             where: { id }
         });
         if (user) return user;
@@ -48,16 +48,7 @@ export const getUserById = async (id: string) => {
 };
 
 
-  export const getUserByUsername= async (name: string) => {
-    try {
-      const user = await prisma.user.findUnique({
-          where: {  name },
-      });
-      return user
-    } catch  {
-      return null
-    }
-  }
+ 
    export const getUserByAdminname= async (name: string) => {
     try {
       const user = await prisma.admin.findUnique({
