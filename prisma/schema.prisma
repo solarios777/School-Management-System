@@ -53,7 +53,7 @@ model Student {
   surname     String
   email       String?      @unique
   phone       String?      @unique
-  address     String?
+  address     String
   img         String?
   bloodType   String
   sex         UserSex
