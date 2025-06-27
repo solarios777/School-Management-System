@@ -4,11 +4,11 @@ import prisma from "@/lib/prisma";
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
-    const limit = parseInt(searchParams.get("limit") || 5);
-    const offset = parseInt(searchParams.get("offset") || 0);
-    const filter = searchParams.get("filter") || "all"; // "all", "teachers", "parents", "grade", "section"
-    const gradeId = searchParams.get("gradeId") || null;
-    const classId = searchParams.get("classId") || null;
+    const limit = parseInt(searchParams.get("limit") ?? "5");
+    const offset = parseInt(searchParams.get("offset") ?? "0");
+    const filter = searchParams.get("filter") || "all";
+    const gradeId = searchParams.get("gradeId");
+    const classId = searchParams.get("classId");
 
     let whereClause = {};
 
