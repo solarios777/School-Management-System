@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { error } from 'console';
 
 interface ErrorResponse {
   error: string;
