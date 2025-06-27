@@ -10,6 +10,12 @@ import { useRouter } from "next/navigation";
 import { FormContainerProps } from "./FormContainer";
 import { deleteSection } from "../../actions/classRegister ";
 
+type TableKey = keyof typeof deleteActionMap;
+interface FormModalProps extends FormContainerProps {
+  relatedData?: any;
+  table: TableKey; // Ensure table is one of the valid keys
+}
+
 
 const deleteActionMap = {
   subject: deleteSubject,
@@ -26,6 +32,10 @@ const deleteActionMap = {
   attendance: deleteSubject,
   event: deleteSubject,
   announcement: deleteSubject,
+  assignSupervisor: deleteSubject,
+  changePassword: deleteSubject,
+  enroll: deleteSubject
+  
   
 };
 
@@ -34,6 +44,7 @@ const deleteActionMap = {
 
 // import TeacherForm from "./forms/TeacherForm";
 // import StudentForm from "./forms/StudentForm";
+
 
 const TeacherForm = dynamic(() => import("./forms/TeacherForm"), {
   loading: () => <h1>Loading...</h1>,
@@ -95,16 +106,21 @@ const FormModal = ({
 
   const [open, setOpen] = useState(false);
 
-  const Form = () => {
-    const router=useRouter();
-    const [state,formAction]=useFormState(deleteActionMap[table],{
-    success:false,
-    error:false,
-    message:""
-  });
+ const Form = () => {
+  const router = useRouter();
+  
+  // Only use formAction for delete operations
+  const [state, formAction] = useFormState(
+    type === "delete" ? deleteActionMap[table] : async () => ({ 
+      success: false, 
+      error: false, 
+      message: "" 
+    }),
+    { success: false, error: false, message: "" }
+  );
+
   useEffect(() => {
     if (state.success) {
-      
       toast.success(state.message);
       setOpen(false);
       router.refresh();
@@ -113,9 +129,19 @@ const FormModal = ({
     }
   }, [state]);
 
-    return type === "delete" && id ? (
+  if (type === "delete" && id) {
+    if (table === "changePassword" || table === "enroll") {
+      return (
+        <div className="p-4">
+          <span className="text-center font-medium">
+            Delete operation is not supported for this action
+          </span>
+        </div>
+      );
+    }
+    return (
       <form action={formAction} className="p-4 flex flex-col gap-4">
-        <input type="text | number" name="id" value={id} className="hidden" />
+        <input type="hidden" name="id" value={id} />
         <span className="text-center font-medium">
           All data will be lost. Are you sure you want to delete this {table}?
         </span>
@@ -123,13 +149,13 @@ const FormModal = ({
           Delete
         </button>
       </form>
-    ) : type === "create" || type === "update" || type === "changePassword" || type === "enroll"? (
-      forms[table](setOpen,type, data,relatedData)
-    ) : (
-      "Form not found!"
     );
-  };
+  }
 
+  return type === "create" || type === "update" || type === "changePassword" || type === "enroll" 
+    ? forms[table](setOpen, type, data, relatedData)
+    : "Form not found!";
+};
   return (
     <>
       <button
