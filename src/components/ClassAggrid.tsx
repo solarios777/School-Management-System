@@ -1,6 +1,7 @@
 "use client";
 import React, { useMemo, useCallback, useState } from "react";
 import { AgGridReact } from "ag-grid-react";
+import { ColDef } from "ag-grid-community";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 
@@ -37,18 +38,17 @@ const ClassAGGrid: React.FC<ClassAGGridProps> = ({ data, role }) => {
     [data]
   );
 
-  const columnDefs = useMemo(
-    () => [
-      {
-        headerName: "Grade",
-        field: "level",
-        callRenderer:"agGroupCallRenderer",
-      },
-      { headerName: "Number of Sections", field: "sections" },
-      { headerName: "Number of Students", field: "students" },
-    ],
-    []
-  );
+  const columnDefs = useMemo<
+    ColDef<GradeData & { isRowMaster: boolean }>[]
+  >(() => [
+    {
+      headerName: "Grade",
+      field: "level",
+      cellRenderer: "agGroupCellRenderer", // Correct property name
+    },
+    { headerName: "Number of Sections", field: "sections" },
+    { headerName: "Number of Students", field: "students" },
+  ], []);
 
   const defaultColDef = useMemo(() => ({ sortable: true, filter: true, floatingFilter: true }), []);
    const [gridApi,setgridApi]=useState() 

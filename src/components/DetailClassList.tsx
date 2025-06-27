@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useMemo, useRef, useCallback } from "react";
 import { AgGridReact } from "ag-grid-react";
+import { ColDef } from "ag-grid-community";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import { useRouter } from "next/navigation";
@@ -72,11 +73,12 @@ const confirmDelete = async () => {
     setIsDeleteDialogOpen(false);
   };
 
-  const columnDefs = useMemo(() => {
+ 
+  const columnDefs = useMemo<ColDef[]>(() => {
     return [
       {
         headerName: "Roll No.",
-        valueGetter: (params:any) => params.node.rowIndex + 1,
+        valueGetter: (params: any) => params.node.rowIndex + 1,
         width: 90,
         pinned: "left",
         sortable: false,
